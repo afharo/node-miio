@@ -18,10 +18,14 @@
     "miio": "./cli/index.js"
   },
   "scripts": {
+    "test": "jest",
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch -verbose",
+    "test:coverage": "jest --verbose --coverage",
     "lint": "eslint ."
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "abstract-things": "^0.9.0",
