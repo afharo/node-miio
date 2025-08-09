@@ -34,7 +34,6 @@ jobs:
         run: |
           npm ci
           npm run lint
-#          npm run buildProduction
           npm t
           npm pkg delete devDependencies
           npx shx rm -rf ./node_modules
