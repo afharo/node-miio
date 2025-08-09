@@ -3,34 +3,45 @@
 const log = require('../../log');
 const deviceFinder = require('../../device-finder');
 
-exports.command = 'call <idOrIp> <method> [params]';
+exports.command = 'call <idOrIp> <method> [params...] --token token-as-hex';
 exports.description = 'Call a raw method on a device';
 exports.builder = {
+	token: {
+		type: 'string',
+		description: 'The known token of the device to communicate with',
+	},
 };
 
-exports.handler = function(argv) {
+exports.handler = function (argv) {
 	let target = argv.idOrIp;
 	log.info('Attempting to call', argv.method, 'on', target);
 
 	let foundDevice = false;
 	let pending = 0;
 	const browser = deviceFinder({
-		filter: target
+		filter: target,
+		token: argv.token,
 	});
-	browser.on('available', device => {
+	browser.on('available', (device) => {
 		pending++;
 
 		log.plain();
 		log.info('Device found, making call');
 		log.plain();
 
-		const parsedArgs = argv.params ? JSON.parse(argv.params) : [];
-		device.miioCall(argv.method, parsedArgs)
-			.then(result => {
+		const parsedArgs = argv.params
+			? Array.isArray(argv.params)
+				? argv.params
+				: JSON.parse(argv.params)
+			: [];
+		log.plain(parsedArgs);
+		device
+			.miioCall(argv.method, parsedArgs)
+			.then((result) => {
 				log.info('Got result:');
 				log.plain(JSON.stringify(result, null, '  '));
 			})
-			.catch(err => {
+			.catch((err) => {
 				log.error('Encountered an error while controlling device');
 				log.plain();
 				log.plain('Error was:');
@@ -43,8 +54,8 @@ exports.handler = function(argv) {
 	});
 
 	const doneHandler = () => {
-		if(pending === 0) {
-			if(! foundDevice) {
+		if (pending === 0) {
+			if (!foundDevice) {
 				log.warn('Could not find device');
 			}
 			process.exit(0); // eslint-disable-line

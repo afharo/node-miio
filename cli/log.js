@@ -1,24 +1,29 @@
 'use strict';
 
+/* eslint no-console: 0 */
+
 const chalk = require('chalk');
 
 module.exports = {
 	indent: '',
 
 	info(...args) {
-		console.log(this.indent + chalk.bgWhite.black(' INFO '), args.join(' ')); // eslint-disable-line
+		console.log(this.indent + chalk.bgWhite.black(' INFO '), args.join(' '));
 	},
 
 	error(...args) {
-		console.log(this.indent + chalk.bgRed.white(' ERROR '), args.join(' ')); // eslint-disable-line
+		console.log(this.indent + chalk.bgRed.white(' ERROR '), args.join(' '));
 	},
 
 	warn(...args) {
-		console.log(this.indent + chalk.bgYellow.black(' WARNING '), args.join(' ')); // eslint-disable-line
+		console.log(
+			this.indent + chalk.bgYellow.black(' WARNING '),
+			args.join(' ')
+		);
 	},
 
 	plain(...args) {
-		console.log(this.indent + args.join(' ')); // eslint-disable-line
+		console.log(this.indent + args.join(' '));
 	},
 
 	group(g) {
@@ -31,38 +36,54 @@ module.exports = {
 		}
 	},
 
-	device(device, detailed=false) {
+	device(device, detailed = false) {
 		const mgmt = device.management;
 
 		const types = Array.from(device.metadata.types);
-		const filteredTypes = types.filter(t => t.indexOf('miio:') === 0);
+		const filteredTypes = types.filter((t) => t.indexOf('miio:') === 0);
 		const caps = Array.from(device.metadata.capabilities);
 
 		this.plain(chalk.bold('Device ID:'), device.id.replace(/^miio:/, ''));
 		this.plain(chalk.bold('Model info:'), mgmt.model || 'Unknown');
 
-		if(mgmt.address) {
+		if (mgmt.address) {
 			this.plain(chalk.bold('Address:'), mgmt.address);
-		} else if(mgmt.parent) {
+		} else if (mgmt.parent) {
 			this.plain(chalk.bold('Address:'), 'Owned by', mgmt.parent.id);
 		}
 
-		if(mgmt.token) {
-			this.plain(chalk.bold('Token:'), mgmt.token, mgmt.autoToken ? chalk.green('via auto-token') : chalk.yellow('via stored token'));
-		} else if(! mgmt.parent) {
+		if (mgmt.token) {
+			this.plain(
+				chalk.bold('Token:'),
+				mgmt.token,
+				mgmt.autoToken
+					? chalk.green('via auto-token')
+					: chalk.yellow('via stored token')
+			);
+		} else if (!mgmt.parent) {
 			this.plain(chalk.bold('Token:'), '???');
 		} else {
-			this.plain(chalk.bold('Token:'), chalk.green('Automatic via parent device'));
+			this.plain(
+				chalk.bold('Token:'),
+				chalk.green('Automatic via parent device')
+			);
 		}
 
-		this.plain(chalk.bold('Support:'), mgmt.model ? (filteredTypes.length > 0 ? chalk.green('At least basic') : chalk.yellow('At least generic')) : chalk.yellow('Unknown'));
+		this.plain(
+			chalk.bold('Support:'),
+			mgmt.model
+				? filteredTypes.length > 0
+					? chalk.green('At least basic')
+					: chalk.yellow('At least generic')
+				: chalk.yellow('Unknown')
+		);
 
-		if(detailed) {
+		if (detailed) {
 			this.plain();
 			this.plain(chalk.bold('Type info:'), types.join(', '));
 			this.plain(chalk.bold('Capabilities:'), caps.join(', '));
 		}
 
 		this.plain();
-	}
+	},
 };
