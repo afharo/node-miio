@@ -1,15 +1,14 @@
 # miIO Device Library
 
-[![npm version](https://badge.fury.io/js/miio.svg)](https://badge.fury.io/js/miio)
-[![Dependencies](https://david-dm.org/aholstenson/miio.svg)](https://david-dm.org/aholstenson/miio)
+[![npm version](https://badge.fury.io/js/node-miio.svg)](https://badge.fury.io/js/node-miio)
+
+> The intention of this library is to update the [miio](https://github.com/aholstenson/miio). Since the original repo is no longer maintained, nor reviewing the existing PRs, I decided to create a new one.
 
 Control Mi Home devices that implement the miIO protocol, such as the
 Mi Air Purifier, Mi Robot Vacuum and Mi Smart Socket. These devices are commonly
 part of what Xiaomi calls the Mi Ecosystem which is branded as MiJia.
 
-`miio` is [MIT-licensed](LICENSE.md) and requires at least Node 6.6.0. As
-the API is promise-based Node 8 is recommended which provides support `async`
-and `await` that greatly simplifies asynchronous handling.
+`node-miio` is [MIT-licensed](LICENSE.md) and requires at least Node 22.0.0.
 
 **Note:** Since 0.15.0 this library has been rewritten to use [abstract-things](https://github.com/tinkerhub/abstract-things)
 as its base. The API of devices will have changed, and some bugs are to be
@@ -43,19 +42,19 @@ to help this library with support for your device.
 To install into your project:
 
 ```
-npm install miio
+npm install node-miio
 ```
 
 To install globally for access to the command line tool:
 
 ```
-npm install -g miio
+npm install -g node-miio
 ```
 
 ## Usage
 
 ```javascript
-const miio = require('miio');
+const miio = require('node-miio');
 ```
 
 Resolve a handle to the device:
