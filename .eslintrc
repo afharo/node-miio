@@ -4,13 +4,7 @@
   "env": {},
   "globals": {},
   "rules": {
-		"strict": [ "error", "global" ],
-    "node/no-unsupported-features": [
-      "error",
-      {
-        "version": 6
-      }
-    ],
+	"strict": [ "error", "global" ],
     "no-irregular-whitespace": 2,
     "quotes": [
       2,
@@ -23,5 +17,16 @@
 		"eqeqeq": [ "error" ],
 		"no-throw-literal": [ "error" ],
 		"semi": [ "error", "always" ]
-  }
+  },
+  "overrides": [
+	{
+	  "files": [
+	    "**/*.test.js",
+	    "**/*.test.ts"
+	  ],
+	  "env": {
+		"jest": true
+	  }
+	}
+  ]
 }
