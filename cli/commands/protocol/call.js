@@ -3,7 +3,7 @@
 const log = require('../../log');
 const deviceFinder = require('../../device-finder');
 
-exports.command = 'call <idOrIp> <method> [params...] --token token-as-hex';
+exports.command = 'call <idOrIp> <method> [params...]';
 exports.description = 'Call a raw method on a device';
 exports.builder = {
 	token: {
