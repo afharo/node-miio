@@ -2,13 +2,13 @@
 name: Publish to npm from main branch to dev tag
 
 on:
-  push:
-    branches: [ main ]
+  # Allow manual dispatch
+  workflow_dispatch:
+#  push:
+#    branches: [ main ]
 #  # Daily at midnight UTC
 #  schedule:
 #    - cron: '0 0 * * *'
-  # Allow manual dispatch
-  workflow_dispatch:
 
 jobs:
   publish-dev:
