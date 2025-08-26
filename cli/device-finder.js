@@ -58,12 +58,12 @@ module.exports = function (options = {}) {
 			token: options.token,
 		});
 
-		browser.on('available', (device) => {
+		browser.onAvailable((device) => {
 			if (filter(device)) {
 				result.emit('available', device);
 			}
 		});
-		browser.on('unavailable', (device) => result.emit('unavailable', device));
+		browser.onUnavailable((device) => result.emit('unavailable', device));
 	}
 	return result;
 };
