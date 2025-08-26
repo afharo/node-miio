@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const miio = require('./lib');
+const miio = require('./dist/lib');
 
 // Create a new device over the given address
 miio.device({

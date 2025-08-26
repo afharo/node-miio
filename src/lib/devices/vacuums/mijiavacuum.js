@@ -1,7 +1,8 @@
-'use strict';
+"use strict";
 
-const Vacuum = require('./vacuum');
-const checkResult = require('../../checkResult');
+const checkResult = require("../../checkResult");
+
+const Vacuum = require("./vacuum");
 
 module.exports = class extends Vacuum {
   async cleanRooms(listOfRooms) {
@@ -10,12 +11,12 @@ module.exports = class extends Vacuum {
     } catch (err) {
       // From https://github.com/rytilahti/python-miio/issues/550#issuecomment-552780952
       return this.call(
-        'set_mode_withroom',
+        "set_mode_withroom",
         [0, 1, listOfRooms.length].concat(listOfRooms),
         {
-          refresh: ['state'],
+          refresh: ["state"],
           refreshDelay: 1000,
-        }
+        },
       ).then(checkResult);
     }
   }

@@ -1,15 +1,16 @@
-'use strict';
+"use strict";
 
-const debug = require('debug');
-const Packet = require('./packet');
-const safeishJSON = require('./safeishJSON');
+const debug = require("debug");
+
+const Packet = require("./packet");
+const safeishJSON = require("./safeishJSON");
 
 const ERRORS = {
-  '-5001': (method, args, err) =>
-    err.message === 'invalid_arg' ? 'Invalid argument' : err.message,
-  '-5005': (method, args, err) =>
-    err.message === 'params error' ? 'Invalid argument' : err.message,
-  '-10000': (method) => 'Method `' + method + '` is not supported',
+  "-5001": (method, args, err) =>
+    err.message === "invalid_arg" ? "Invalid argument" : err.message,
+  "-5005": (method, args, err) =>
+    err.message === "params error" ? "Invalid argument" : err.message,
+  "-10000": (method) => "Method `" + method + "` is not supported",
 };
 
 class DeviceInfo {
@@ -25,7 +26,7 @@ class DeviceInfo {
     this.lastId = 0;
 
     this.id = id;
-    this.debug = id ? debug('thing:miio:' + id) : debug('thing:miio:pending');
+    this.debug = id ? debug("thing:miio:" + id) : debug("thing:miio:pending");
 
     // Get if the token has been manually changed
     this.tokenChanged = false;
@@ -36,7 +37,7 @@ class DeviceInfo {
   }
 
   set token(t) {
-    this.debug('Using manual token:', t.toString('hex'));
+    this.debug("Using manual token:", t.toString("hex"));
     this.packet.token = t;
     this.tokenChanged = true;
   }
@@ -47,7 +48,7 @@ class DeviceInfo {
    */
   async enrich() {
     if (!this.id) {
-      throw new Error('Device has no identifier yet, handshake needed');
+      throw new Error("Device has no identifier yet, handshake needed");
     }
 
     if (this.model && !this.tokenChanged && this.packet.token) {
@@ -60,12 +61,12 @@ class DeviceInfo {
         this.autoToken = false;
       } else {
         this.autoToken = true;
-        this.debug('Using automatic token:', this.packet.token.toString('hex'));
+        this.debug("Using automatic token:", this.packet.token.toString("hex"));
       }
     }
 
     if (!this.enrichPromise) {
-      this.enrichPromise = this.call('miIO.info');
+      this.enrichPromise = this.call("miIO.info");
     }
 
     try {
@@ -73,22 +74,22 @@ class DeviceInfo {
       this.model = model;
       this.tokenChanged = false;
     } catch (err) {
-      if (err.code === 'missing-token') {
+      if (err.code === "missing-token") {
         err.device = this;
         throw err;
       } else if (this.packet.token) {
         // Could not call the info method, this might be either a timeout or a token problem
         const e = new Error(
-          'Could not connect to device, token might be wrong'
+          "Could not connect to device, token might be wrong",
         );
-        e.code = 'connection-failure';
+        e.code = "connection-failure";
         e.device = this;
         throw e;
       } else {
         const e = new Error(
-          'Could not connect to device, token needs to be specified'
+          "Could not connect to device, token needs to be specified",
         );
-        e.code = 'missing-token';
+        e.code = "missing-token";
         e.device = this;
         throw e;
       }
@@ -102,13 +103,13 @@ class DeviceInfo {
     try {
       this.packet.raw = msg;
     } catch (ex) {
-      this.debug('<- Unable to parse packet', ex);
+      this.debug("<- Unable to parse packet", ex);
       return;
     }
 
     let data = this.packet.data;
     if (data === null) {
-      this.debug('<-', 'Handshake reply:', this.packet.checksum);
+      this.debug("<-", "Handshake reply:", this.packet.checksum);
       this.packet.handleHandshakeReply();
 
       if (this.handshakeResolve) {
@@ -121,25 +122,25 @@ class DeviceInfo {
       }
 
       // Parse and handle the JSON message
-      let str = data.toString('utf8');
+      let str = data.toString("utf8");
 
       // Remove non-printable characters to help with invalid JSON from devices
-			// eslint-disable-next-line no-control-regex
-      str = str.replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, '');
+      // eslint-disable-next-line no-control-regex
+      str = str.replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "");
 
-      this.debug('<- Message: `' + str + '`');
+      this.debug("<- Message: `" + str + "`");
       try {
         let object = safeishJSON(str);
 
         const p = this.promises.get(object.id);
         if (!p) return;
-        if (typeof object.result !== 'undefined') {
+        if (typeof object.result !== "undefined") {
           p.resolve(object.result);
         } else {
           p.reject(object.error);
         }
       } catch (ex) {
-        this.debug('<- Invalid JSON', ex);
+        this.debug("<- Invalid JSON", ex);
       }
     }
   }
@@ -157,8 +158,8 @@ class DeviceInfo {
     try {
       return await Promise.race([this.handshakePromise, this._setTimeout()]);
     } catch (err) {
-      if (err.code === 'timeout') {
-        this.debug('<- Handshake timed out');
+      if (err.code === "timeout") {
+        this.debug("<- Handshake timed out");
       }
       throw err;
     } finally {
@@ -184,7 +185,7 @@ class DeviceInfo {
         data.length,
         this.port,
         this.address,
-        (err) => (err ? reject(err) : resolve())
+        (err) => (err ? reject(err) : resolve()),
       );
     });
   }
@@ -196,17 +197,17 @@ class DeviceInfo {
         if (this.id !== this.packet.deviceId) {
           // Update the identifier if needed
           this.id = this.packet.deviceId;
-          this.debug = debug('thing:miio:' + this.id);
-          this.debug('Identifier of device updated');
+          this.debug = debug("thing:miio:" + this.id);
+          this.debug("Identifier of device updated");
         }
 
         if (this.packet.token) {
           resolve(this.token);
         } else {
           const err = new Error(
-            'Could not connect to device, token needs to be specified'
+            "Could not connect to device, token needs to be specified",
           );
-          err.code = 'missing-token';
+          err.code = "missing-token";
           reject(err);
         }
       };
@@ -216,10 +217,10 @@ class DeviceInfo {
   async _setTimeout() {
     await new Promise((resolve, reject) =>
       setTimeout(() => {
-        const err = new Error('Could not connect to device, handshake timeout');
-        err.code = 'timeout';
+        const err = new Error("Could not connect to device, handshake timeout");
+        err.code = "timeout";
         reject(err);
-      }, 2000)
+      }, 2000),
     );
   }
 
@@ -241,12 +242,12 @@ class DeviceInfo {
 
         // Create the JSON and send it
         const json = JSON.stringify(request);
-        this.debug('-> (' + retriesLeft + ')', json);
-        this.packet.data = Buffer.from(json, 'utf8');
+        this.debug("-> (" + retriesLeft + ")", json);
+        this.packet.data = Buffer.from(json, "utf8");
         await this._sendPacket();
         return await waitForResponse;
       } catch (err) {
-        if (!(err instanceof Error) && typeof err.code !== 'undefined') {
+        if (!(err instanceof Error) && typeof err.code !== "undefined") {
           const code = err.code;
           const handler = ERRORS[code];
           const msg = handler
@@ -254,8 +255,8 @@ class DeviceInfo {
             : err.message || err.toString();
 
           const newErr = new Error(msg);
-					newErr.code = code;
-					throw newErr;
+          newErr.code = code;
+          throw newErr;
         }
         throw err;
       } finally {
@@ -274,6 +275,7 @@ class DeviceInfo {
   /**
    * Retries the action defined in `actionPromiseFn` as many times as `retries`,
    * only if the action fails due to a timeout.
+   *
    * @param retries Max number of attempts
    * @param actionPromiseFn Method that returns a promise to repeat
    * @private
@@ -287,15 +289,15 @@ class DeviceInfo {
         ]);
         return result;
       } catch (err) {
-        if (err.code !== 'timeout') {
+        if (err.code !== "timeout") {
           throw err;
         }
         retries--;
       }
     }
-    this.debug('Reached maximum number of retries, giving up');
-    const maxRetriesError = new Error('Call to device timed out');
-    maxRetriesError.code = 'timeout';
+    this.debug("Reached maximum number of retries, giving up");
+    const maxRetriesError = new Error("Call to device timed out");
+    maxRetriesError.code = "timeout";
     throw maxRetriesError;
   }
 

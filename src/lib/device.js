@@ -1,10 +1,11 @@
-'use strict';
+"use strict";
 
-const util = require('util');
-const isDeepEqual = require('deep-equal');
-const { Thing, Polling } = require('abstract-things');
+const util = require("node:util");
 
-const DeviceManagement = require('./management');
+const isDeepEqual = require("deep-equal");
+const { Thing, Polling } = require("abstract-things");
+
+const DeviceManagement = require("./management");
 
 const IDENTITY_MAPPER = (v) => v;
 
@@ -12,27 +13,27 @@ module.exports = Thing.type(
   (Parent) =>
     class extends Parent.with(Polling) {
       static get type() {
-        return 'miio';
+        return "miio";
       }
 
       static availableAPI(builder) {
         builder
-          .action('miioModel')
-          .description('Get the model identifier of this device')
-          .returns('string')
+          .action("miioModel")
+          .description("Get the model identifier of this device")
+          .returns("string")
           .done();
 
         builder
-          .action('miioProperties')
-          .description('Get properties of this device')
-          .returns('string')
+          .action("miioProperties")
+          .description("Get properties of this device")
+          .returns("string")
           .done();
 
         builder
-          .action('miioCall')
-          .description('Execute a raw miio-command to the device')
-          .argument('string', false, 'The command to run')
-          .argument('array', true, 'Arguments of the command')
+          .action("miioCall")
+          .description("Execute a raw miio-command to the device")
+          .argument("string", false, "The command to run")
+          .argument("array", true, "Arguments of the command")
           .done();
       }
 
@@ -40,7 +41,7 @@ module.exports = Thing.type(
         super();
 
         this.handle = handle;
-        this.id = 'miio:' + handle.api.id;
+        this.id = "miio:" + handle.api.id;
         this.miioModel = handle.api.model;
 
         this._properties = {};
@@ -88,8 +89,8 @@ module.exports = Thing.type(
                     .then(() => resolve(res))
                     .catch(() => resolve(res));
                 },
-                (options && options.refreshDelay) || 50
-              )
+                (options && options.refreshDelay) || 50,
+              ),
             );
           } else {
             return res;
@@ -100,15 +101,18 @@ module.exports = Thing.type(
       /**
        * Define a property and how the value should be mapped. All defined
        * properties are monitored if #monitor() is called.
+       *
+       * @param name
+       * @param def
        */
       defineProperty(name, def) {
         this._propertiesToMonitor.push(name);
 
-        if (typeof def === 'function') {
+        if (typeof def === "function") {
           def = {
             mapper: def,
           };
-        } else if (typeof def === 'undefined') {
+        } else if (typeof def === "undefined") {
           def = {
             mapper: IDENTITY_MAPPER,
           };
@@ -148,7 +152,7 @@ module.exports = Thing.type(
       }
 
       _loadProperties(properties) {
-        if (typeof properties === 'undefined') {
+        if (typeof properties === "undefined") {
           properties = this._propertiesToMonitor;
         }
 
@@ -166,7 +170,7 @@ module.exports = Thing.type(
 
         if (!isDeepEqual(oldValue, value)) {
           this._properties[key] = value;
-          this.debug('Property', key, 'changed from', oldValue, 'to', value);
+          this.debug("Property", key, "changed from", oldValue, "to", value);
 
           this.propertyUpdated(key, value, oldValue);
         }
@@ -207,7 +211,7 @@ module.exports = Thing.type(
       /**
        * Get several properties at once.
        *
-       * @param {array} props
+       * @param {Array} props
        */
       getProperties(props) {
         const result = {};
@@ -225,11 +229,11 @@ module.exports = Thing.type(
       loadProperties(props) {
         // Rewrite property names to device internal ones
         props = props.map(
-          (key) => this._reversePropertyDefinitions[key] || key
+          (key) => this._reversePropertyDefinitions[key] || key,
         );
 
         // Call get_prop to map everything
-        return this.call('get_prop', props).then((result) => {
+        return this.call("get_prop", props).then((result) => {
           const obj = {};
           for (let i = 0; i < result.length; i++) {
             this._pushProperty(obj, props[i], result[i]);
@@ -251,40 +255,42 @@ module.exports = Thing.type(
       [util.inspect.custom](depth, options) {
         if (depth === 0) {
           return (
-            options.stylize('MiioDevice', 'special') +
-            '[' +
+            options.stylize("MiioDevice", "special") +
+            "[" +
             this.miioModel +
-            ']'
+            "]"
           );
         }
 
         return (
-          options.stylize('MiioDevice', 'special') +
-          ' {\n' +
-          '  model=' +
+          options.stylize("MiioDevice", "special") +
+          " {\n" +
+          "  model=" +
           this.miioModel +
-          ',\n' +
-          '  types=' +
-          Array.from(this.metadata.types).join(', ') +
-          ',\n' +
-          '  capabilities=' +
-          Array.from(this.metadata.capabilities).join(', ') +
-          '\n}'
+          ",\n" +
+          "  types=" +
+          Array.from(this.metadata.types).join(", ") +
+          ",\n" +
+          "  capabilities=" +
+          Array.from(this.metadata.capabilities).join(", ") +
+          "\n}"
         );
       }
 
       /**
        * Check that the current result is equal to the string `ok`.
+       *
+       * @param result
        */
       static checkOk(result) {
         if (
           !result ||
-          (typeof result === 'string' && result.toLowerCase() !== 'ok')
+          (typeof result === "string" && result.toLowerCase() !== "ok")
         ) {
-          throw new Error('Could not perform operation');
+          throw new Error("Could not perform operation");
         }
 
         return null;
       }
-    }
+    },
 );

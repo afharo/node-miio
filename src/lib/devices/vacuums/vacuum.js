@@ -1,16 +1,16 @@
-'use strict';
+"use strict";
 
-const { ChargingState, AutonomousCharging } = require('abstract-things');
+const { ChargingState, AutonomousCharging } = require("abstract-things");
 const {
   Vacuum,
   AdjustableFanSpeed,
   AutonomousCleaning,
   SpotCleaning,
-} = require('abstract-things/climate');
+} = require("abstract-things/climate");
 
-const MiioApi = require('../../device');
-const BatteryLevel = require('../capabilities/battery-level');
-const checkResult = require('../../checkResult');
+const MiioApi = require("../../device");
+const BatteryLevel = require("../capabilities/battery-level");
+const checkResult = require("../../checkResult");
 
 /**
  * Implementation of the interface used by the Mi Robot Vacuum. This device
@@ -24,258 +24,258 @@ module.exports = class extends (
     AutonomousCleaning,
     SpotCleaning,
     AdjustableFanSpeed,
-    ChargingState
+    ChargingState,
   )
 ) {
   static get type() {
-    return 'miio:vacuum';
+    return "miio:vacuum";
   }
 
   constructor(options) {
     super(options);
 
-    this.defineProperty('error_code', {
-      name: 'error',
+    this.defineProperty("error_code", {
+      name: "error",
       mapper: (e) => {
-				let message;
+        let message;
         switch (e) {
-					// https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/status.md#error-codes
+          // https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/status.md#error-codes
           case 0:
             return null;
-					case 1:
-						message = 'Laser sensor fault';
-						break;
-					case 2:
-						message = 'Collision sensor fault';
-						break;
-					case 3:
-						message = 'Wheel floating';
-						break;
-					case 4:
-						message = 'Cliff sensor fault';
-						break;
-					case 5:
-						message = 'Main brush blocked';
-						break;
-					case 6:
-						message = 'Side brush blocked';
-						break;
-					case 7:
-						message = 'Wheel blocked';
-						break;
-					case 8:
-						message = 'Device stuck';
-						break;
-					case 9:
-						message = 'Dust bin missing';
-						break;
-					case 10:
-						message = 'Filter blocked';
-						break;
-					case 11:
-						message = 'Magnetic field detected';
-						break;
-					case 12:
-						message = 'Low battery';
-						break;
-					case 13:
-						message = 'Charging problem';
-						break;
-					case 14:
-						message = 'Battery failure';
-						break;
-					case 15:
-						message = 'Wall sensor fault';
-						break;
-					case 16:
-						message = 'Uneven surface';
-						break;
-					case 17:
-						message = 'Side brush failure';
-						break;
-					case 18:
-						message = 'Suction fan failure';
-						break;
-					case 19:
-						message = 'Unpowered charging station';
-						break;
-					// case 20:
-					// 	message = 'Unknown Error 20';
-					// 	break;
-					case 21:
-						message = 'Laser pressure sensor problem';
-						break;
-					case 22:
-						message = 'Charge sensor problem';
-						break;
-					case 23:
-						message = 'Dock problem';
-						break;
-					case 24:
-						message = 'No-go zone or invisible wall detected';
-						break;
-					case 254:
-						message = 'Bin full';
-						break;
-					case 255:
-						message = 'Internal error';
-						break;
-					// case -1:
-					// 	message = 'Unknown Error -1';
-					// 	break;
+          case 1:
+            message = "Laser sensor fault";
+            break;
+          case 2:
+            message = "Collision sensor fault";
+            break;
+          case 3:
+            message = "Wheel floating";
+            break;
+          case 4:
+            message = "Cliff sensor fault";
+            break;
+          case 5:
+            message = "Main brush blocked";
+            break;
+          case 6:
+            message = "Side brush blocked";
+            break;
+          case 7:
+            message = "Wheel blocked";
+            break;
+          case 8:
+            message = "Device stuck";
+            break;
+          case 9:
+            message = "Dust bin missing";
+            break;
+          case 10:
+            message = "Filter blocked";
+            break;
+          case 11:
+            message = "Magnetic field detected";
+            break;
+          case 12:
+            message = "Low battery";
+            break;
+          case 13:
+            message = "Charging problem";
+            break;
+          case 14:
+            message = "Battery failure";
+            break;
+          case 15:
+            message = "Wall sensor fault";
+            break;
+          case 16:
+            message = "Uneven surface";
+            break;
+          case 17:
+            message = "Side brush failure";
+            break;
+          case 18:
+            message = "Suction fan failure";
+            break;
+          case 19:
+            message = "Unpowered charging station";
+            break;
+          // case 20:
+          // 	message = 'Unknown Error 20';
+          // 	break;
+          case 21:
+            message = "Laser pressure sensor problem";
+            break;
+          case 22:
+            message = "Charge sensor problem";
+            break;
+          case 23:
+            message = "Dock problem";
+            break;
+          case 24:
+            message = "No-go zone or invisible wall detected";
+            break;
+          case 254:
+            message = "Bin full";
+            break;
+          case 255:
+            message = "Internal error";
+            break;
+          // case -1:
+          // 	message = 'Unknown Error -1';
+          // 	break;
           default:
-						message =  'Unknown error ' + e;
+            message = "Unknown error " + e;
         }
-				return {
-					code: e,
-					message,
-				};
+        return {
+          code: e,
+          message,
+        };
 
         // TODO: Find a list of error codes and map them correctly
       },
     });
 
-    this.defineProperty('state', (s) => {
-			// https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/status.md#status-codes
+    this.defineProperty("state", (s) => {
+      // https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/status.md#status-codes
       switch (s) {
         case 1:
-          return 'initiating';
+          return "initiating";
         case 2:
-          return 'sleeping';
+          return "sleeping";
         case 3:
-          return 'idle';
-				case 4:
-					return 'remote-control';
+          return "idle";
+        case 4:
+          return "remote-control";
         case 5:
-          return 'cleaning';
+          return "cleaning";
         case 6:
-          return 'returning';
-				case 7:
-					return 'manual-mode';
+          return "returning";
+        case 7:
+          return "manual-mode";
         case 8:
-          return 'charging';
+          return "charging";
         case 9:
-          return 'charging-error';
+          return "charging-error";
         case 10:
-          return 'paused';
+          return "paused";
         case 11:
-          return 'spot-cleaning';
+          return "spot-cleaning";
         case 12:
-          return 'error';
+          return "error";
         case 13:
-          return 'shutting-down';
+          return "shutting-down";
         case 14:
-          return 'updating';
+          return "updating";
         case 15:
-          return 'docking';
+          return "docking";
         case 16:
-          return 'going-to-location';
+          return "going-to-location";
         case 17:
-          return 'zone-cleaning';
+          return "zone-cleaning";
         case 18:
-          return 'room-cleaning';
+          return "room-cleaning";
         case 22:
-          return 'dust-collection';
+          return "dust-collection";
         case 100:
-          return 'fully-charged';
+          return "fully-charged";
       }
-      return 'unknown-' + s;
+      return "unknown-" + s;
     });
 
     // Define the batteryLevel property for monitoring battery
-    this.defineProperty('battery', {
-      name: 'batteryLevel',
+    this.defineProperty("battery", {
+      name: "batteryLevel",
     });
 
-    this.defineProperty('clean_time', {
-      name: 'cleanTime',
+    this.defineProperty("clean_time", {
+      name: "cleanTime",
     });
-    this.defineProperty('clean_area', {
-      name: 'cleanArea',
+    this.defineProperty("clean_area", {
+      name: "cleanArea",
       mapper: (v) => v / 1000000,
     });
-    this.defineProperty('fan_power', {
-      name: 'fanSpeed',
+    this.defineProperty("fan_power", {
+      name: "fanSpeed",
     });
-    this.defineProperty('in_cleaning', {
-      name: 'cleaningMode',
+    this.defineProperty("in_cleaning", {
+      name: "cleaningMode",
       mapper: (v) => {
         switch (v) {
           case 0:
-            return 'idle';
+            return "idle";
           case 1:
-            return 'cleaning';
+            return "cleaning";
           case 2:
-            return 'zone-cleaning';
+            return "zone-cleaning";
           case 3:
-            return 'room-cleaning';
+            return "room-cleaning";
         }
-        return 'unknown-' + v;
+        return "unknown-" + v;
       },
     });
 
-    this.defineProperty('in_returning');
+    this.defineProperty("in_returning");
 
     // Consumable status - times for brushes and filters
-    this.defineProperty('main_brush_work_time', {
-      name: 'mainBrushWorkTime',
+    this.defineProperty("main_brush_work_time", {
+      name: "mainBrushWorkTime",
     });
-    this.defineProperty('side_brush_work_time', {
-      name: 'sideBrushWorkTime',
+    this.defineProperty("side_brush_work_time", {
+      name: "sideBrushWorkTime",
     });
-    this.defineProperty('filter_work_time', {
-      name: 'filterWorkTime',
+    this.defineProperty("filter_work_time", {
+      name: "filterWorkTime",
     });
-    this.defineProperty('sensor_dirty_time', {
-      name: 'sensorDirtyTime',
-    });
-
-    this.defineProperty('water_box_mode', {
-      name: 'waterBoxMode',
+    this.defineProperty("sensor_dirty_time", {
+      name: "sensorDirtyTime",
     });
 
-    this.defineProperty('auto_dust_collection', {
-      name: 'autoDustCollection',
+    this.defineProperty("water_box_mode", {
+      name: "waterBoxMode",
     });
-    this.defineProperty('dust_collection_status', {
-      name: 'dustCollectionStatus',
+
+    this.defineProperty("auto_dust_collection", {
+      name: "autoDustCollection",
+    });
+    this.defineProperty("dust_collection_status", {
+      name: "dustCollectionStatus",
     });
 
     this._monitorInterval = 60000;
   }
 
   propertyUpdated(key, value, oldValue) {
-    if (key === 'state') {
+    if (key === "state") {
       // Update charging state
-      this.updateCharging(value === 'charging');
+      this.updateCharging(value === "charging");
 
       switch (value) {
-        case 'cleaning':
-        case 'spot-cleaning':
-        case 'zone-cleaning':
-        case 'room-cleaning':
+        case "cleaning":
+        case "spot-cleaning":
+        case "zone-cleaning":
+        case "room-cleaning":
           // The vacuum is cleaning
           this.updateCleaning(true);
           break;
-        case 'paused':
+        case "paused":
           // Cleaning has been paused, do nothing special
           break;
-        case 'error':
+        case "error":
           // An error has occurred, rely on error mapping
-          this.updateError(this.property('error'));
+          this.updateError(this.property("error"));
           break;
-        case 'charging-error':
+        case "charging-error":
           // Charging error, trigger an error
           this.updateError({
-            code: 'charging-error',
-            message: 'Error during charging',
+            code: "charging-error",
+            message: "Error during charging",
           });
           break;
-        case 'charger-offline':
+        case "charger-offline":
           // Charger is offline, trigger an error
           this.updateError({
-            code: 'charger-offline',
-            message: 'Charger is offline',
+            code: "charger-offline",
+            message: "Charger is offline",
           });
           break;
         default:
@@ -283,7 +283,7 @@ module.exports = class extends (
           this.updateCleaning(false);
           break;
       }
-    } else if (key === 'fanSpeed') {
+    } else if (key === "fanSpeed") {
       this.updateFanSpeed(value);
     }
 
@@ -291,49 +291,49 @@ module.exports = class extends (
   }
 
   getDeviceInfo() {
-    return this.call('miIO.info');
+    return this.call("miIO.info");
   }
 
   async getSerialNumber() {
-    const serial = await this.call('get_serial_number');
+    const serial = await this.call("get_serial_number");
     return serial[0].serial_number;
   }
 
   getRoomMap() {
-    return this.call('get_room_mapping');
+    return this.call("get_room_mapping");
   }
 
   cleanRooms(listOfRooms) {
-    return this.call('app_segment_clean', listOfRooms, {
-      refresh: ['state'],
+    return this.call("app_segment_clean", listOfRooms, {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
 
   resumeCleanRooms(listOfRooms) {
-    return this.call('resume_segment_clean', listOfRooms, {
-      refresh: ['state'],
+    return this.call("resume_segment_clean", listOfRooms, {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
 
   cleanZones(listOfZones) {
-    return this.call('app_zoned_clean', listOfZones, {
-      refresh: ['state'],
+    return this.call("app_zoned_clean", listOfZones, {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
 
   getTimer() {
-    return this.call('get_timer');
+    return this.call("get_timer");
   }
 
   /**
    * Start a cleaning session.
    */
   activateCleaning() {
-    return this.call('app_start', [], {
-      refresh: ['state'],
+    return this.call("app_start", [], {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
@@ -342,8 +342,8 @@ module.exports = class extends (
    * Pause the current cleaning session.
    */
   pause() {
-    return this.call('app_pause', [], {
-      refresh: ['state'],
+    return this.call("app_pause", [], {
+      refresh: ["state"],
       refreshDelay: 1000, // https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/236
     }).then(checkResult);
   }
@@ -352,8 +352,8 @@ module.exports = class extends (
    * Stop the current cleaning session.
    */
   deactivateCleaning() {
-    return this.call('app_stop', [], {
-      refresh: ['state'],
+    return this.call("app_stop", [], {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
@@ -368,10 +368,10 @@ module.exports = class extends (
         // Wait 1 second
         .then(() => new Promise((resolve) => setTimeout(resolve, 1000)))
         .then(() =>
-          this.call('app_charge', [], {
-            refresh: ['state'],
+          this.call("app_charge", [], {
+            refresh: ["state"],
             refreshDelay: 1000,
-          })
+          }),
         )
         .then(checkResult)
     );
@@ -381,8 +381,8 @@ module.exports = class extends (
    * Start cleaning the current spot.
    */
   activateSpotClean() {
-    return this.call('app_spot', [], {
-      refresh: ['state'],
+    return this.call("app_spot", [], {
+      refresh: ["state"],
     }).then(checkResult);
   }
 
@@ -390,8 +390,8 @@ module.exports = class extends (
    * Start dustCollection.
    */
   startDustCollection() {
-    return this.call('app_start_collect_dust', [], {
-      refresh: ['state'],
+    return this.call("app_start_collect_dust", [], {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
@@ -400,37 +400,40 @@ module.exports = class extends (
    * Stop dustCollection.
    */
   stopDustCollection() {
-    return this.call('app_stop_collect_dust', [], {
-      refresh: ['state'],
+    return this.call("app_stop_collect_dust", [], {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
 
   /**
    * Set the power of the fan. Usually 38, 60 or 77.
+   *
+   * @param speed
    */
   changeFanSpeed(speed) {
-    return this.call('set_custom_mode', [speed], {
-      refresh: ['fanSpeed'],
+    return this.call("set_custom_mode", [speed], {
+      refresh: ["fanSpeed"],
     }).then(checkResult);
   }
 
   /**
    * Get WaterBoxMode (only working for the model S6)
+   *
    * @returns {Promise<*>}
    */
   async getWaterBoxMode() {
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md
-    const response = await this.call('get_water_box_custom_mode', [], {
-      refresh: ['waterBoxMode'],
+    const response = await this.call("get_water_box_custom_mode", [], {
+      refresh: ["waterBoxMode"],
     });
     return response[0];
   }
 
   setWaterBoxMode(mode) {
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md
-    return this.call('set_water_box_custom_mode', [mode], {
-      refresh: ['waterBoxMode'],
+    return this.call("set_water_box_custom_mode", [mode], {
+      refresh: ["waterBoxMode"],
     }).then(checkResult);
   }
 
@@ -438,15 +441,18 @@ module.exports = class extends (
    * Activate the find function, will make the device give off a sound.
    */
   find() {
-    return this.call('find_me', ['']).then(() => null);
+    return this.call("find_me", [""]).then(() => null);
   }
 
   /**
    * Send the vacuum to a specific location.
+   *
+   * @param x
+   * @param y
    */
   sendToLocation(x, y) {
-    return this.call('app_goto_target', [x, y], {
-      refresh: ['state'],
+    return this.call("app_goto_target", [x, y], {
+      refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
   }
@@ -457,7 +463,7 @@ module.exports = class extends (
    * the days it has been run.
    */
   getHistory() {
-    return this.call('get_clean_summary').then((result) => {
+    return this.call("get_clean_summary").then((result) => {
       return {
         count: result[2],
         days: result[3].map((ts) => new Date(ts * 1000)),
@@ -468,13 +474,15 @@ module.exports = class extends (
   /**
    * Get history for the specified day. The day should be fetched from
    * `getHistory`.
+   *
+   * @param day
    */
   getHistoryForDay(day) {
     let record = day;
     if (record instanceof Date) {
       record = Math.floor(record.getTime() / 1000);
     }
-    return this.call('get_clean_record', [record]).then((result) => ({
+    return this.call("get_clean_record", [record]).then((result) => ({
       day: day,
       history: result.map((data) => ({
         // Start and end times
@@ -498,8 +506,8 @@ module.exports = class extends (
     props = props.map((key) => this._reversePropertyDefinitions[key] || key);
 
     return Promise.all([
-      this.call('get_status'),
-      this.call('get_consumable'),
+      this.call("get_status"),
+      this.call("get_consumable"),
     ]).then((result) => {
       const status = result[0][0];
       const consumables = result[1][0];
@@ -507,7 +515,7 @@ module.exports = class extends (
       const mapped = {};
       props.forEach((prop) => {
         let value = status[prop];
-        if (typeof value === 'undefined') {
+        if (typeof value === "undefined") {
           value = consumables[prop];
         }
         this._pushProperty(mapped, prop, value);
