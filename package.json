@@ -34,7 +34,7 @@
     "deep-equal": "^2.2.3",
     "node-persist": "^4.0.4",
     "tinkerhub-discovery": "^0.6.0",
-    "yargs": "15.4.1"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
