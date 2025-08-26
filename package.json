@@ -5,7 +5,7 @@
   "description": "Control Mi Home devices, such as Mi Robot Vacuums, Mi Air Purifiers, Mi Smart Home Gateway (Aqara) and more",
   "author": "https://github.com/afharo",
   "homepage": "https://github.com/afharo/miio/blob/main/README.md",
-  "main": "lib/index.js",
+  "main": "dist/lib/index.js",
   "keywords": [
     "xiaomi",
     "mi",
@@ -15,9 +15,16 @@
     "mijia"
   ],
   "bin": {
-    "miio": "./cli/index.js"
+    "node-miio": "./dist/cli/index.js"
   },
   "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && tsc",
+    "prepublishOnly": "npm run build",
+    "postpublish": "npm run clean",
+    "preversion": "npm run lint && npm run build && npm test",
+    "version": "git add .",
+    "postversion": "git push && git push --tags",
     "test": "jest",
     "test:verbose": "jest --verbose",
     "test:watch": "jest --watch -verbose",
@@ -37,8 +44,16 @@
     "yargs": "^18.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.3.0",
+    "babel-jest": "^30.0.5",
     "eslint": "^8.57.1",
     "eslint-plugin-node": "^11.1.0",
-    "jest": "^30.0.5"
+    "jest": "^30.0.5",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
   }
 }
