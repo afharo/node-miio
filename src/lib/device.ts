@@ -1,15 +1,24 @@
 "use strict";
 
-const util = require("node:util");
+import util from "node:util";
 
-const isDeepEqual = require("deep-equal");
-const { Thing, Polling } = require("abstract-things");
+import isDeepEqual from "deep-equal";
+import { Thing, Polling } from "abstract-things";
 
-const DeviceManagement = require("./management");
+import { type DeviceHandle, DeviceManagement } from "./management";
+import type { Protocol } from "./protocol";
 
-const IDENTITY_MAPPER = (v) => v;
+const IDENTITY_MAPPER = <T>(v: T) => v;
 
-module.exports = Thing.type(
+type Mapper<T, V> = (input: T) => V;
+
+interface PropertyDefinition<T, V> {
+  name: string;
+  mapper: Mapper<T, V>;
+  handler?: (result: Record<string, unknown>, value: unknown) => void;
+}
+
+export const MiioAPI = Thing.type(
   (Parent) =>
     class extends Parent.with(Polling) {
       static get type() {
@@ -37,7 +46,17 @@ module.exports = Thing.type(
           .done();
       }
 
-      constructor(handle) {
+      public readonly id: string;
+      public readonly miioModel?: string;
+      private readonly _properties: Record<string, unknown> = {};
+      private readonly _propertiesToMonitor: string[] = [];
+      private readonly _propertyDefinitions: Record<
+        string,
+        PropertyDefinition<never, never>
+      > = {};
+      private readonly _reversePropertyDefinitions: Record<string, string>;
+
+      constructor(public readonly handle: DeviceHandle) {
         super();
 
         this.handle = handle;
@@ -59,10 +78,13 @@ module.exports = Thing.type(
       /**
        * Public API: Call a miio method.
        *
-       * @param {*} method
+       * @param {string} method
        * @param {*} args
        */
-      miioCall(method, args) {
+      miioCall<Method extends keyof Protocol, Params extends Protocol[Method]>(
+        method: Method,
+        args: Params,
+      ) {
         return this.call(method, args);
       }
 
@@ -72,30 +94,38 @@ module.exports = Thing.type(
        * @param {*} method
        * @param {*} args
        * @param {*} options
+       * @param options.refresh
+       * @param options.refreshDelay
+       * @param options.sid
+       * @param options.retries
        */
-      call(method, args, options) {
-        return this.handle.api.call(method, args, options).then((res) => {
-          if (options && options.refresh) {
-            // Special case for loading properties after setting values
-            // - delay a bit to make sure the device has time to respond
-            return new Promise((resolve) =>
-              setTimeout(
-                () => {
-                  const properties = Array.isArray(options.refresh)
-                    ? options.refresh
-                    : this._propertiesToMonitor;
+      async call<
+        Method extends keyof Protocol,
+        Params extends Protocol[Method],
+      >(
+        method: Method,
+        args: Params,
+        options?: {
+          refresh?: string[];
+          refreshDelay?: number;
+          sid?: number;
+          retries?: number;
+        },
+      ) {
+        const res = await this.handle.api.call(method, args, options);
+        if (options && options.refresh) {
+          // Special case for loading properties after setting values
+          // - delay a bit to make sure the device has time to respond
+          await new Promise<void>((resolve) =>
+            setTimeout(resolve, (options && options.refreshDelay) || 50),
+          );
+          const properties = Array.isArray(options.refresh)
+            ? options.refresh
+            : this._propertiesToMonitor;
 
-                  this._loadProperties(properties)
-                    .then(() => resolve(res))
-                    .catch(() => resolve(res));
-                },
-                (options && options.refreshDelay) || 50,
-              ),
-            );
-          } else {
-            return res;
-          }
-        });
+          await this._loadProperties(properties).catch(() => {});
+        }
+        return res;
       }
 
       /**
@@ -105,27 +135,35 @@ module.exports = Thing.type(
        * @param name
        * @param def
        */
-      defineProperty(name, def) {
+      defineProperty<T, V>(
+        name: string,
+        def?: Mapper<T, V> | PropertyDefinition<T, V>,
+      ) {
         this._propertiesToMonitor.push(name);
 
         if (typeof def === "function") {
           def = {
+            name,
             mapper: def,
           };
         } else if (typeof def === "undefined") {
           def = {
-            mapper: IDENTITY_MAPPER,
+            name,
+            mapper: IDENTITY_MAPPER as Mapper<T, V>,
           };
         }
 
-        if (!def.mapper) {
-          def.mapper = IDENTITY_MAPPER;
+        if (typeof def === "object" && !def.mapper) {
+          def.mapper = IDENTITY_MAPPER as Mapper<T, V>;
         }
 
         if (def.name) {
           this._reversePropertyDefinitions[def.name] = name;
         }
-        this._propertyDefinitions[name] = def;
+        this._propertyDefinitions[name] = def as unknown as PropertyDefinition<
+          never,
+          never
+        >;
       }
 
       /**
@@ -135,37 +173,40 @@ module.exports = Thing.type(
        * @param {string} name
        * @param {*} value
        */
-      _pushProperty(result, name, value) {
+      _pushProperty(
+        result: Record<string, unknown>,
+        name: string,
+        value: unknown,
+      ) {
         const def = this._propertyDefinitions[name];
         if (!def) {
           result[name] = value;
         } else if (def.handler) {
           def.handler(result, value);
         } else {
-          result[def.name || name] = def.mapper(value);
+          result[def.name || name] = def.mapper(value as never);
         }
       }
 
-      poll(_isInitial) {
+      poll(_isInitial: boolean = false) {
         // Polling involves simply calling load properties
         return this._loadProperties();
       }
 
-      _loadProperties(properties) {
+      async _loadProperties(properties?: string[]) {
         if (typeof properties === "undefined") {
           properties = this._propertiesToMonitor;
         }
 
         if (properties.length === 0) return Promise.resolve();
 
-        return this.loadProperties(properties).then((values) => {
-          Object.keys(values).forEach((key) => {
-            this.setProperty(key, values[key]);
-          });
+        const values = await this.loadProperties(properties);
+        Object.keys(values).forEach((key) => {
+          this.setProperty(key, values[key]);
         });
       }
 
-      setProperty(key, value) {
+      setProperty(key: string, value: unknown) {
         const oldValue = this._properties[key];
 
         if (!isDeepEqual(oldValue, value)) {
@@ -176,9 +217,9 @@ module.exports = Thing.type(
         }
       }
 
-      propertyUpdated(_key, _value, _oldValue) {}
+      propertyUpdated(_key: string, _value: unknown, _oldValue: unknown) {}
 
-      setRawProperty(name, value) {
+      setRawProperty(name: string, value: unknown) {
         const def = this._propertyDefinitions[name];
         if (!def) return;
 
@@ -189,12 +230,12 @@ module.exports = Thing.type(
             this.setProperty(key, result[key]);
           });
         } else {
-          this.setProperty(def.name || name, def.mapper(value));
+          this.setProperty(def.name || name, def.mapper(value as never));
         }
       }
 
-      property(key) {
-        return this._properties[key];
+      property<T>(key: string): T {
+        return this._properties[key] as T;
       }
 
       get properties() {
@@ -213,7 +254,7 @@ module.exports = Thing.type(
        *
        * @param {Array} props
        */
-      getProperties(props) {
+      getProperties(props: string[]) {
         const result = {};
         props.forEach((key) => {
           result[key] = this._properties[key];
@@ -226,30 +267,28 @@ module.exports = Thing.type(
        *
        * @param {*} props
        */
-      loadProperties(props) {
+      async loadProperties(props: string[]) {
         // Rewrite property names to device internal ones
         props = props.map(
           (key) => this._reversePropertyDefinitions[key] || key,
         );
 
         // Call get_prop to map everything
-        return this.call("get_prop", props).then((result) => {
-          const obj = {};
-          for (let i = 0; i < result.length; i++) {
-            this._pushProperty(obj, props[i], result[i]);
-          }
-          return obj;
-        });
+        const result = await this.call("get_prop", props);
+        const obj = {};
+        for (let i = 0; i < result.length; i++) {
+          this._pushProperty(obj, props[i], result[i]);
+        }
+        return obj;
       }
 
       /**
        * Callback for performing destroy tasks for this device.
        */
-      destroyCallback() {
-        return super.destroyCallback().then(() => {
-          // Release the reference to the network
-          this.handle.ref.release();
-        });
+      async destroyCallback() {
+        await super.destroyCallback();
+        // Release the reference to the network
+        this.handle.ref.release();
       }
 
       [util.inspect.custom](depth, options) {
@@ -282,7 +321,7 @@ module.exports = Thing.type(
        *
        * @param result
        */
-      static checkOk(result) {
+      static checkOk(result: unknown) {
         if (
           !result ||
           (typeof result === "string" && result.toLowerCase() !== "ok")

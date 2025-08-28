@@ -3,7 +3,7 @@ import type { DeviceInfo } from "./device_info";
 import connectToDevice from "./connectToDevice";
 import type { Protocol } from "./protocol";
 
-interface DeviceHandle {
+export interface DeviceHandle {
   ref: { release: () => void };
   api: DeviceInfo;
 }
