@@ -1,13 +1,19 @@
-"use strict";
+import crypto from "node:crypto";
 
-const crypto = require("node:crypto");
+import debugFactory from "debug";
 
-const debug = require("debug")("miio:packet");
+const debug = debugFactory("miio:packet");
 
-class Packet {
-  constructor(discovery = false) {
-    this.discovery = discovery;
+export class Packet {
+  private readonly header: Buffer;
+  private _token: Buffer | null = null;
+  private _tokenKey?: Buffer;
+  private _tokenIV?: Buffer;
+  private _serverStampTime: number = 0;
+  private _serverStamp?: number;
+  public data: Buffer | null = null;
 
+  constructor(private readonly discovery = false) {
     this.header = Buffer.alloc(2 + 2 + 4 + 4 + 4 + 16);
     this.header[0] = 0x21;
     this.header[1] = 0x31;
@@ -15,16 +21,13 @@ class Packet {
     for (let i = 4; i < 32; i++) {
       this.header[i] = 0xff;
     }
-
-    this._serverStampTime = 0;
-    this._token = null;
   }
 
-  handshake() {
+  public handshake() {
     this.data = null;
   }
 
-  handleHandshakeReply() {
+  public handleHandshakeReply() {
     if (this._token === null) {
       const token = this.checksum;
       if (token.toString("hex").match(/^[fF0]+$/)) {
@@ -36,7 +39,7 @@ class Packet {
     }
   }
 
-  get needsHandshake() {
+  public get needsHandshake() {
     /*
      * Handshake if we:
      * 1) do not have a token
@@ -45,7 +48,7 @@ class Packet {
     return !this._token || Date.now() - this._serverStampTime > 120000;
   }
 
-  get raw() {
+  public get raw() {
     if (this.data) {
       // Send a command to the device
       if (!this._token) {
@@ -62,26 +65,33 @@ class Packet {
           (Date.now() - this._serverStampTime) / 1000,
         );
         try {
-          this.header.writeUInt32BE(this._serverStamp + secondsPassed, 12);
-        } catch (err) {
+          this.header.writeUInt32BE(
+            (this._serverStamp as number) + secondsPassed,
+            12,
+          );
+        } catch (_err) {
           // If it fails to post the difference in seconds, just use the same stamp it previously had
-          this.header.writeUInt32BE(this._serverStamp, 12);
+          this.header.writeUInt32BE(this._serverStamp as number, 12);
         }
       }
 
       // Encrypt the data
-      let cipher = crypto.createCipheriv(
+      const cipher = crypto.createCipheriv(
         "aes-128-cbc",
-        this._tokenKey,
-        this._tokenIV,
+        // if there is a token, this pair exists
+        this._tokenKey as Buffer,
+        this._tokenIV as Buffer,
       );
-      let encrypted = Buffer.concat([cipher.update(this.data), cipher.final()]);
+      const encrypted = Buffer.concat([
+        cipher.update(this.data),
+        cipher.final(),
+      ]);
 
       // Set the length
       this.header.writeUInt16BE(32 + encrypted.length, 2);
 
       // Calculate the checksum
-      let digest = crypto
+      const digest = crypto
         .createHash("md5")
         .update(this.header.slice(0, 16))
         .update(this._token)
@@ -119,7 +129,7 @@ class Packet {
 
     if (this.discovery) {
       // This packet is only intended to be used for discovery
-      this.data = encrypted.length > 0;
+      this.data = (encrypted.length > 0) as unknown as Buffer;
     } else {
       // Normal packet, decrypt data
       if (encrypted.length > 0) {
@@ -146,10 +156,11 @@ class Packet {
           );
           this.data = null;
         } else {
-          let decipher = crypto.createDecipheriv(
+          const decipher = crypto.createDecipheriv(
             "aes-128-cbc",
-            this._tokenKey,
-            this._tokenIV,
+            // if there is a token, this pair exists
+            this._tokenKey as Buffer,
+            this._tokenIV as Buffer,
           );
           this.data = Buffer.concat([
             decipher.update(encrypted),
@@ -166,7 +177,11 @@ class Packet {
     return this._token;
   }
 
-  set token(t) {
+  set token(t: Buffer | null) {
+    if (t === null) {
+      this._token = null;
+      return;
+    }
     this._token = Buffer.from(t);
     this._tokenKey = crypto.createHash("md5").update(t).digest();
     this._tokenIV = crypto
@@ -189,4 +204,4 @@ class Packet {
   }
 }
 
-module.exports = Packet;
+export default Packet;

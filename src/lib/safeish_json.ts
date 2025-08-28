@@ -1,9 +1,13 @@
-"use strict";
-
-module.exports = function (str) {
+/**
+ * Safer JSON parser
+ *
+ * @param {string} str The string to parse into a JSON
+ * @returns {T} The parsed JSON
+ */
+export function safeishJSON<T>(str: string): T {
   try {
     return JSON.parse(str);
-  } catch (ex) {
+  } catch (_error) {
     // Case 1: Load for subdevices fail as they return empty values
     str = str.replace("[,]", "[null,null]");
     // for aqara body sensor (lumi.motion.aq2)
@@ -11,4 +15,6 @@ module.exports = function (str) {
 
     return JSON.parse(str);
   }
-};
+}
+
+export default safeishJSON;

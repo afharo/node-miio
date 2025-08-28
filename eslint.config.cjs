@@ -1,19 +1,19 @@
-// eslint.config.js
+// eslint.config.cjs
 
 // This ESLint configuration is designed for a TypeScript project.
 
-import { defineConfig } from "eslint/config";
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginImport from "eslint-plugin-import";
-import pluginN from "eslint-plugin-n";
-import pluginPromise from "eslint-plugin-promise";
-import pluginJsdoc from "eslint-plugin-jsdoc";
-import pluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import pluginJest from "eslint-plugin-jest";
-import unusedImports from "eslint-plugin-unused-imports";
+const { defineConfig } = require("eslint/config");
+const js = require("@eslint/js");
+const tseslint = require("typescript-eslint");
+const pluginImport = require("eslint-plugin-import");
+const pluginN = require("eslint-plugin-n");
+const pluginPromise = require("eslint-plugin-promise");
+const pluginJsdoc = require("eslint-plugin-jsdoc");
+const pluginPrettierRecommended = require("eslint-plugin-prettier/recommended");
+const pluginJest = require("eslint-plugin-jest");
+const unusedImports = require("eslint-plugin-unused-imports");
 
-export default defineConfig([
+module.exports = defineConfig([
   {
     name: "Global Ignores",
     ignores: ["dist", "node_modules", "coverage", "build", "types"],
@@ -30,7 +30,7 @@ export default defineConfig([
   {
     name: "Global Configuration",
     languageOptions: {
-      sourceType: "module",
+      sourceType: "commonjs",
       ecmaVersion: "latest",
     },
     linterOptions: {
@@ -47,6 +47,13 @@ export default defineConfig([
       "n/prefer-node-protocol": "error", // Prefer using 'node:' protocol for built-in modules
       "n/no-extraneous-import": "off", // Allow imports from node_modules
       "n/no-unpublished-import": "off", // Allow imports from unpublished packages
+      "n/no-unpublished-require": "off", // Allow imports from unpublished packages
+      "n/no-missing-import": [
+        "error",
+        {
+          tryExtensions: [".js", ".ts", ".json", ".node"],
+        },
+      ],
       "promise/always-return": "warn", // Ensure promises always return a value
       "promise/catch-or-return": "warn", // Ensure promises are either caught or returned
       "promise/no-nesting": "warn", // Avoid nesting promises
@@ -61,21 +68,28 @@ export default defineConfig([
   },
   {
     name: "JavaScript Source Files",
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.cjs"],
     extends: [tseslint.configs.disableTypeChecked],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-this-alias": "off",
+      "n/no-missing-require": [
+        "error",
+        {
+          tryExtensions: [".js", ".ts", ".json", ".node"],
+        },
+      ],
     },
   },
   {
     name: "TypeScript Source Files",
     files: ["src/**/*.ts"],
-    ignores: ["src/**/*.test.ts", "src/**/*.spec.ts"], // Ignore test files
+    ignores: ["src/**/*.test.ts", "src/**/*.test.mock.ts", "src/**/*.spec.ts"], // Ignore test files
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
         project: "./tsconfig.json",
-        sourceType: "module",
+        sourceType: "commonjs",
         ecmaVersion: "latest",
       },
     },
@@ -97,13 +111,18 @@ export default defineConfig([
   },
   {
     name: "Jest Test Files",
-    files: ["**/*.spec.ts", "**/*.test.ts", "test/**/*.ts"],
+    files: [
+      "**/*.spec.ts",
+      "**/*.test.ts",
+      "**/*.test.mock.ts",
+      "test/**/*.ts",
+    ],
     ignores: [],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.jest.json", // Use a separate tsconfig for Jest tests with "isolatedModules": true
-        sourceType: "module",
+        project: "./tsconfig.json", // Use a separate tsconfig for Jest tests with "isolatedModules": true
+        sourceType: "commonjs",
         ecmaVersion: "latest",
       },
     },
@@ -136,6 +155,18 @@ export default defineConfig([
           varsIgnorePattern: "^_",
           args: "after-used",
           argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_", // Ignore unused caught errors starting with _
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "after-used",
+          ignoreRestSiblings: true,
+          varsIgnorePattern: "^_", // Ignore unused variables starting with _
+          argsIgnorePattern: "^_", // Ignore unused arguments starting with _
+          caughtErrorsIgnorePattern: "^_", // Ignore unused caught errors starting with _
         },
       ],
     },

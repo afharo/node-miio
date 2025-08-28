@@ -21,7 +21,7 @@ module.exports.device = require("./connectToDevice");
 /**
  * Extract information about a device from its hostname on the local network.
  */
-module.exports.infoFromHostname = require("./infoFromHostname");
+module.exports.infoFromHostname = require("./info_from_hostname");
 
 /**
  * Browse for devices available on the network. Will not automatically

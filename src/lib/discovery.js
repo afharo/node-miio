@@ -10,7 +10,7 @@ const {
 const { Children } = require("abstract-things");
 
 const network = require("./network");
-const infoFromHostname = require("./infoFromHostname");
+const infoFromHostname = require("./info_from_hostname");
 const connectToDevice = require("./connectToDevice");
 
 const tryAdd = Symbol("tryAdd");

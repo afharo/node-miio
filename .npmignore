@@ -18,6 +18,7 @@ test.mocks.{js,js.map}
 renovate.json
 .gitignore
 .eslintrc
+eslint.config.cjs
 tsconfig.json
 babel.config.js
 jest.config.js
@@ -29,3 +30,4 @@ jest.config.js
 
 # Docs
 images/
+

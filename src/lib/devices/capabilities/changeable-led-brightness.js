@@ -50,9 +50,9 @@ module.exports = Thing.mixin(
       /**
        * Set the LED brightness.
        *
-       * @param brightness
+       * @param _brightness
        */
-      changeLEDBrightness(brightness) {
+      changeLEDBrightness(_brightness) {
         throw new Error("changeLEDBrightness not implemented");
       }
     },

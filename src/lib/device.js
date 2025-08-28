@@ -146,7 +146,7 @@ module.exports = Thing.type(
         }
       }
 
-      poll(isInitial) {
+      poll(_isInitial) {
         // Polling involves simply calling load properties
         return this._loadProperties();
       }
@@ -176,7 +176,7 @@ module.exports = Thing.type(
         }
       }
 
-      propertyUpdated(key, value, oldValue) {}
+      propertyUpdated(_key, _value, _oldValue) {}
 
       setRawProperty(name, value) {
         const def = this._propertyDefinitions[name];

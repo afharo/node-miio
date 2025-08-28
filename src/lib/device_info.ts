@@ -1,9 +1,11 @@
-"use strict";
+import type { Socket } from "node:dgram";
 
-const debug = require("debug");
+import debugFactory from "debug";
 
-const Packet = require("./packet");
-const safeishJSON = require("./safeishJSON");
+import { Packet } from "./packet";
+import { safeishJSON } from "./safeish_json";
+import { isMiioError, MiioError } from "./miio_error";
+import type { Protocol } from "./protocol";
 
 const ERRORS = {
   "-5001": (method, args, err) =>
@@ -13,31 +15,46 @@ const ERRORS = {
   "-10000": (method) => "Method `" + method + "` is not supported",
 };
 
-class DeviceInfo {
-  constructor(parent, id, address, port) {
-    this.parent = parent;
-    this.packet = new Packet();
+interface Parent {
+  socket: Socket;
+}
 
-    this.address = address;
-    this.port = port;
+export class DeviceInfo {
+  private debug: (...msgs: unknown[]) => void;
+  private readonly packet = new Packet();
+  // Tracker for all promises associated with this device
+  public readonly promises = new Map<
+    string | number,
+    { resolve: (value: unknown) => void; reject: (err: Error) => void }
+  >();
+  public lastId: number = 0;
+  // Get if the token has been manually changed
+  public tokenChanged: boolean = false;
+  public autoToken?: boolean;
+  public enrichPromise: Promise<{ model: string }> | null = null;
+  public enriched: boolean = false;
+  private handshakePromise: Promise<Buffer | null> | null = null;
+  private handshakeResolve: (() => void) | null = null;
 
-    // Tracker for all promises associated with this device
-    this.promises = new Map();
-    this.lastId = 0;
+  public model?: string;
 
-    this.id = id;
-    this.debug = id ? debug("thing:miio:" + id) : debug("thing:miio:pending");
-
-    // Get if the token has been manually changed
-    this.tokenChanged = false;
+  constructor(
+    private readonly parent: Parent, // for now, it is Network once it's converted to typescript
+    public id?: number,
+    public readonly address?: string,
+    public readonly port?: number,
+  ) {
+    this.debug = this.id
+      ? debugFactory("thing:miio:" + this.id)
+      : debugFactory("thing:miio:pending");
   }
 
-  get token() {
+  public get token() {
     return this.packet.token;
   }
 
-  set token(t) {
-    this.debug("Using manual token:", t.toString("hex"));
+  public set token(t) {
+    this.debug("Using manual token:", t?.toString("hex"));
     this.packet.token = t;
     this.tokenChanged = true;
   }
@@ -74,24 +91,22 @@ class DeviceInfo {
       this.model = model;
       this.tokenChanged = false;
     } catch (err) {
-      if (err.code === "missing-token") {
+      if (isMiioError(err) && err.code === "missing-token") {
         err.device = this;
         throw err;
       } else if (this.packet.token) {
         // Could not call the info method, this might be either a timeout or a token problem
-        const e = new Error(
+        throw new MiioError(
           "Could not connect to device, token might be wrong",
+          "connection-failure",
+          this,
         );
-        e.code = "connection-failure";
-        e.device = this;
-        throw e;
       } else {
-        const e = new Error(
+        throw new MiioError(
           "Could not connect to device, token needs to be specified",
+          "missing-token",
+          this,
         );
-        e.code = "missing-token";
-        e.device = this;
-        throw e;
       }
     } finally {
       this.enriched = true;
@@ -130,7 +145,11 @@ class DeviceInfo {
 
       this.debug("<- Message: `" + str + "`");
       try {
-        let object = safeishJSON(str);
+        const object = safeishJSON<{
+          id: string;
+          result?: unknown;
+          error: Error;
+        }>(str);
 
         const p = this.promises.get(object.id);
         if (!p) return;
@@ -158,7 +177,7 @@ class DeviceInfo {
     try {
       return await Promise.race([this.handshakePromise, this._setTimeout()]);
     } catch (err) {
-      if (err.code === "timeout") {
+      if (isMiioError(err) && err.code === "timeout") {
         this.debug("<- Handshake timed out");
       }
       throw err;
@@ -177,7 +196,7 @@ class DeviceInfo {
   }
 
   async _sendPacket() {
-    return await new Promise((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       const data = this.packet.raw;
       this.parent.socket.send(
         data,
@@ -191,23 +210,23 @@ class DeviceInfo {
   }
 
   async _waitForHandshakeResponse() {
-    return await new Promise((resolve, reject) => {
+    return await new Promise<Buffer | null>((resolve, reject) => {
       // Handler called when a reply to the handshake is received
       this.handshakeResolve = () => {
         if (this.id !== this.packet.deviceId) {
           // Update the identifier if needed
           this.id = this.packet.deviceId;
-          this.debug = debug("thing:miio:" + this.id);
+          this.debug = debugFactory("thing:miio:" + this.id);
           this.debug("Identifier of device updated");
         }
 
         if (this.packet.token) {
           resolve(this.token);
         } else {
-          const err = new Error(
+          const err = new MiioError(
             "Could not connect to device, token needs to be specified",
+            "missing-token",
           );
-          err.code = "missing-token";
           reject(err);
         }
       };
@@ -215,16 +234,22 @@ class DeviceInfo {
   }
 
   async _setTimeout() {
-    await new Promise((resolve, reject) =>
+    await new Promise((_resolve, reject) =>
       setTimeout(() => {
-        const err = new Error("Could not connect to device, handshake timeout");
-        err.code = "timeout";
+        const err = new MiioError(
+          "Could not connect to device, handshake timeout",
+          "timeout",
+        );
         reject(err);
       }, 2000),
     );
   }
 
-  async call(method, params = [], options = {}) {
+  async call<Method extends keyof Protocol, Params extends Protocol[Method]>(
+    method: Method,
+    params: Params = [] as unknown as Params,
+    options: { sid?: number; retries?: number } = {},
+  ) {
     const { retries = 5 } = options;
     return await this._retryOnTimeout(retries, async (retriesLeft) => {
       await this.handshake(); // Ensure the handshake is done
@@ -247,16 +272,14 @@ class DeviceInfo {
         await this._sendPacket();
         return await waitForResponse;
       } catch (err) {
-        if (!(err instanceof Error) && typeof err.code !== "undefined") {
+        if (isMiioError(err)) {
           const code = err.code;
           const handler = ERRORS[code];
           const msg = handler
             ? handler(method, params, err)
             : err.message || err.toString();
 
-          const newErr = new Error(msg);
-          newErr.code = code;
-          throw newErr;
+          throw new MiioError(msg, code);
         }
         throw err;
       } finally {
@@ -283,26 +306,23 @@ class DeviceInfo {
   async _retryOnTimeout(retries = 5, actionPromiseFn) {
     while (retries > 0) {
       try {
-        const result = await Promise.race([
+        return await Promise.race([
           actionPromiseFn(retries),
           this._setTimeout(),
         ]);
-        return result;
       } catch (err) {
-        if (err.code !== "timeout") {
+        if (isMiioError(err) && err.code !== "timeout") {
           throw err;
         }
         retries--;
       }
     }
     this.debug("Reached maximum number of retries, giving up");
-    const maxRetriesError = new Error("Call to device timed out");
-    maxRetriesError.code = "timeout";
-    throw maxRetriesError;
+    throw new MiioError("Call to device timed out", "timeout");
   }
 
-  _nextId(isFirstAttempt) {
-    let id;
+  _nextId(isFirstAttempt: boolean) {
+    let id: number;
 
     if (isFirstAttempt) {
       id = this.lastId + 1;
@@ -328,4 +348,4 @@ class DeviceInfo {
   }
 }
 
-module.exports = DeviceInfo;
+export default DeviceInfo;

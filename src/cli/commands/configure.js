@@ -39,7 +39,7 @@ exports.handler = function (argv) {
         ssid: argv.ssid,
         passwd: argv.passwd,
       })
-      .then((result) => {
+      .then((_result) => {
         log.plain("Updated wireless configuration");
 
         return tokens.update(device.id, device.management.token);

@@ -1,6 +1,6 @@
 "use strict";
 
-const checkResult = require("../../checkResult");
+const checkResult = require("../../check_result");
 
 const Vacuum = require("./vacuum");
 
@@ -8,7 +8,7 @@ module.exports = class extends Vacuum {
   async cleanRooms(listOfRooms) {
     try {
       await super.cleanRooms(listOfRooms);
-    } catch (err) {
+    } catch (_err) {
       // From https://github.com/rytilahti/python-miio/issues/550#issuecomment-552780952
       return this.call(
         "set_mode_withroom",

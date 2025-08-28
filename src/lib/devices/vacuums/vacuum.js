@@ -10,7 +10,7 @@ const {
 
 const MiioApi = require("../../device");
 const BatteryLevel = require("../capabilities/battery-level");
-const checkResult = require("../../checkResult");
+const checkResult = require("../../check_result");
 
 /**
  * Implementation of the interface used by the Mi Robot Vacuum. This device

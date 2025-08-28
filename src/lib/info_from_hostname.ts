@@ -1,6 +1,8 @@
-"use strict";
-
-module.exports = function (hostname) {
+/**
+ *
+ * @param {string} hostname
+ */
+export function infoFromHostname(hostname: string) {
   // Extract info via hostname structure
   const m = /(.+)_miio(\d+)/g.exec(hostname);
   if (!m) {
@@ -21,4 +23,6 @@ module.exports = function (hostname) {
     model: model,
     id: m[2],
   };
-};
+}
+
+export default infoFromHostname;

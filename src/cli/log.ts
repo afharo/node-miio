@@ -2,7 +2,7 @@
 
 import chalk from "chalk";
 
-module.exports = {
+export const log = {
   indent: "",
 
   info(...args) {
@@ -37,7 +37,7 @@ module.exports = {
   device(device, detailed = false) {
     const mgmt = device.management;
 
-    const types = Array.from(device.metadata.types);
+    const types: string[] = Array.from(device.metadata.types);
     const filteredTypes = types.filter((t) => t.indexOf("miio:") === 0);
     const caps = Array.from(device.metadata.capabilities);
 
@@ -85,3 +85,5 @@ module.exports = {
     this.plain();
   },
 };
+
+export default log;

@@ -154,7 +154,7 @@ module.exports = Thing.type(
         }
       }
 
-      propertyUpdated(key, value, oldValue) {}
+      propertyUpdated(_key, _value, _oldValue) {}
 
       getProperties(props = []) {
         const result = {};

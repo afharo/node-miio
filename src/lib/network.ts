@@ -1,34 +1,37 @@
 "use strict";
 
-const EventEmitter = require("node:events");
-const dgram = require("node:dgram");
+import EventEmitter from "node:events";
+import dgram from "node:dgram";
 
-const debug = require("debug");
+import debug from "debug";
 
-const Packet = require("./packet");
-const DeviceInfo = require("./device_info");
+import { Packet } from "./packet";
+import { DeviceInfo } from "./device_info";
+import { isMiioError } from "./miio_error";
+
 const PORT = 54321;
 
 /**
  * Class for keeping track of the current network of devices. This is used to
  * track a few things:
  *
- * 1) Mapping between adresses and device identifiers. Used when connecting to
+ * 1) Mapping between addresses and device identifiers. Used when connecting to
  * a device directly via IP or hostname.
  *
  * 2) Mapping between id and detailed device info such as the model.
  *
  */
 class Network extends EventEmitter {
+  private readonly packet = new Packet(true);
+  private readonly addresses = new Map<string, DeviceInfo>();
+  private readonly devices = new Map<number | null, DeviceInfo>();
+  private references = 0;
+  private debug: (...msg: unknown[]) => void;
+  private _socket: dgram.Socket | null = null;
+
   constructor() {
     super();
 
-    this.packet = new Packet(true);
-
-    this.addresses = new Map();
-    this.devices = new Map();
-
-    this.references = 0;
     this.debug = debug("miio:network");
   }
 
@@ -43,7 +46,7 @@ class Network extends EventEmitter {
     }, 500);
   }
 
-  findDevice(id, rinfo) {
+  findDevice(id: number, rinfo: dgram.RemoteInfo) {
     // First step, check if we know about the device based on id
     let device = this.devices.get(id);
     if (!device && rinfo) {
@@ -63,7 +66,12 @@ class Network extends EventEmitter {
     return device;
   }
 
-  async findDeviceViaAddress(options) {
+  async findDeviceViaAddress(options: {
+    address: string;
+    port?: number;
+    token?: string | Buffer;
+    model?: string;
+  }) {
     if (!this.socket) {
       throw new Error(
         "Implementation issue: Using network without a reference",
@@ -75,7 +83,7 @@ class Network extends EventEmitter {
       // No device was found at the address, try to discover it
       device = new DeviceInfo(
         this,
-        null,
+        void 0,
         options.address,
         options.port || PORT,
       );
@@ -99,13 +107,13 @@ class Network extends EventEmitter {
       await device.handshake();
     } catch (err) {
       // Supress missing tokens - enrich should take care of that
-      if (err.code !== "missing-token") {
+      if (!(isMiioError(err) && err.code === "missing-token")) {
         throw err;
       }
     }
 
     const cachedDevice = this.cacheDevice(device);
-    await cachedDevice.enrich();
+    await cachedDevice?.enrich();
     return cachedDevice;
   }
 
@@ -113,16 +121,17 @@ class Network extends EventEmitter {
    * Caches the device if not previously cached (could be the reason of failures when reconnecting?)
    *
    * @private
-   * @param device {@link DeviceInfo}
+   * @param {DeviceInfo} device {@link DeviceInfo}
    * @returns {DeviceInfo} New device or the previously cached one
    */
-  cacheDevice(device) {
-    if (!this.devices.has(device.id)) {
+  cacheDevice(device: DeviceInfo) {
+    const deviceId = device.id || null;
+    if (!this.devices.has(deviceId)) {
       // This is a new device, keep track of it
-      this.devices.set(device.id, device);
+      this.devices.set(deviceId, device);
     }
     // Sanity, make sure that the device in the map is returned
-    return this.devices.get(device.id);
+    return this.devices.get(deviceId);
   }
 
   createSocket() {
@@ -131,18 +140,18 @@ class Network extends EventEmitter {
     // Bind the socket and when it is ready mark it for broadcasting
     this._socket.bind();
     this._socket.on("listening", () => {
-      this._socket.setBroadcast(true);
+      this._socket?.setBroadcast(true);
 
-      const address = this._socket.address();
-      this.debug("Network bound to port", address.port);
+      const address = this._socket?.address();
+      this.debug("Network bound to port", address?.port);
     });
 
     // On any incoming message, parse it, update the discovery
-    this._socket.on("message", (msg, rinfo) => {
+    this._socket.on("message", async (msg, rinfo) => {
       const buf = Buffer.from(msg);
       try {
         this.packet.raw = buf;
-      } catch (ex) {
+      } catch (_e) {
         this.debug("Could not handle incoming message");
         return;
       }
@@ -153,22 +162,14 @@ class Network extends EventEmitter {
       }
 
       const device = this.findDevice(this.packet.deviceId, rinfo);
-      device.onMessage(buf);
+      device?.onMessage(buf);
 
       if (!this.packet.data) {
-        if (!device.enriched) {
+        if (!device?.enriched) {
           // This is the first time we see this device
-          device
-            .enrich()
-            .then(() => {
-              this.emit("device", device);
-            })
-            .catch((err) => {
-              this.emit("device", device);
-            });
-        } else {
-          this.emit("device", device);
+          await device?.enrich().catch(() => {});
         }
+        this.emit("device", device);
       }
     });
   }
@@ -186,17 +187,16 @@ class Network extends EventEmitter {
     this.updateSocket();
 
     let released = false;
-    let self = this;
     return {
-      release() {
+      release: () => {
         if (released) return;
 
-        self.debug("Releasing reference to network");
+        this.debug("Releasing reference to network");
 
         released = true;
-        self.references--;
+        this.references--;
 
-        self.updateSocket();
+        this.updateSocket();
       },
     };
   }
@@ -232,4 +232,6 @@ class Network extends EventEmitter {
   }
 }
 
-module.exports = new Network();
+export const network = new Network();
+
+export default network;

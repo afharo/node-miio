@@ -1,16 +1,9 @@
-"use strict";
+import type { Socket } from "node:dgram";
 
-const TOKEN = "e381c97af00985577e8e6a3d94732bbe";
+import { DeviceInfo } from "./device_info";
+import { Packet } from "./packet";
 
-const loggerMock = jest.fn().mockImplementation((a, b) => {
-  // Uncomment when debugging tests
-  // console.debug(a, b);
-});
-const debugMock = jest.fn().mockImplementation((label) => {
-  return loggerMock;
-});
-
-jest.doMock("debug", () => debugMock);
+const TOKEN = Buffer.from("e381c97af00985577e8e6a3d94732bbe");
 
 /**
  *
@@ -20,32 +13,39 @@ function createParentMock() {
     socket: {
       send: jest
         .fn()
-        .mockImplementation((data, size, length, port, address, cb) => {
+        .mockImplementation((_data, _size, _length, _port, _address, cb) => {
           cb();
         }),
-    },
+    } as Partial<jest.Mocked<Socket>> as jest.Mocked<Socket>,
   };
 }
 
-const DeviceInfo = require("./device_info");
-const Packet = require("./packet");
+jest.mock("debug", () => {
+  return jest.fn().mockReturnValue(jest.fn());
+});
 
 describe("DeviceInfo", () => {
   jest.useFakeTimers();
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("constructor", () => {
     test("creates a new DeviceInfo without id", () => {
-      new DeviceInfo({}, null, "localhost", 1234);
+      const debugMock = jest.requireMock("debug");
+      new DeviceInfo(createParentMock(), void 0, "localhost", 1234);
       expect(debugMock).toHaveBeenCalledWith("thing:miio:pending");
     });
     test("creates a new DeviceInfo with id", () => {
-      new DeviceInfo({}, "MY-ID", "localhost", 1234);
-      expect(debugMock).toHaveBeenCalledWith("thing:miio:MY-ID");
+      const debugMock = jest.requireMock("debug");
+      new DeviceInfo(createParentMock(), 1, "localhost", 1234);
+      expect(debugMock).toHaveBeenCalledWith("thing:miio:1");
     });
   });
 
   describe("token", () => {
-    const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+    const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
     test("initial token does not exist", () => {
       expect(device.token).toBeNull();
     });
@@ -59,23 +59,28 @@ describe("DeviceInfo", () => {
 
   describe("enrich", () => {
     test("fails if the id is not populated yet", async () => {
-      const device = new DeviceInfo({}, null, "localhost", 1234);
+      const device = new DeviceInfo(
+        createParentMock(),
+        void 0,
+        "localhost",
+        1234,
+      );
       await expect(device.enrich()).rejects.toThrow(
         "Device has no identifier yet, handshake needed",
       );
     });
 
     test("returns undefined because everything is properly initialised already", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.token = TOKEN;
       device.tokenChanged = false;
-      device.model = {};
+      device.model = "my.model";
       await expect(device.enrich()).resolves.toBeUndefined();
     });
 
     test("happy path", async () => {
-      const model = { test: 1 };
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const model = "my.model";
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.token = TOKEN;
       device.call = jest.fn().mockImplementation(async () => ({ model }));
       await expect(device.enrich()).resolves.toBeUndefined();
@@ -86,7 +91,7 @@ describe("DeviceInfo", () => {
     });
 
     test("errors with 'missing-token'", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.token = TOKEN;
       device.enrichPromise = Promise.reject({ code: "missing-token" });
       await expect(device.enrich()).rejects.toStrictEqual({
@@ -99,7 +104,7 @@ describe("DeviceInfo", () => {
     });
 
     test("errors with 'connection-failure'", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.token = TOKEN;
       device.tokenChanged = false;
       device.enrichPromise = Promise.reject("Something went terribly wrong");
@@ -112,7 +117,7 @@ describe("DeviceInfo", () => {
     });
 
     test("errors with 'missing-token' custom", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.enrichPromise = Promise.reject("Something went terribly wrong");
       await expect(device.enrich()).rejects.toThrow(
         "Could not connect to device, token needs to be specified",
@@ -127,31 +132,33 @@ describe("DeviceInfo", () => {
     test("happy-path: runs the handshake", async () => {
       const packet = new Packet(false);
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       device.token = TOKEN;
       packet.token = TOKEN;
       parent.socket.send.mockImplementation(
-        (data, size, length, port, address, cb) => {
-          cb();
+        // @ts-expect-error TS compains because `send` has multiple definitions
+        (_msg, _offset, _length, _port, _address, cb) => {
+          cb(null, 1);
           packet.data = null;
           device.onMessage(packet.raw);
         },
       );
       const token = await device.handshake();
-      expect(token.toString()).toBe(TOKEN);
+      expect(token?.toString()).toBe(TOKEN.toString());
       // Second call is not triggered
       const token2 = await device.handshake();
-      expect(token2.toString()).toBe(TOKEN);
+      expect(token2?.toString()).toBe(TOKEN.toString());
     });
 
     test("fails because 'missing-token'", async () => {
       const packet = new Packet(false);
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       packet.token = TOKEN;
       parent.socket.send.mockImplementation(
-        (data, size, length, port, address, cb) => {
-          cb();
+        // @ts-expect-error TS compains because `send` has multiple definitions
+        (_msg, _offset, _length, _port, _address, cb) => {
+          cb(null, 1);
           packet.data = null;
           device.onMessage(packet.raw);
         },
@@ -164,11 +171,12 @@ describe("DeviceInfo", () => {
     test("fails because to send the handshake request", async () => {
       const packet = new Packet(false);
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       packet.token = TOKEN;
       parent.socket.send.mockImplementation(
-        (data, size, length, port, address, cb) => {
-          cb(new Error("Something went terribly wrong"));
+        // @ts-expect-error TS compains because `send` has multiple definitions
+        (_msg, _offset, _length, _port, _address, cb) => {
+          cb(new Error("Something went terribly wrong"), 0);
         },
       );
       await expect(device.handshake()).rejects.toThrow(
@@ -178,7 +186,7 @@ describe("DeviceInfo", () => {
 
     test("timesout after 2 secs", async () => {
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       device.token = TOKEN;
       const promise = device.handshake();
       jest.advanceTimersByTime(2 * 1000);
@@ -190,12 +198,12 @@ describe("DeviceInfo", () => {
 
   describe("onMessage", () => {
     test("swallows error to parse the message", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       expect(device.onMessage("test")).toBeUndefined();
     });
 
     test("handshake message but no handler", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       const packet = new Packet();
       device.token = TOKEN;
       packet.token = TOKEN;
@@ -204,7 +212,7 @@ describe("DeviceInfo", () => {
     });
 
     test("swallows error because data is not a valid JSON", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       const packet = new Packet();
       device.token = TOKEN;
       packet.token = TOKEN;
@@ -213,7 +221,7 @@ describe("DeviceInfo", () => {
     });
 
     test("does not call the promise resolvers because there's none", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       const packet = new Packet();
       device.token = TOKEN;
       packet.token = TOKEN;
@@ -223,7 +231,7 @@ describe("DeviceInfo", () => {
     });
 
     test("calls the promise resolver when there's a result", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       const packet = new Packet();
       device.token = TOKEN;
       packet.token = TOKEN;
@@ -236,7 +244,7 @@ describe("DeviceInfo", () => {
     });
 
     test("calls the promise resolver's reject when there's an error", async () => {
-      const device = new DeviceInfo({}, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       const packet = new Packet();
       device.token = TOKEN;
       packet.token = TOKEN;
@@ -253,19 +261,20 @@ describe("DeviceInfo", () => {
     test("happy-path: sends a method 'miIO.info'", async () => {
       const packet = new Packet(false);
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       device.token = TOKEN;
       packet.token = TOKEN;
       parent.socket.send.mockImplementation(
-        (data, size, length, port, address, cb) => {
-          cb();
+        // @ts-expect-error TS compains because `send` has multiple definitions
+        (msg, _offset, _length, _port, _address, cb) => {
+          cb(null, 1);
           // Return what you get embedded in `result`
-          packet.raw = Buffer.from(data);
+          packet.raw = Buffer.from(msg as string);
           const str = packet.data;
           if (str !== null) {
-            const json = JSON.parse(str);
-            packet.data = JSON.stringify(
-              Object.assign({}, json, { result: json }),
+            const json = JSON.parse(str.toString());
+            packet.data = Buffer.from(
+              JSON.stringify(Object.assign({}, json, { result: json })),
             );
           }
           device.onMessage(packet.raw);
@@ -282,16 +291,17 @@ describe("DeviceInfo", () => {
     test("timeout error", async () => {
       const packet = new Packet(false);
       const parent = createParentMock();
-      const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+      const device = new DeviceInfo(parent, 1, "localhost", 1234);
       packet.token = TOKEN;
       device.token = TOKEN;
       device.lastId = 10000;
 
       parent.socket.send.mockImplementation(
-        (data, size, length, port, address, cb) => {
-          cb();
+        // @ts-expect-error TS compains because `send` has multiple definitions
+        (data, _offset, _length, _port, _address, cb) => {
+          cb(null, 1);
           // Reply to handshakes only
-          packet.raw = data;
+          packet.raw = data as Buffer;
           const str = packet.data;
           if (str === null) {
             device.onMessage(packet.raw);
@@ -319,19 +329,23 @@ describe("DeviceInfo", () => {
         ${"OTHER"}  | ${"Test msg"}     | ${"Test msg"}
       `("$code | $message", async ({ code, message, expected }) => {
         const parent = createParentMock();
-        const device = new DeviceInfo(parent, "MY-ID", "localhost", 1234);
+        const device = new DeviceInfo(parent, 1, "localhost", 1234);
         device.token = TOKEN;
 
         parent.socket.send.mockImplementation(
-          (data, size, length, port, address, cb) => {
-            cb();
+          // @ts-expect-error TS compains because `send` has multiple definitions
+          (data, _offset, _length, _port, _address, cb) => {
+            cb(null, 1);
             // Return what you get embedded in `result`
-            packet.raw = data;
+            packet.raw = data as Buffer;
             const str = packet.data;
             if (str !== null) {
-              const json = JSON.parse(str);
-              packet.data = JSON.stringify(
-                Object.assign({}, json, { error: { code, message } }),
+              const json = JSON.parse(str.toString());
+              packet.data = Buffer.from(
+                JSON.stringify({
+                  ...json,
+                  error: { code, message },
+                }),
               );
             }
             device.onMessage(packet.raw);

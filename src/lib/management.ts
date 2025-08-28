@@ -1,13 +1,21 @@
-"use strict";
+import { tokens } from "./tokens";
+import type { DeviceInfo } from "./device_info";
+import connectToDevice from "./connectToDevice";
+import type { Protocol } from "./protocol";
 
-const tokens = require("./tokens");
+interface DeviceHandle {
+  ref: { release: () => void };
+  api: DeviceInfo;
+}
 
 /**
- * Management of a device. Supports quering it for information and changing
- * the WiFi settings.
+ * Management of a device. Supports querying it for information and changing
+ * the Wi-Fi settings.
  */
-class DeviceManagement {
-  constructor(device) {
+export class DeviceManagement {
+  private readonly api: DeviceInfo;
+
+  constructor(device: { handle: DeviceHandle }) {
     this.api = device.handle.api;
   }
 
@@ -28,6 +36,10 @@ class DeviceManagement {
     return this.api.address;
   }
 
+  get port() {
+    return this.api.port;
+  }
+
   /**
    * Get information about this device. Includes model info, token and
    * connection information.
@@ -43,8 +55,11 @@ class DeviceManagement {
    * `uid` can be set to associate the device with a Mi Home user id.
    *
    * @param options
+   * @param options.ssid
+   * @param options.password
+   * @param options.passwd
    */
-  updateWireless(options) {
+  async updateWireless(options: { ssid?: string; passwd?: string }) {
     if (typeof options.ssid !== "string") {
       throw new Error("options.ssid must be a string");
     }
@@ -52,12 +67,14 @@ class DeviceManagement {
       throw new Error("options.passwd must be a string");
     }
 
-    return this.api.call("miIO.config_router", options).then((result) => {
-      if (result !== 0 && result !== "OK" && result !== "ok") {
-        throw new Error("Failed updating wireless");
-      }
-      return true;
-    });
+    const result = await this.api.call(
+      "miIO.config_router",
+      options as Protocol["miIO.config_router"],
+    );
+    if (result !== 0 && result !== "OK" && result !== "ok") {
+      throw new Error("Failed updating wireless");
+    }
+    return true;
   }
 
   /**
@@ -74,7 +91,7 @@ class DeviceManagement {
    *
    * @param {string|Buffer} token
    */
-  updateToken(token) {
+  async updateToken(token: string | Buffer) {
     if (token instanceof Buffer) {
       token = token.toString("hex");
     } else if (typeof token !== "string") {
@@ -83,26 +100,21 @@ class DeviceManagement {
       );
     }
 
-    // Lazily imported to solve recursive dependencies
-    const connectToDevice = require("./connectToDevice");
-
-    return connectToDevice({
-      address: this.address,
-      port: this.port,
-      token: token,
-    })
-      .then((device) => {
-        // Connection to device could be performed
-        return tokens
-          .update(this.api.id, token)
-          .then(() => device.destroy())
-          .then(() => true);
-      })
-      .catch((err) => {
-        // Connection to device failed with the token
-        return false;
+    try {
+      const device = await connectToDevice({
+        address: this.address,
+        port: this.port,
+        token: token,
       });
+      // Connection to device could be performed
+      await tokens.update(`${this.api.id}`, Buffer.from(token, "hex"));
+      device.destroy();
+      return true;
+    } catch (_err) {
+      // Connection to device failed with the token
+      return false;
+    }
   }
 }
 
-module.exports = DeviceManagement;
+export default DeviceManagement;

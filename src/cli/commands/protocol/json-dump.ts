@@ -1,22 +1,22 @@
 "use strict";
 
-const fs = require("node:fs");
+import fs from "node:fs";
 
-const chalk = require("chalk");
+import chalk from "chalk";
 
-const log = require("../../log");
-const Packet = require("../../../lib/packet");
+import { log } from "../../log";
+import { Packet } from "../../../lib/packet";
 
-exports.command = "json-dump <file>";
-exports.description = "Extract packets from a Wireshark JSON dump";
-exports.builder = {
+export const command = "json-dump <file>";
+export const description = "Extract packets from a Wireshark JSON dump";
+export const builder = {
   token: {
     required: true,
     description: "Token to use for decoding",
   },
 };
 
-exports.handler = function (argv) {
+export const handler = function (argv) {
   const data = fs.readFileSync(argv.file);
   const packets = JSON.parse(data.toString());
 

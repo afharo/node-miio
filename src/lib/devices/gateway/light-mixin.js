@@ -56,7 +56,7 @@ const GatewayLight = class extends Light.with(
     return this.changeBrightness(power ? 50 : 0);
   }
 
-  changeBrightness(brightness, options) {
+  changeBrightness(brightness, _options) {
     const color = this.gateway.property("rgb");
     const rgb =
       (brightness << 24) | (color.red << 16) | (color.green << 8) | color.blue;
@@ -64,7 +64,7 @@ const GatewayLight = class extends Light.with(
     return this.gateway.call("set_rgb", [rgb >>> 0], { refresh: ["rgb"] });
   }
 
-  changeColor(color, options) {
+  changeColor(color, _options) {
     color = color.rgb;
     const a = this.gateway.property("brightness");
     const rgb = (a << 24) | (color.red << 16) | (color.green << 8) | color.blue;

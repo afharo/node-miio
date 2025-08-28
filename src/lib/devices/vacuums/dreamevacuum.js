@@ -10,7 +10,6 @@ const {
 
 const MiioApi = require("../../device");
 const BatteryLevel = require("../capabilities/battery-level");
-const checkResult = require("../../checkResult");
 
 /**
  * Implementation of the interface used by the Dreame Vacuum. This device
@@ -226,19 +225,12 @@ module.exports = class extends (
    * Start a cleaning session.
    */
   activateCleaning() {
-    return this.call(
-      "action",
-      {
-        did: "start_clean",
-        siid: this.miioModel === "dreame.vacuum.mc1808" ? 3 : 4,
-        aiid: 1,
-        in: [],
-      },
-      {
-        refresh: ["state"],
-        refreshDelay: 1000,
-      },
-    ).then(checkResult);
+    return this.call("action", {
+      did: "start_clean",
+      siid: this.miioModel === "dreame.vacuum.mc1808" ? 3 : 4,
+      aiid: 1,
+      in: [],
+    });
   }
 
   /**
@@ -252,47 +244,24 @@ module.exports = class extends (
    * Stop the current cleaning session.
    */
   deactivateCleaning() {
-    return this.call(
-      "action",
-      {
-        did: "stop_clean",
-        siid: this.miioModel === "dreame.vacuum.mc1808" ? 3 : 4,
-        aiid: 2,
-        in: [],
-      },
-      {
-        refresh: ["state"],
-        refreshDelay: 1000,
-      },
-    ).then(checkResult);
+    return this.call("action", {
+      did: "stop_clean",
+      siid: this.miioModel === "dreame.vacuum.mc1808" ? 3 : 4,
+      aiid: 2,
+      in: [],
+    });
   }
 
   /**
    * Stop the current cleaning session and return to charge.
    */
   activateCharging() {
-    return (
-      this.pause()
-        .catch(() => this.deactivateCleaning())
-        // Wait 1 second
-        .then(() => new Promise((resolve) => setTimeout(resolve, 1000)))
-        .then(() =>
-          this.call(
-            "action",
-            {
-              did: "home",
-              siid: this.miioModel === "dreame.vacuum.mc1808" ? 2 : 3,
-              aiid: 1,
-              in: [],
-            },
-            {
-              refresh: ["state"],
-              refreshDelay: 1000,
-            },
-          ),
-        )
-        .then(checkResult)
-    );
+    return this.call("action", {
+      did: "home",
+      siid: this.miioModel === "dreame.vacuum.mc1808" ? 2 : 3,
+      aiid: 1,
+      in: [],
+    });
   }
 
   /**
@@ -301,38 +270,26 @@ module.exports = class extends (
    * @param speed
    */
   changeFanSpeed(speed) {
-    return this.call(
-      "set_properties",
-      [
-        {
-          did: "cleaning_mode",
-          siid: 18,
-          piid: 6,
-          value: speed,
-        },
-      ],
+    return this.call("set_properties", [
       {
-        refresh: ["fanSpeed"],
+        did: "cleaning_mode",
+        siid: 18,
+        piid: 6,
+        value: speed,
       },
-    ).then(checkResult);
+    ]);
   }
 
   setWaterBoxMode(mode) {
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md
-    return this.call(
-      "set_properties",
-      [
-        {
-          did: "water_flow",
-          siid: 4,
-          piid: 5,
-          value: mode,
-        },
-      ],
+    return this.call("set_properties", [
       {
-        refresh: ["waterBoxMode"],
+        did: "water_flow",
+        siid: 4,
+        piid: 5,
+        value: mode,
       },
-    ).then(checkResult);
+    ]);
   }
 
   /**
