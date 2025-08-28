@@ -11,6 +11,13 @@ import { isMiioError } from "./miio_error";
 
 const PORT = 54321;
 
+export interface FindDeviceViaAddressOptions {
+  address: string;
+  port?: number;
+  token?: string | Buffer;
+  model?: string;
+}
+
 /**
  * Class for keeping track of the current network of devices. This is used to
  * track a few things:
@@ -66,12 +73,7 @@ class Network extends EventEmitter {
     return device;
   }
 
-  async findDeviceViaAddress(options: {
-    address: string;
-    port?: number;
-    token?: string | Buffer;
-    model?: string;
-  }) {
+  async findDeviceViaAddress(options: FindDeviceViaAddressOptions) {
     if (!this.socket) {
       throw new Error(
         "Implementation issue: Using network without a reference",
@@ -124,14 +126,14 @@ class Network extends EventEmitter {
    * @param {DeviceInfo} device {@link DeviceInfo}
    * @returns {DeviceInfo} New device or the previously cached one
    */
-  cacheDevice(device: DeviceInfo) {
+  cacheDevice(device: DeviceInfo): DeviceInfo {
     const deviceId = device.id || null;
     if (!this.devices.has(deviceId)) {
       // This is a new device, keep track of it
       this.devices.set(deviceId, device);
     }
     // Sanity, make sure that the device in the map is returned
-    return this.devices.get(deviceId);
+    return this.devices.get(deviceId) as DeviceInfo;
   }
 
   createSocket() {
