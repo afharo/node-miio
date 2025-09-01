@@ -203,5 +203,3 @@ export class Packet {
     return this.header.readUInt32BE(12);
   }
 }
-
-export default Packet;

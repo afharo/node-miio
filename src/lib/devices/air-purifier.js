@@ -2,7 +2,7 @@
 
 const { AirPurifier } = require("abstract-things/climate");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 const Mode = require("./capabilities/mode");

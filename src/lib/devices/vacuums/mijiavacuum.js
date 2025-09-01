@@ -1,6 +1,6 @@
 "use strict";
 
-const checkResult = require("../../check_result");
+const { checkResult } = require("../../check_result");
 
 const Vacuum = require("./vacuum");
 

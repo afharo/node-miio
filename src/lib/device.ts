@@ -18,7 +18,7 @@ interface PropertyDefinition<T, V> {
   handler?: (result: Record<string, unknown>, value: unknown) => void;
 }
 
-export const MiioApi = Thing.type(
+export const Device = Thing.type(
   (Parent) =>
     class extends Parent.with(Polling) {
       static get type() {
@@ -334,6 +334,5 @@ export const MiioApi = Thing.type(
     },
 );
 
-export const Device = MiioApi;
-
-export default MiioApi;
+// In some places, it's imported as Device, in some others, it's MiioApi
+export { Device as MiioApi };

@@ -9,9 +9,9 @@ const {
 } = require("tinkerhub-discovery");
 const { Children } = require("abstract-things");
 
-const network = require("./network");
-const infoFromHostname = require("./info_from_hostname");
-const connectToDevice = require("./connectToDevice");
+const { network } = require("./network");
+const { infoFromHostname } = require("./info_from_hostname");
+const { connectToDevice } = require("./connect_to_device");
 
 const tryAdd = Symbol("tryAdd");
 
@@ -46,7 +46,7 @@ const Browser = (module.exports.Browser = class Browser extends (
   destroy() {
     return super.destroy().then(() => {
       network.removeListener("device", this[tryAdd]);
-      this.handle.release();
+      this.handle?.release();
     });
   }
 

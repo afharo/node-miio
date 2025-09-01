@@ -8,9 +8,9 @@ const {
   SpotCleaning,
 } = require("abstract-things/climate");
 
-const MiioApi = require("../../device");
+const { MiioApi } = require("../../device");
 const BatteryLevel = require("../capabilities/battery-level");
-const checkResult = require("../../check_result");
+const { checkResult } = require("../../check_result");
 
 module.exports = class extends (
   Vacuum.with(

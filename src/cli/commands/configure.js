@@ -1,8 +1,8 @@
 "use strict";
 
-const log = require("../log");
+const { log } = require("../log");
 const deviceFinder = require("../device-finder");
-const tokens = require("../../lib/tokens");
+const { tokens } = require("../../lib/tokens");
 
 exports.command = "configure <idOrIp>";
 exports.description = "Control a device by invoking the given method";

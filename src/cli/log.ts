@@ -85,5 +85,3 @@ export const log = {
     this.plain();
   },
 };
-
-export default log;

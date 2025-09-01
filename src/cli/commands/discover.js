@@ -1,8 +1,8 @@
 "use strict";
 
-const log = require("../log");
+const { log } = require("../log");
 const deviceFinder = require("../device-finder");
-const tokens = require("../../lib/tokens");
+const { tokens } = require("../../lib/tokens");
 
 exports.command = "discover";
 exports.description = "Discover devices on the local network";

@@ -12,5 +12,3 @@ export function checkResult(r: unknown) {
     throw new Error("Could not complete call to device");
   }
 }
-
-export default checkResult;

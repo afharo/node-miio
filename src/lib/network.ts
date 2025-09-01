@@ -235,5 +235,3 @@ class Network extends EventEmitter {
 }
 
 export const network = new Network();
-
-export default network;

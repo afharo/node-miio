@@ -9,7 +9,7 @@
     "outDir": "dist",
 
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "noImplicitAny": false,
 
     "strict": true,

@@ -40,8 +40,8 @@ export class DeviceInfo {
 
   constructor(
     private readonly parent: Parent, // for now, it is Network once it's converted to typescript
-    public id?: number,
-    public readonly address?: string,
+    public id: number | undefined,
+    public readonly address: string,
     public readonly port?: number,
   ) {
     this.debug = this.id
@@ -347,5 +347,3 @@ export class DeviceInfo {
     return id;
   }
 }
-
-export default DeviceInfo;

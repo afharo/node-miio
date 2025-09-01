@@ -14,5 +14,3 @@ export class Placeholder extends Thing.with(MiioApi) {
     super(handle);
   }
 }
-
-export default Placeholder;

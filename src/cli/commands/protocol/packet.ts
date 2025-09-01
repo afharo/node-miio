@@ -1,18 +1,21 @@
 "use strict";
 
-const { log } = require("../../log");
-const { Packet } = require("../../../lib/packet");
+import type { CommandBuilder } from "yargs";
 
-exports.command = "packet <hexData>";
-exports.description = "Decode a miIO UDP packet";
-exports.builder = {
+import { log } from "../../log";
+import { Packet } from "../../../lib/packet";
+
+export const command = "packet <hexData>";
+export const description = "Decode a miIO UDP packet";
+export const builder: CommandBuilder = {
   token: {
-    required: true,
+    demandOption: true,
     description: "Token to use for decoding",
+    string: true,
   },
 };
 
-exports.handler = function (argv) {
+export const handler = function (argv: { token: string; hexData: string }) {
   const packet = new Packet();
   packet.token = Buffer.from(argv.token, "hex");
 

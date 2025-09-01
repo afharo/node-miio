@@ -3,7 +3,7 @@
 const { LightBulb, ColorTemperature } = require("abstract-things/lights");
 const { color } = require("abstract-things/values");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 const Dimmable = require("./capabilities/dimmable");

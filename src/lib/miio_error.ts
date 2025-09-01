@@ -1,7 +1,7 @@
 import type { DeviceInfo } from "./device_info";
 
 /**
- * Typeguard for MiioError
+ * Type Guard for MiioError
  *
  * @param {unknown} error Any possible error
  */

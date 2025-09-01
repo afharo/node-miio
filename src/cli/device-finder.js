@@ -3,7 +3,7 @@
 const { EventEmitter } = require("node:events");
 
 const { Devices } = require("../lib/discovery");
-const connectToDevice = require("../lib/connectToDevice");
+const { connectToDevice } = require("../lib/connect_to_device");
 
 const IP =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;

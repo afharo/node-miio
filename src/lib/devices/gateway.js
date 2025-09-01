@@ -3,7 +3,7 @@
 const { Thing, Children } = require("abstract-things");
 const { ChildSyncer } = require("abstract-things/children");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const { Illuminance } = require("./capabilities/sensor");
 const DeveloperApi = require("./gateway/developer-api");

@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("../../log");
+const { log } = require("../../log");
 const deviceFinder = require("../../device-finder");
 
 exports.command = "update <idOrIp>";

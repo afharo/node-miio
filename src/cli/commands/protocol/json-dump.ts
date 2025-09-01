@@ -3,20 +3,23 @@
 import fs from "node:fs";
 
 import chalk from "chalk";
+import type { CommandBuilder } from "yargs";
 
 import { log } from "../../log";
 import { Packet } from "../../../lib/packet";
 
 export const command = "json-dump <file>";
 export const description = "Extract packets from a Wireshark JSON dump";
-export const builder = {
+export const builder: CommandBuilder = {
   token: {
-    required: true,
+    demandOption: true,
     description: "Token to use for decoding",
+    string: true,
+    type: "string",
   },
 };
 
-export const handler = function (argv) {
+export const handler = function (argv: { file: string; token: string }) {
   const data = fs.readFileSync(argv.file);
   const packets = JSON.parse(data.toString());
 

@@ -2,7 +2,7 @@
 
 const { PowerStrip } = require("abstract-things/electrical");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 const Mode = require("./capabilities/mode");

@@ -2,7 +2,7 @@
 
 const chalk = require("chalk");
 
-const log = require("../log");
+const { log } = require("../log");
 const deviceFinder = require("../device-finder");
 
 const GROUPS = [

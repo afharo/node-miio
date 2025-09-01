@@ -8,7 +8,7 @@ const {
   SpotCleaning,
 } = require("abstract-things/climate");
 
-const MiioApi = require("../../device");
+const { MiioApi } = require("../../device");
 const BatteryLevel = require("../capabilities/battery-level");
 
 /**

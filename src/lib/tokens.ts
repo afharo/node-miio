@@ -25,5 +25,3 @@ class Tokens {
 }
 
 export const tokens = new Tokens();
-
-export default tokens;

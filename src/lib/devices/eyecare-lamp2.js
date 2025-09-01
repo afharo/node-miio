@@ -4,7 +4,7 @@ const { Children } = require("abstract-things");
 const { Light, Dimmable, SwitchablePower } = require("abstract-things/lights");
 const { percentage } = require("abstract-things/values");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const MiioDimmable = require("./capabilities/dimmable");
 const MiioPower = require("./capabilities/power");

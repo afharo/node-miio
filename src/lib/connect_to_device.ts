@@ -8,7 +8,7 @@ import Vacuum from "./devices/vacuums/vacuum";
 import ViomiVacuum from "./devices/vacuums/viomivacuum";
 import DreameVacuum from "./devices/vacuums/dreamevacuum";
 import { isMiioError, MiioError } from "./miio_error";
-import type DeviceInfo from "./device_info";
+import type { DeviceInfo } from "./device_info";
 
 interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
   withPlaceholder?: boolean;
@@ -73,5 +73,3 @@ export async function connectToDevice(options: ConnectToDeviceOptions) {
 
   return device.init();
 }
-
-export default connectToDevice;

@@ -1,6 +1,6 @@
 import { tokens } from "./tokens";
 import type { DeviceInfo } from "./device_info";
-import connectToDevice from "./connectToDevice";
+import { connectToDevice } from "./connect_to_device";
 import type { Protocol } from "./protocol";
 
 export interface DeviceHandle {
@@ -116,5 +116,3 @@ export class DeviceManagement {
     }
   }
 }
-
-export default DeviceManagement;

@@ -3,7 +3,7 @@
 const { ChargingState } = require("abstract-things");
 const { AirMonitor } = require("abstract-things/climate");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 const BatteryLevel = require("./capabilities/battery-level");

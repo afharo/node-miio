@@ -16,5 +16,3 @@ export function safeishJSON<T>(str: string): T {
     return JSON.parse(str);
   }
 }
-
-export default safeishJSON;

@@ -6,7 +6,7 @@ const {
   AdjustableTargetHumidity,
 } = require("abstract-things/climate");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 const Buzzer = require("./capabilities/buzzer");

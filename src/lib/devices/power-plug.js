@@ -3,7 +3,7 @@
 const { Thing } = require("abstract-things");
 const { PowerPlug, PowerOutlet } = require("abstract-things/electrical");
 
-const MiioApi = require("../device");
+const { MiioApi } = require("../device");
 
 const Power = require("./capabilities/power");
 

@@ -3,7 +3,7 @@
 const { Thing, State } = require("abstract-things");
 const { boolean } = require("abstract-things/values");
 
-const MiioApi = require("../../device");
+const { MiioApi } = require("../../device");
 
 module.exports = Thing.mixin(
   (Parent) =>
