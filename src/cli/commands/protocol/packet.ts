@@ -1,7 +1,7 @@
 "use strict";
 
-const log = require("../../log");
-const Packet = require("../../../lib/packet");
+const { log } = require("../../log");
+const { Packet } = require("../../../lib/packet");
 
 exports.command = "packet <hexData>";
 exports.description = "Decode a miIO UDP packet";

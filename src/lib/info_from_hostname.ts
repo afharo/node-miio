@@ -4,7 +4,7 @@
  */
 export function infoFromHostname(hostname: string) {
   // Extract info via hostname structure
-  const m = /(.+)_miio(\d+)/g.exec(hostname);
+  const m = /(.{1,200})_miio(\d{1,200})/g.exec(hostname);
   if (!m) {
     // Fallback for rockrobo - might break in the future
     if (/rockrobo/g.exec(hostname)) {
@@ -24,5 +24,3 @@ export function infoFromHostname(hostname: string) {
     id: m[2],
   };
 }
-
-export default infoFromHostname;

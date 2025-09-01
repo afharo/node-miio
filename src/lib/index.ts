@@ -16,7 +16,7 @@ module.exports.models = require("./models");
  * `port`, optional port number, if not specified the default 54321 will be used
  * `token`, optional token of the device
  */
-module.exports.device = require("./connectToDevice");
+module.exports.device = require("./connect_to_device");
 
 /**
  * Extract information about a device from its hostname on the local network.
