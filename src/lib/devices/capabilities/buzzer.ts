@@ -1,11 +1,11 @@
 "use strict";
 
-const { Thing, State } = require("abstract-things");
-const { boolean } = require("abstract-things/values");
+import { Thing, State } from "abstract-things";
+import { boolean } from "abstract-things/values";
 
-const { MiioApi } = require("../../device");
+import { MiioApi } from "../../device";
 
-module.exports = Thing.mixin(
+export const Buzzer = Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -75,8 +75,10 @@ module.exports = Thing.mixin(
       }
 
       changeBuzzer(active) {
+        // @ts-expect-error MiioApi is supposed to be injected
         return this.call("set_buzzer", [active ? "on" : "off"], {
           refresh: ["buzzer"],
+          // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
         }).then(MiioApi.checkOk);
       }
     },

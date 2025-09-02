@@ -1,9 +1,9 @@
 "use strict";
 
-const { Thing, State } = require("abstract-things");
-const { boolean } = require("abstract-things/values");
+import { Thing, State } from "abstract-things";
+import { boolean } from "abstract-things/values";
 
-module.exports = Thing.mixin(
+export const SwitchableLED = Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -51,6 +51,7 @@ module.exports = Thing.mixin(
        * @param power
        */
       changeLED(power) {
+        // @ts-expect-error MiioApi is supposed to be injected
         return this.call("set_led", [power ? "on" : "off"], {
           refresh: ["led"],
         }).then(() => null);

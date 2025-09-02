@@ -1,16 +1,14 @@
-"use strict";
-
 import { type FindDeviceViaAddressOptions, network } from "./network";
-import { Device } from "./device";
+import { Device, IDevice } from "./device";
 import { Placeholder } from "./placeholder";
-import models from "./models";
-import Vacuum from "./devices/vacuums/vacuum";
-import ViomiVacuum from "./devices/vacuums/viomivacuum";
-import DreameVacuum from "./devices/vacuums/dreamevacuum";
+import { models } from "./models";
+import { Vacuum } from "./devices/vacuums/vacuum";
+import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
+import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
 import { isMiioError, MiioError } from "./miio_error";
 import type { DeviceInfo } from "./device_info";
 
-interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
+export interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
   withPlaceholder?: boolean;
 }
 
@@ -20,7 +18,7 @@ interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
  */
 export async function connectToDevice(options: ConnectToDeviceOptions) {
   const handle = network.ref();
-  let device: typeof Device;
+  let device: IDevice;
 
   try {
     // Connecting to a device via IP, ask the network if it knows about it
@@ -31,7 +29,7 @@ export async function connectToDevice(options: ConnectToDeviceOptions) {
     };
 
     // Try to resolve the correct model, otherwise use the generic device
-    let d = models[deviceInfo.model];
+    let d = models[deviceInfo.model as string];
 
     // Hack to accept any vacuum in the form of 'WORD.vacuum.*'
     if (!d && deviceInfo.model?.match(/^\w+\.vacuum\./)) {

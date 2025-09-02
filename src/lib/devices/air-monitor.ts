@@ -1,16 +1,18 @@
-"use strict";
+import { ChargingState } from "abstract-things";
+import { AirMonitor as ATAirMonitor } from "abstract-things/climate";
 
-const { ChargingState } = require("abstract-things");
-const { AirMonitor } = require("abstract-things/climate");
+import { MiioApi } from "../device";
 
-const { MiioApi } = require("../device");
+import { Power } from "./capabilities/power";
+import { BatteryLevel } from "./capabilities/battery-level";
+import { AQI } from "./capabilities/sensor";
 
-const Power = require("./capabilities/power");
-const BatteryLevel = require("./capabilities/battery-level");
-const { AQI } = require("./capabilities/sensor");
-
-module.exports = class extends (
-  AirMonitor.with(MiioApi, Power, AQI, BatteryLevel, ChargingState)
+export class AirMonitor extends ATAirMonitor.with(
+  MiioApi,
+  Power,
+  AQI,
+  BatteryLevel,
+  ChargingState,
 ) {
   static get type() {
     return "miio:air-monitor";
@@ -49,4 +51,4 @@ module.exports = class extends (
       refreshDelay: 200,
     });
   }
-};
+}

@@ -1,21 +1,22 @@
-"use strict";
-
 /**
  * Mapping from models into high-level devices.
  */
-const AirMonitor = require("./devices/air-monitor");
-const AirPurifier = require("./devices/air-purifier");
-const Gateway = require("./devices/gateway");
-const Vacuum = require("./devices/vacuums/vacuum");
-const MijiaVacuum = require("./devices/vacuums/mijiavacuum");
-const ViomiVacuum = require("./devices/vacuums/viomivacuum");
-const PowerPlug = require("./devices/power-plug");
-const PowerStrip = require("./devices/power-strip");
-const Humidifier = require("./devices/humidifier");
-const YeelightColor = require("./devices/yeelight.color");
-const YeelightMono = require("./devices/yeelight.mono");
+import { AirMonitor } from "./devices/air-monitor";
+import { AirPurifier } from "./devices/air-purifier";
+import Gateway from "./devices/gateway";
+import { Vacuum } from "./devices/vacuums/vacuum";
+import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
+import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
+import PowerPlug from "./devices/power-plug";
+import PowerPlugChuangmiV1 from "./devices/chuangmi.plug.v1";
+import PowerStrip from "./devices/power-strip";
+import Humidifier from "./devices/humidifier";
+import YeelightColor from "./devices/yeelight.color";
+import YeelightMono from "./devices/yeelight.mono";
+import EyecareLamp2 from "./devices/eyecare-lamp2";
+import PhilipsLightBulb from "./devices/philips-light-bulb";
 
-module.exports = {
+export const models = {
   "zhimi.airmonitor.v1": AirMonitor,
 
   // Air Purifier 1 (and Pro?)
@@ -34,7 +35,7 @@ module.exports = {
   "zhimi.humidifier.v1": Humidifier,
 
   "chuangmi.plug.m1": PowerPlug,
-  "chuangmi.plug.v1": require("./devices/chuangmi.plug.v1"),
+  "chuangmi.plug.v1": PowerPlugChuangmiV1,
   "chuangmi.plug.v2": PowerPlug,
 
   "rockrobo.vacuum.v1": Vacuum,
@@ -66,6 +67,6 @@ module.exports = {
   "yeelink.light.color1": YeelightColor,
   "yeelink.light.strip1": YeelightColor,
 
-  "philips.light.sread1": require("./devices/eyecare-lamp2"),
-  "philips.light.bulb": require("./devices/philips-light-bulb"),
+  "philips.light.sread1": EyecareLamp2,
+  "philips.light.bulb": PhilipsLightBulb,
 };

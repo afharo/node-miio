@@ -1,10 +1,8 @@
-"use strict";
+import { checkResult } from "../../check_result";
 
-const { checkResult } = require("../../check_result");
+import { Vacuum } from "./vacuum";
 
-const Vacuum = require("./vacuum");
-
-module.exports = class extends Vacuum {
+export class MijiaVacuum extends Vacuum {
   async cleanRooms(listOfRooms) {
     try {
       await super.cleanRooms(listOfRooms);
@@ -20,4 +18,4 @@ module.exports = class extends Vacuum {
       ).then(checkResult);
     }
   }
-};
+}

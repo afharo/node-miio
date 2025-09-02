@@ -18,9 +18,31 @@ interface PropertyDefinition<T, V> {
   handler?: (result: Record<string, unknown>, value: unknown) => void;
 }
 
+export interface IDevice extends Polling {
+  miioModel?: string;
+  miioCall<Method extends keyof Protocol, Params extends Protocol[Method]>(
+    method: Method,
+    args: Params,
+  ): Promise<unknown>;
+  call<Method extends keyof Protocol, Params extends Protocol[Method]>(
+    method: Method,
+    args: Params,
+    options?: {
+      refresh?: string[];
+      refreshDelay?: number;
+      sid?: number;
+      retries?: number;
+    },
+  ): Promise<unknown>;
+  defineProperty: <T, V>(
+    name: string,
+    def?: Mapper<T, V> | PropertyDefinition<T, V>,
+  ) => void;
+}
+
 export const Device = Thing.type(
   (Parent) =>
-    class extends Parent.with(Polling) {
+    class Device extends Parent.with(Polling) implements IDevice {
       static get type() {
         return "miio";
       }
@@ -46,7 +68,6 @@ export const Device = Thing.type(
           .done();
       }
 
-      public readonly id: string;
       public readonly miioModel?: string;
       private readonly _properties: Record<string, unknown> = {};
       private readonly _propertiesToMonitor: string[] = [];
@@ -55,6 +76,7 @@ export const Device = Thing.type(
         PropertyDefinition<never, never>
       > = {};
       private readonly _reversePropertyDefinitions: Record<string, string>;
+      private readonly management: DeviceManagement;
 
       constructor(public readonly handle: DeviceHandle) {
         super();
@@ -68,7 +90,6 @@ export const Device = Thing.type(
         this._propertyDefinitions = {};
         this._reversePropertyDefinitions = {};
 
-        this.poll = this.poll.bind(this);
         // Set up polling to destroy device if unreachable for 5 minutes
         this.updateMaxPollFailures(10);
 
@@ -81,10 +102,10 @@ export const Device = Thing.type(
        * @param {string} method
        * @param {*} args
        */
-      miioCall<Method extends keyof Protocol, Params extends Protocol[Method]>(
-        method: Method,
-        args: Params,
-      ) {
+      public miioCall<
+        Method extends keyof Protocol,
+        Params extends Protocol[Method],
+      >(method: Method, args: Params) {
         return this.call(method, args);
       }
 
@@ -99,7 +120,7 @@ export const Device = Thing.type(
        * @param options.sid
        * @param options.retries
        */
-      async call<
+      public async call<
         Method extends keyof Protocol,
         Params extends Protocol[Method],
       >(
@@ -135,7 +156,7 @@ export const Device = Thing.type(
        * @param name
        * @param def
        */
-      defineProperty<T, V>(
+      public defineProperty<T, V>(
         name: string,
         def?: Mapper<T, V> | PropertyDefinition<T, V>,
       ) {
@@ -188,12 +209,12 @@ export const Device = Thing.type(
         }
       }
 
-      poll(_isInitial: boolean = false) {
+      public poll(_isInitial: boolean = false) {
         // Polling involves simply calling load properties
         return this._loadProperties();
       }
 
-      async _loadProperties(properties?: string[]) {
+      private async _loadProperties(properties?: string[]) {
         if (typeof properties === "undefined") {
           properties = this._propertiesToMonitor;
         }
@@ -206,7 +227,7 @@ export const Device = Thing.type(
         });
       }
 
-      setProperty(key: string, value: unknown) {
+      public setProperty(key: string, value: unknown) {
         const oldValue = this._properties[key];
 
         if (!isDeepEqual(oldValue, value)) {
@@ -217,9 +238,13 @@ export const Device = Thing.type(
         }
       }
 
-      propertyUpdated(_key: string, _value: unknown, _oldValue: unknown) {}
+      public propertyUpdated(
+        _key: string,
+        _value: unknown,
+        _oldValue: unknown,
+      ) {}
 
-      setRawProperty(name: string, value: unknown) {
+      public setRawProperty(name: string, value: unknown) {
         const def = this._propertyDefinitions[name];
         if (!def) return;
 
@@ -234,7 +259,7 @@ export const Device = Thing.type(
         }
       }
 
-      property<T>(key: string): T {
+      public property<T>(key: string): T {
         return this._properties[key] as T;
       }
 
@@ -245,7 +270,7 @@ export const Device = Thing.type(
       /**
        * Public API to get properties defined by the device.
        */
-      miioProperties() {
+      public miioProperties() {
         return this.properties;
       }
 
@@ -254,7 +279,7 @@ export const Device = Thing.type(
        *
        * @param {Array} props
        */
-      getProperties(props: string[]) {
+      public getProperties(props: string[]) {
         const result = {};
         props.forEach((key) => {
           result[key] = this._properties[key];
@@ -267,7 +292,7 @@ export const Device = Thing.type(
        *
        * @param {*} props
        */
-      async loadProperties(props: string[]) {
+      public async loadProperties(props: string[]) {
         // Rewrite property names to device internal ones
         props = props.map(
           (key) => this._reversePropertyDefinitions[key] || key,
@@ -285,7 +310,7 @@ export const Device = Thing.type(
       /**
        * Callback for performing destroy tasks for this device.
        */
-      async destroyCallback() {
+      public async destroyCallback() {
         await super.destroyCallback();
         // Release the reference to the network
         this.handle.ref.release();

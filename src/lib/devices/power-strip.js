@@ -4,8 +4,8 @@ const { PowerStrip } = require("abstract-things/electrical");
 
 const { MiioApi } = require("../device");
 
-const Power = require("./capabilities/power");
-const Mode = require("./capabilities/mode");
+const { Power } = require("./capabilities/power");
+const { Mode } = require("./capabilities/mode");
 
 module.exports = class extends PowerStrip.with(MiioApi, Power, Mode) {
   static get type() {

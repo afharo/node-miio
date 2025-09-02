@@ -63,7 +63,7 @@ module.exports = function (options = {}) {
     const filter = asFilter(options.filter);
     const browser = new Devices({
       cacheTime: options.cacheTime || 300,
-      filter: options.filter ? asToplevelFilter(filter) : null,
+      filter: options.filter ? asToplevelFilter(filter) : undefined,
       token: options.token,
     });
 

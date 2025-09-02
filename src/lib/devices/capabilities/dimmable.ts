@@ -1,11 +1,9 @@
-"use strict";
+import { Thing } from "abstract-things";
+import { Dimmable as ATDimmable } from "abstract-things/lights";
 
-const { Thing } = require("abstract-things");
-const { Dimmable } = require("abstract-things/lights");
-
-module.exports = Thing.mixin(
+export const Dimmable = Thing.mixin(
   (Parent) =>
-    class extends Parent.with(Dimmable) {
+    class extends Parent.with(ATDimmable) {
       propertyUpdated(key, value) {
         if (key === "brightness") {
           this.updateBrightness(value);

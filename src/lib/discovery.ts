@@ -1,28 +1,52 @@
-"use strict";
+import util from "node:util";
+import dns from "node:dns";
 
-const util = require("node:util");
-const dns = require("node:dns");
-
-const {
+import {
   TimedServiceDiscovery,
   BasicServiceDiscovery,
-} = require("tinkerhub-discovery");
-const { Children } = require("abstract-things");
+  type ServiceDiscovery,
+  type Service,
+} from "tinkerhub-discovery";
+import { Children } from "abstract-things";
 
-const { network } = require("./network");
-const { infoFromHostname } = require("./info_from_hostname");
-const { connectToDevice } = require("./connect_to_device");
+import { network } from "./network";
+import { infoFromHostname } from "./info_from_hostname";
+import {
+  connectToDevice,
+  type ConnectToDeviceOptions,
+} from "./connect_to_device";
+import type { DeviceHandle } from "./management";
+import type { DeviceInfo } from "./device_info";
+import type { IDevice } from "./device";
 
 const tryAdd = Symbol("tryAdd");
 
-const Browser = (module.exports.Browser = class Browser extends (
-  TimedServiceDiscovery
-) {
+export interface BrowserOptions {
+  cacheTime?: number;
+  tokens?: Record<string, string>;
+}
+
+interface BrowserService extends Service {
+  address: string;
+  port: number;
+  token: string | Buffer | null;
+  autoToken?: boolean;
+  model?: string;
+  hostname?: string;
+  connect: (
+    options?: Partial<ConnectToDeviceOptions>,
+  ) => Promise<IDevice | undefined>;
+}
+
+export class Browser extends TimedServiceDiscovery<BrowserService> {
   static get type() {
     return "miio";
   }
 
-  constructor(options) {
+  private handle?: DeviceHandle["ref"];
+  private readonly manualTokens: Record<string, string>;
+
+  constructor(options: BrowserOptions) {
     super(Browser.type, {
       expirationTime: (options.cacheTime || 1800) * 1000,
       searchTime: 5000,
@@ -43,36 +67,31 @@ const Browser = (module.exports.Browser = class Browser extends (
     network.on("device", this[tryAdd]);
   }
 
-  destroy() {
-    return super.destroy().then(() => {
-      network.removeListener("device", this[tryAdd]);
-      this.handle?.release();
-    });
+  async destroy() {
+    await super.destroy();
+    network.removeListener("device", this[tryAdd]);
+    this.handle?.release();
   }
 
   search() {
     network.search();
   }
 
-  [tryAdd](device) {
-    const service = {
-      id: device.id,
+  [tryAdd](device: DeviceInfo) {
+    const service: BrowserService = {
+      id: String(device.id),
       address: device.address,
-      port: device.port,
+      port: device.port as number,
       token: device.token || this._manualToken(device.id),
       autoToken: device.autoToken,
 
-      connect: function (options = {}) {
-        return connectToDevice(
-          Object.assign(
-            {
-              address: this.address,
-              port: this.port,
-              model: this.model,
-            },
-            options,
-          ),
-        );
+      connect: function (options: Partial<ConnectToDeviceOptions> = {}) {
+        return connectToDevice({
+          address: this.address,
+          port: this.port,
+          model: this.model,
+          ...options,
+        });
       },
     };
 
@@ -100,18 +119,32 @@ const Browser = (module.exports.Browser = class Browser extends (
   [util.inspect.custom]() {
     return "MiioBrowser{}";
   }
-});
+}
 
-class Devices extends BasicServiceDiscovery {
+export interface DevicesOptions extends BrowserOptions {
+  token?: string | Buffer;
+  filter?: (reg: { id: string; model: string; type: string }) => boolean;
+  skipSubDevices?: boolean;
+}
+
+export class Devices extends BasicServiceDiscovery<IDevice & { id: string }> {
   static get type() {
     return "miio:devices";
   }
 
-  constructor(options) {
+  private readonly _filter?: (reg: {
+    id: string;
+    model: string;
+    type: string;
+  }) => boolean;
+  private readonly _skipSubDevices?: boolean;
+  private readonly _browser: ServiceDiscovery<IDevice & { id: string }>;
+
+  constructor(options: DevicesOptions) {
     super(Devices.type);
 
-    this._filter = options && options.filter;
-    this._skipSubDevices = options && options.skipSubDevices;
+    this._filter = options.filter;
+    this._skipSubDevices = options.skipSubDevices;
 
     this._browser = new Browser(options).map((reg) => {
       return connectToDevice({
@@ -120,7 +153,7 @@ class Devices extends BasicServiceDiscovery {
         model: reg.model,
         withPlaceholder: true,
         token: options.token,
-      });
+      }) as Promise<IDevice & { id: string }>;
     });
 
     this._browser.onAvailable((s) => {
@@ -177,5 +210,3 @@ class Devices extends BasicServiceDiscovery {
     }
   }
 }
-
-module.exports.Devices = Devices;

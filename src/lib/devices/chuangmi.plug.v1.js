@@ -5,7 +5,7 @@ const { PowerPlug, PowerOutlet } = require("abstract-things/electrical");
 
 const { MiioApi } = require("../device");
 
-const MiioPower = require("./capabilities/power");
+const { Power: MiioPower } = require("./capabilities/power");
 
 module.exports = class extends (
   Thing.with(PowerPlug, PowerOutlet, MiioApi, MiioPower)

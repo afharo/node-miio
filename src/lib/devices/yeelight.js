@@ -12,8 +12,8 @@ const { color } = require("abstract-things/values");
 
 const { MiioApi } = require("../device");
 
-const Power = require("./capabilities/power");
-const Dimmable = require("./capabilities/dimmable");
+const { Power } = require("./capabilities/power");
+const { Dimmable } = require("./capabilities/dimmable");
 
 const DEFAULT_EFFECT = "smooth";
 const DEFAULT_DURATION = 500;
@@ -21,9 +21,9 @@ const DEFAULT_DURATION = 500;
 const Yeelight = Thing.type(
   (Parent) =>
     class Yeelight extends Parent.with(
+      MiioApi,
       Light,
       Fading,
-      MiioApi,
       Power,
       Dimmable,
       Nameable,

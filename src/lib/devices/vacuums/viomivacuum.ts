@@ -1,27 +1,23 @@
-"use strict";
-
-const { ChargingState, AutonomousCharging } = require("abstract-things");
-const {
+import { ChargingState, AutonomousCharging } from "abstract-things";
+import {
   Vacuum,
   AdjustableFanSpeed,
   AutonomousCleaning,
   SpotCleaning,
-} = require("abstract-things/climate");
+} from "abstract-things/climate";
 
-const { MiioApi } = require("../../device");
-const BatteryLevel = require("../capabilities/battery-level");
-const { checkResult } = require("../../check_result");
+import { MiioApi } from "../../device";
+import { BatteryLevel } from "../capabilities/battery-level";
+import { checkResult } from "../../check_result";
 
-module.exports = class extends (
-  Vacuum.with(
-    MiioApi,
-    BatteryLevel,
-    AutonomousCharging,
-    AutonomousCleaning,
-    SpotCleaning,
-    AdjustableFanSpeed,
-    ChargingState,
-  )
+export class ViomiVacuum extends Vacuum.with(
+  MiioApi,
+  BatteryLevel,
+  AutonomousCharging,
+  AutonomousCleaning,
+  SpotCleaning,
+  AdjustableFanSpeed,
+  ChargingState,
 ) {
   static get type() {
     return "miio:vacuum";
@@ -249,4 +245,4 @@ module.exports = class extends (
   find() {
     return this.call("find_me", [""]).then(() => null);
   }
-};
+}

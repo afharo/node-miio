@@ -8,9 +8,9 @@ const {
 
 const { MiioApi } = require("../device");
 
-const Power = require("./capabilities/power");
-const Buzzer = require("./capabilities/buzzer");
-const LEDBrightness = require("./capabilities/changeable-led-brightness");
+const { Power } = require("./capabilities/power");
+const { Buzzer } = require("./capabilities/buzzer");
+const { LEDBrightness } = require("./capabilities/changeable-led-brightness");
 const { Temperature, Humidity } = require("./capabilities/sensor");
 
 /**
@@ -129,22 +129,26 @@ module.exports = class extends (
     }
 
     return promise.then(() => {
-      return this.call("set_mode", [mode], {
-        refresh: ["power", "mode"],
-        refreshDelay: 200,
-      })
-        .then(MiioApi.checkOk)
-        .catch((err) => {
-          throw err.code === -5001
-            ? new Error("Mode `" + mode + "` not supported")
-            : err;
-        });
+      return (
+        this.call("set_mode", [mode], {
+          refresh: ["power", "mode"],
+          refreshDelay: 200,
+        })
+          // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+          .then(MiioApi.checkOk)
+          .catch((err) => {
+            throw err.code === -5001
+              ? new Error("Mode `" + mode + "` not supported")
+              : err;
+          })
+      );
     });
   }
 
   changeTargetHumidity(humidity) {
     return this.call("set_limit_hum", [humidity], {
       refresh: ["targetHumidity"],
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     }).then(MiioApi.checkOk);
   }
 

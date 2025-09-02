@@ -2,7 +2,7 @@
 
 const { PowerPlug, PowerOutlet } = require("abstract-things/electrical");
 
-const Power = require("../capabilities/power");
+const { Power } = require("../capabilities/power");
 const { PowerLoad, PowerConsumed } = require("../capabilities/sensor");
 
 const SubDevice = require("./subdevice");

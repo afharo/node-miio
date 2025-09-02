@@ -1,42 +1,39 @@
-"use strict";
-
-const { ChargingState, AutonomousCharging } = require("abstract-things");
-const {
-  Vacuum,
+import { ChargingState, AutonomousCharging } from "abstract-things";
+import {
+  Vacuum as ATVacuum,
   AdjustableFanSpeed,
   AutonomousCleaning,
   SpotCleaning,
-} = require("abstract-things/climate");
+} from "abstract-things/climate";
 
-const { MiioApi } = require("../../device");
-const BatteryLevel = require("../capabilities/battery-level");
-const { checkResult } = require("../../check_result");
+import { MiioApi } from "../../device";
+import { BatteryLevel } from "../capabilities/battery-level";
+import { checkResult } from "../../check_result";
+import type { DeviceHandle } from "../../management";
 
 /**
  * Implementation of the interface used by the Mi Robot Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_status.
  */
-module.exports = class extends (
-  Vacuum.with(
-    MiioApi,
-    BatteryLevel,
-    AutonomousCharging,
-    AutonomousCleaning,
-    SpotCleaning,
-    AdjustableFanSpeed,
-    ChargingState,
-  )
+export class Vacuum extends ATVacuum.with(
+  MiioApi,
+  BatteryLevel,
+  AutonomousCharging,
+  AutonomousCleaning,
+  SpotCleaning,
+  AdjustableFanSpeed,
+  ChargingState,
 ) {
   static get type() {
     return "miio:vacuum";
   }
 
-  constructor(options) {
-    super(options);
+  constructor(handle: DeviceHandle) {
+    super(handle);
 
     this.defineProperty("error_code", {
       name: "error",
-      mapper: (e) => {
+      mapper: (e: number) => {
         let message;
         switch (e) {
           // https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/status.md#error-codes
@@ -130,8 +127,6 @@ module.exports = class extends (
           code: e,
           message,
         };
-
-        // TODO: Find a list of error codes and map them correctly
       },
     });
 
@@ -523,4 +518,4 @@ module.exports = class extends (
       return mapped;
     });
   }
-};
+}

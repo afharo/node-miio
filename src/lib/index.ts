@@ -1,7 +1,8 @@
-import discovery from "./discovery";
-import models from "./models";
+import * as discovery from "./discovery";
+import { models } from "./models";
 import { connectToDevice } from "./connect_to_device";
 import { infoFromHostname } from "./info_from_hostname";
+import type { BrowserOptions, DevicesOptions } from "./discovery";
 
 export {
   /**
@@ -30,7 +31,7 @@ export {
  *
  * @param options
  */
-export function browse(options) {
+export function browse(options?: BrowserOptions) {
   return new discovery.Browser(options || {});
 }
 
@@ -40,6 +41,6 @@ export function browse(options) {
  *
  * @param options
  */
-export function devices(options) {
+export function devices(options?: DevicesOptions) {
   return new discovery.Devices(options || {});
 }

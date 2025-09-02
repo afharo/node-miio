@@ -1,9 +1,7 @@
-"use strict";
+import { Thing, State } from "abstract-things";
+import { string } from "abstract-things/values";
 
-const { Thing, State } = require("abstract-things");
-const { string } = require("abstract-things/values");
-
-module.exports = Thing.mixin(
+export const LEDBrightness = Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -36,13 +34,12 @@ module.exports = Thing.mixin(
        *
        * @param {string} brightness The LED brightness
        */
-      ledBrightness(brightness) {
+      async ledBrightness(brightness?: string | unknown) {
         if (typeof brightness === "undefined") {
           return this.getState("ledBrightness");
         }
 
-        brightness = string(brightness);
-        return this.changeLEDBrightness(brightness).then(() =>
+        return this.changeLEDBrightness(string(brightness)).then(() =>
           this.getState("ledBrightness"),
         );
       }
@@ -52,7 +49,7 @@ module.exports = Thing.mixin(
        *
        * @param _brightness
        */
-      changeLEDBrightness(_brightness) {
+      async changeLEDBrightness(_brightness: string) {
         throw new Error("changeLEDBrightness not implemented");
       }
     },

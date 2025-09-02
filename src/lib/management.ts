@@ -108,7 +108,7 @@ export class DeviceManagement {
       });
       // Connection to device could be performed
       await tokens.update(`${this.api.id}`, Buffer.from(token, "hex"));
-      device.destroy();
+      device?.destroy();
       return true;
     } catch (_err) {
       // Connection to device failed with the token

@@ -1,15 +1,13 @@
-"use strict";
+import { AirPurifier as ATAirPurifier } from "abstract-things/climate";
 
-const { AirPurifier } = require("abstract-things/climate");
+import { MiioApi } from "../device";
 
-const { MiioApi } = require("../device");
-
-const Power = require("./capabilities/power");
-const Mode = require("./capabilities/mode");
-const SwitchableLED = require("./capabilities/switchable-led");
-const LEDBrightness = require("./capabilities/changeable-led-brightness");
-const Buzzer = require("./capabilities/buzzer");
-const { Temperature, Humidity, AQI } = require("./capabilities/sensor");
+import { Power } from "./capabilities/power";
+import { Mode } from "./capabilities/mode";
+import { SwitchableLED } from "./capabilities/switchable-led";
+import { LEDBrightness } from "./capabilities/changeable-led-brightness";
+import { Buzzer } from "./capabilities/buzzer";
+import { Temperature, Humidity, AQI } from "./capabilities/sensor";
 
 /**
  * Abstraction over a Mi Air Purifier.
@@ -18,18 +16,16 @@ const { Temperature, Humidity, AQI } = require("./capabilities/sensor");
  * to `idle` will power off the device, all other modes will power on the
  * device.
  */
-module.exports = class extends (
-  AirPurifier.with(
-    MiioApi,
-    Power,
-    Mode,
-    Temperature,
-    Humidity,
-    AQI,
-    SwitchableLED,
-    LEDBrightness,
-    Buzzer,
-  )
+export class AirPurifier extends ATAirPurifier.with(
+  MiioApi,
+  Power,
+  Mode,
+  Temperature,
+  Humidity,
+  AQI,
+  SwitchableLED,
+  LEDBrightness,
+  Buzzer,
 ) {
   static get type() {
     return "miio:air-purifier";
@@ -114,16 +110,19 @@ module.exports = class extends (
    * @param mode
    */
   changeMode(mode) {
-    return this.call("set_mode", [mode], {
-      refresh: ["power", "mode"],
-      refreshDelay: 200,
-    })
-      .then(MiioApi.checkOk)
-      .catch((err) => {
-        throw err.code === -5001
-          ? new Error("Mode `" + mode + "` not supported")
-          : err;
-      });
+    return (
+      this.call("set_mode", [mode], {
+        refresh: ["power", "mode"],
+        refreshDelay: 200,
+      })
+        // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+        .then(MiioApi.checkOk)
+        .catch((err) => {
+          throw err.code === -5001
+            ? new Error("Mode `" + mode + "` not supported")
+            : err;
+        })
+    );
   }
 
   /**
@@ -172,4 +171,4 @@ module.exports = class extends (
       () => null,
     );
   }
-};
+}

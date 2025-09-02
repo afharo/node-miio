@@ -1,8 +1,6 @@
-"use strict";
+import { Thing, SwitchableMode } from "abstract-things";
 
-const { Thing, SwitchableMode } = require("abstract-things");
-
-module.exports = Thing.mixin(
+export const Mode = Thing.mixin(
   (Parent) =>
     class extends Parent.with(SwitchableMode) {
       propertyUpdated(key, value) {

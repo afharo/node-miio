@@ -223,19 +223,25 @@ const Gateway = Thing.type(
        * 30 seconds.
        */
       addDevice() {
-        return this.call("start_zigbee_join", [30])
-          .then(MiioApi.checkOk)
-          .then(() => setTimeout(this._updateDeviceList.bind(this), 30000))
-          .then(() => undefined);
+        return (
+          this.call("start_zigbee_join", [30])
+            // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+            .then(MiioApi.checkOk)
+            .then(() => setTimeout(this._updateDeviceList.bind(this), 30000))
+            .then(() => undefined)
+        );
       }
 
       /**
        * Stop allowing devices to join.
        */
       stopAddDevice() {
-        return this.call("start_zigbee_join", [0])
-          .then(MiioApi.checkOk)
-          .then(() => undefined);
+        return (
+          this.call("start_zigbee_join", [0])
+            // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+            .then(MiioApi.checkOk)
+            .then(() => undefined)
+        );
       }
 
       /**
@@ -244,10 +250,13 @@ const Gateway = Thing.type(
        * @param id
        */
       removeDevice(id) {
-        return this.call("remove_device", [id])
-          .then(MiioApi.checkOk)
-          .then(this._updateDeviceList.bind(this))
-          .then(() => undefined);
+        return (
+          this.call("remove_device", [id])
+            // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+            .then(MiioApi.checkOk)
+            .then(this._updateDeviceList.bind(this))
+            .then(() => undefined)
+        );
       }
     },
 );

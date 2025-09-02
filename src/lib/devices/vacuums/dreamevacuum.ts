@@ -1,30 +1,26 @@
-"use strict";
-
-const { ChargingState, AutonomousCharging } = require("abstract-things");
-const {
+import { ChargingState, AutonomousCharging } from "abstract-things";
+import {
   Vacuum,
   AdjustableFanSpeed,
   AutonomousCleaning,
   SpotCleaning,
-} = require("abstract-things/climate");
+} from "abstract-things/climate";
 
-const { MiioApi } = require("../../device");
-const BatteryLevel = require("../capabilities/battery-level");
+import { MiioApi } from "../../device";
+import { BatteryLevel } from "../capabilities/battery-level";
 
 /**
  * Implementation of the interface used by the Dreame Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_properties.
  */
-module.exports = class extends (
-  Vacuum.with(
-    MiioApi,
-    BatteryLevel,
-    AutonomousCharging,
-    AutonomousCleaning,
-    SpotCleaning,
-    AdjustableFanSpeed,
-    ChargingState,
-  )
+export class DreameVacuum extends Vacuum.with(
+  MiioApi,
+  BatteryLevel,
+  AutonomousCharging,
+  AutonomousCleaning,
+  SpotCleaning,
+  AdjustableFanSpeed,
+  ChargingState,
 ) {
   static get type() {
     return "miio:vacuum";
@@ -331,4 +327,4 @@ module.exports = class extends (
       return mapped;
     });
   }
-};
+}

@@ -7,7 +7,7 @@ const { percentage } = require("abstract-things/values");
 const { MiioApi } = require("../device");
 
 const MiioDimmable = require("./capabilities/dimmable");
-const MiioPower = require("./capabilities/power");
+const { Power: MiioPower } = require("./capabilities/power");
 
 module.exports = class EyecareLamp2 extends (
   Light.with(MiioPower, MiioDimmable, Children, MiioApi)
@@ -89,6 +89,7 @@ module.exports = class EyecareLamp2 extends (
   changeBrightness(brightness) {
     return this.call("set_bright", [brightness], {
       refresh: true,
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     }).then(MiioApi.checkOk);
   }
 
@@ -135,14 +136,18 @@ module.exports = class EyecareLamp2 extends (
    */
 
   setAmbientPower(power) {
-    return this.call
-      .send("enable_amb", [power ? "on" : "off"])
-      .then(MiioApi.checkOk);
+    return (
+      this.call
+        .send("enable_amb", [power ? "on" : "off"])
+        // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+        .then(MiioApi.checkOk)
+    );
   }
 
   setAmbientBrightness(brightness) {
     brightness = percentage(brightness, { min: 0, max: 100 });
 
+    // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     return this.call.send("set_amb_bright", [brightness]).then(MiioApi.checkOk);
   }
 

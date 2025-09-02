@@ -5,9 +5,9 @@ const { color } = require("abstract-things/values");
 
 const { MiioApi } = require("../device");
 
-const Power = require("./capabilities/power");
-const Dimmable = require("./capabilities/dimmable");
-const Colorable = require("./capabilities/colorable");
+const { Power } = require("./capabilities/power");
+const { Dimmable } = require("./capabilities/dimmable");
+const { Colorable } = require("./capabilities/colorable");
 
 const MIN_TEMP = 3000;
 const MAX_TEMP = 5700;
@@ -46,12 +46,14 @@ module.exports = class BallLamp extends (
   changePower(power) {
     return this.call("set_power", [power ? "on" : "off"], {
       refresh: ["power"],
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     }).then(MiioApi.checkOk);
   }
 
   changeBrightness(brightness) {
     return this.call("set_bright", [brightness], {
       refresh: ["brightness"],
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     }).then(MiioApi.checkOk);
   }
 
@@ -68,6 +70,7 @@ module.exports = class BallLamp extends (
 
     return this.call("set_cct", [temp], {
       refresh: ["color"],
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
     }).then(MiioApi.checkOk);
   }
 };
