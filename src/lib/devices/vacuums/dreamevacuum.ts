@@ -151,11 +151,9 @@ export class DreameVacuum extends Vacuum.with(
       siid: 4,
       piid: 5,
     });
-
-    this._monitorInterval = 60000;
   }
 
-  propertyUpdated(key, value, oldValue) {
+  propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
       // Update charging state
       this.updateCharging(value === "charging");
@@ -202,7 +200,7 @@ export class DreameVacuum extends Vacuum.with(
   }
 
   getDeviceInfo() {
-    return this.call("miIO.info");
+    return this.call("miIO.info", []);
   }
 
   async getSerialNumber() {
@@ -251,8 +249,8 @@ export class DreameVacuum extends Vacuum.with(
   /**
    * Stop the current cleaning session and return to charge.
    */
-  activateCharging() {
-    return this.call("action", {
+  async activateCharging() {
+    await this.call("action", {
       did: "home",
       siid: this.miioModel === "dreame.vacuum.mc1808" ? 2 : 3,
       aiid: 1,

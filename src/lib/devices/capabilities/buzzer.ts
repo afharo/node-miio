@@ -5,7 +5,7 @@ import { boolean } from "abstract-things/values";
 
 import { MiioApi } from "../../device";
 
-export const Buzzer = Thing.mixin(
+export class Buzzer extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -78,8 +78,7 @@ export const Buzzer = Thing.mixin(
         // @ts-expect-error MiioApi is supposed to be injected
         return this.call("set_buzzer", [active ? "on" : "off"], {
           refresh: ["buzzer"],
-          // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
         }).then(MiioApi.checkOk);
       }
     },
-);
+) {}

@@ -69,7 +69,7 @@ export class DeviceManagement {
 
     const result = await this.api.call(
       "miIO.config_router",
-      options as Protocol["miIO.config_router"],
+      options as Protocol["miIO.config_router"]["params"],
     );
     if (result !== 0 && result !== "OK" && result !== "ok") {
       throw new Error("Failed updating wireless");

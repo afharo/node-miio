@@ -1,5 +1,5 @@
 declare module "abstract-things/climate" {
-  import { Thing } from "abstract-things";
+  import { Thing, ErrorState } from "abstract-things";
   export class Vacuum extends Thing {
     static with<
       T1 extends { prototype: unknown },
@@ -124,8 +124,13 @@ declare module "abstract-things/climate" {
       T6["prototype"] &
       T7["prototype"];
   }
-  export class AdjustableFanSpeed extends Thing {}
-  export class AutonomousCleaning extends Thing {}
+  export class AdjustableFanSpeed extends Thing {
+    updateFanSpeed(speed: unknown): void;
+  }
+  export class CleaningState extends ErrorState {
+    updateCleaning(cleaning: boolean): void;
+  }
+  export class AutonomousCleaning extends CleaningState {}
   export class SpotCleaning extends Thing {}
 
   export class AirMonitor extends Thing {

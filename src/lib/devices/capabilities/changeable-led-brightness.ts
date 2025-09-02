@@ -1,7 +1,7 @@
 import { Thing, State } from "abstract-things";
 import { string } from "abstract-things/values";
 
-export const LEDBrightness = Thing.mixin(
+export class LEDBrightness extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -53,4 +53,4 @@ export const LEDBrightness = Thing.mixin(
         throw new Error("changeLEDBrightness not implemented");
       }
     },
-);
+) {}

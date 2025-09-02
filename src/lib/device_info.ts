@@ -83,7 +83,7 @@ export class DeviceInfo {
     }
 
     if (!this.enrichPromise) {
-      this.enrichPromise = this.call("miIO.info");
+      this.enrichPromise = this.call("miIO.info", []);
     }
 
     try {
@@ -245,11 +245,15 @@ export class DeviceInfo {
     );
   }
 
-  async call<Method extends keyof Protocol, Params extends Protocol[Method]>(
+  async call<
+    Method extends keyof Protocol,
+    Params extends Protocol[Method]["params"],
+    Response extends Protocol[Method]["response"],
+  >(
     method: Method,
     params: Params = [] as unknown as Params,
     options: { sid?: number; retries?: number } = {},
-  ) {
+  ): Promise<Response> {
     const { retries = 5 } = options;
     return await this._retryOnTimeout(retries, async (retriesLeft) => {
       await this.handshake(); // Ensure the handshake is done

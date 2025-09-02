@@ -1,7 +1,7 @@
 import { Thing } from "abstract-things";
 import { Dimmable as ATDimmable } from "abstract-things/lights";
 
-export const Dimmable = Thing.mixin(
+export class Dimmable extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(ATDimmable) {
       propertyUpdated(key, value) {
@@ -12,4 +12,4 @@ export const Dimmable = Thing.mixin(
         super.propertyUpdated(key, value);
       }
     },
-);
+) {}

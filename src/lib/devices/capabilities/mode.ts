@@ -1,6 +1,6 @@
 import { Thing, SwitchableMode } from "abstract-things";
 
-export const Mode = Thing.mixin(
+export class Mode extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(SwitchableMode) {
       propertyUpdated(key, value) {
@@ -11,4 +11,4 @@ export const Mode = Thing.mixin(
         super.propertyUpdated(key, value);
       }
     },
-);
+) {}

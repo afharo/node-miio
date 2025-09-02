@@ -3,7 +3,7 @@
 import { Thing, State } from "abstract-things";
 import { boolean } from "abstract-things/values";
 
-export const SwitchableLED = Thing.mixin(
+export class SwitchableLED extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -57,4 +57,4 @@ export const SwitchableLED = Thing.mixin(
         }).then(() => null);
       }
     },
-);
+) {}

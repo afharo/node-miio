@@ -73,7 +73,7 @@ export class ViomiVacuum extends Vacuum.with(
     });
     this.defineProperty("s_area", {
       name: "cleanArea",
-      mapper: (v) => v / 1000000,
+      mapper: (v: number) => v / 1000000,
     });
     this.defineProperty("suction_grade", {
       name: "fanSpeed",
@@ -96,11 +96,9 @@ export class ViomiVacuum extends Vacuum.with(
 
     // Monitor the property as is
     this.defineProperty("hw_info");
-
-    this._monitorInterval = 60000;
   }
 
-  propertyUpdated(key, value, oldValue) {
+  propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
       // Update charging state
       this.updateCharging(value === "charging");
@@ -147,7 +145,7 @@ export class ViomiVacuum extends Vacuum.with(
   }
 
   getDeviceInfo() {
-    return this.call("miIO.info");
+    return this.call("miIO.info", []);
   }
 
   async getSerialNumber() {
@@ -155,7 +153,7 @@ export class ViomiVacuum extends Vacuum.with(
   }
 
   getRoomMap() {
-    return this.call("get_room_mapping");
+    return this.call("get_room_mapping", []);
   }
 
   cleanRooms(listOfRooms) {
@@ -175,7 +173,7 @@ export class ViomiVacuum extends Vacuum.with(
   }
 
   getTimer() {
-    return this.call("get_ordertime");
+    return this.call("get_ordertime", []);
   }
 
   /**

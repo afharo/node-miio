@@ -1,7 +1,7 @@
 import { Thing } from "abstract-things";
 import { Colorable as ATColorable } from "abstract-things/lights";
 
-export const Colorable = Thing.mixin(
+export class Colorable extends Thing.mixin(
   (Parent) =>
     class extends Parent.with(ATColorable) {
       propertyUpdated(key, value) {
@@ -12,4 +12,4 @@ export const Colorable = Thing.mixin(
         super.propertyUpdated(key, value);
       }
     },
-);
+) {}

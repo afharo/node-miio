@@ -14,17 +14,31 @@ type Mapper<T, V> = (input: T) => V;
 
 interface PropertyDefinition<T, V> {
   name: string;
-  mapper: Mapper<T, V>;
+  siid?: number;
+  piid?: number;
+  mapper?: Mapper<T, V>;
   handler?: (result: Record<string, unknown>, value: unknown) => void;
 }
 
+type PersistedPropertyDefinition<T, V> = PropertyDefinition<T, V> & {
+  mapper: Mapper<T, V>;
+};
+
 export interface IDevice extends Polling {
   miioModel?: string;
-  miioCall<Method extends keyof Protocol, Params extends Protocol[Method]>(
+  miioCall<
+    Method extends keyof Protocol,
+    Params extends Protocol[Method]["params"],
+    Response extends Protocol[Method]["response"],
+  >(
     method: Method,
     args: Params,
-  ): Promise<unknown>;
-  call<Method extends keyof Protocol, Params extends Protocol[Method]>(
+  ): Promise<Response>;
+  call<
+    Method extends keyof Protocol,
+    Params extends Protocol[Method]["params"],
+    Response extends Protocol[Method]["response"],
+  >(
     method: Method,
     args: Params,
     options?: {
@@ -33,14 +47,14 @@ export interface IDevice extends Polling {
       sid?: number;
       retries?: number;
     },
-  ): Promise<unknown>;
+  ): Promise<Response>;
   defineProperty: <T, V>(
     name: string,
     def?: Mapper<T, V> | PropertyDefinition<T, V>,
   ) => void;
 }
 
-export const Device = Thing.type(
+export class Device extends Thing.type(
   (Parent) =>
     class Device extends Parent.with(Polling) implements IDevice {
       static get type() {
@@ -71,11 +85,11 @@ export const Device = Thing.type(
       public readonly miioModel?: string;
       private readonly _properties: Record<string, unknown> = {};
       private readonly _propertiesToMonitor: string[] = [];
-      private readonly _propertyDefinitions: Record<
+      protected readonly _propertyDefinitions: Record<
         string,
-        PropertyDefinition<never, never>
+        PersistedPropertyDefinition<never, never>
       > = {};
-      private readonly _reversePropertyDefinitions: Record<string, string>;
+      protected readonly _reversePropertyDefinitions: Record<string, string>;
       private readonly management: DeviceManagement;
 
       constructor(public readonly handle: DeviceHandle) {
@@ -104,9 +118,10 @@ export const Device = Thing.type(
        */
       public miioCall<
         Method extends keyof Protocol,
-        Params extends Protocol[Method],
-      >(method: Method, args: Params) {
-        return this.call(method, args);
+        Params extends Protocol[Method]["params"],
+        Response extends Protocol[Method]["response"],
+      >(method: Method, args: Params): Promise<Response> {
+        return this.call<Method, Params, Response>(method, args);
       }
 
       /**
@@ -122,7 +137,8 @@ export const Device = Thing.type(
        */
       public async call<
         Method extends keyof Protocol,
-        Params extends Protocol[Method],
+        Params extends Protocol[Method]["params"],
+        Response extends Protocol[Method]["response"],
       >(
         method: Method,
         args: Params,
@@ -132,8 +148,12 @@ export const Device = Thing.type(
           sid?: number;
           retries?: number;
         },
-      ) {
-        const res = await this.handle.api.call(method, args, options);
+      ): Promise<Response> {
+        const res = await this.handle.api.call<Method, Params, Response>(
+          method,
+          args,
+          options,
+        );
         if (options && options.refresh) {
           // Special case for loading properties after setting values
           // - delay a bit to make sure the device has time to respond
@@ -181,10 +201,8 @@ export const Device = Thing.type(
         if (def.name) {
           this._reversePropertyDefinitions[def.name] = name;
         }
-        this._propertyDefinitions[name] = def as unknown as PropertyDefinition<
-          never,
-          never
-        >;
+        this._propertyDefinitions[name] =
+          def as unknown as PersistedPropertyDefinition<never, never>;
       }
 
       /**
@@ -340,24 +358,24 @@ export const Device = Thing.type(
           "\n}"
         );
       }
-
-      /**
-       * Check that the current result is equal to the string `ok`.
-       *
-       * @param result
-       */
-      static checkOk(result: unknown) {
-        if (
-          !result ||
-          (typeof result === "string" && result.toLowerCase() !== "ok")
-        ) {
-          throw new Error("Could not perform operation");
-        }
-
-        return null;
-      }
     },
-);
+) {
+  /**
+   * Check that the current result is equal to the string `ok`.
+   *
+   * @param result
+   */
+  static checkOk(result: unknown) {
+    if (
+      !result ||
+      (typeof result === "string" && result.toLowerCase() !== "ok")
+    ) {
+      throw new Error("Could not perform operation");
+    }
+
+    return null;
+  }
+}
 
 // In some places, it's imported as Device, in some others, it's MiioApi
 export { Device as MiioApi };

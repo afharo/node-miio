@@ -3,9 +3,10 @@ declare module "abstract-things" {
     constructor(...args: unknown[]);
 
     id: string | null;
-    metadata: {
+    metadata: Record<string, unknown> & {
       types: string[];
       capabilities: string[];
+      addCapabilities(...capabilities: string[]): void;
     };
 
     constructor(...args: unknown[]);
@@ -170,6 +171,7 @@ declare module "abstract-things" {
   }
 
   export class Polling extends Thing {
+    updatePollDuration(duration: number): void;
     updateMaxPollFailures(failures: number): void;
     poll(isInitial: boolean): Promise<void>;
   }
@@ -177,13 +179,23 @@ declare module "abstract-things" {
   export class BatteryLevel extends Thing {
     updateBatteryLevel(level: number): void;
   }
-  export class ChargingState extends Thing {}
-  export class AutonomousCharging extends Thing {}
+  export class ChargingState extends Thing {
+    updateCharging(charging: boolean): void;
+  }
+  export abstract class AutonomousCharging extends Thing {
+    abstract activateCharging(): Promise<void>;
+  }
 
   export class Children extends Thing {}
   export class State extends Thing {
     getState<T>(name: string): T;
     updateState<T>(name: string, value: T): boolean;
+  }
+  export class ErrorState extends State {
+    get error(): Promise<string | null>;
+    updateError(
+      error: { code: string; message?: string } | string | null,
+    ): void;
   }
   export class Nameable extends Thing {}
   export class SwitchablePower extends Thing {

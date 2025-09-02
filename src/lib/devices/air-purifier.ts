@@ -110,19 +110,16 @@ export class AirPurifier extends ATAirPurifier.with(
    * @param mode
    */
   changeMode(mode) {
-    return (
-      this.call("set_mode", [mode], {
-        refresh: ["power", "mode"],
-        refreshDelay: 200,
-      })
-        // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
-        .then(MiioApi.checkOk)
-        .catch((err) => {
-          throw err.code === -5001
-            ? new Error("Mode `" + mode + "` not supported")
-            : err;
-        })
-    );
+    return this.call("set_mode", [mode], {
+      refresh: ["power", "mode"],
+      refreshDelay: 200,
+    })
+      .then(MiioApi.checkOk)
+      .catch((err) => {
+        throw err.code === -5001
+          ? new Error("Mode `" + mode + "` not supported")
+          : err;
+      });
   }
 
   /**

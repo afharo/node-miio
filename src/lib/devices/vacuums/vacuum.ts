@@ -187,7 +187,7 @@ export class Vacuum extends ATVacuum.with(
     });
     this.defineProperty("clean_area", {
       name: "cleanArea",
-      mapper: (v) => v / 1000000,
+      mapper: (v: number) => v / 1000000,
     });
     this.defineProperty("fan_power", {
       name: "fanSpeed",
@@ -235,11 +235,9 @@ export class Vacuum extends ATVacuum.with(
     this.defineProperty("dust_collection_status", {
       name: "dustCollectionStatus",
     });
-
-    this._monitorInterval = 60000;
   }
 
-  propertyUpdated(key, value, oldValue) {
+  propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
       // Update charging state
       this.updateCharging(value === "charging");
@@ -286,16 +284,16 @@ export class Vacuum extends ATVacuum.with(
   }
 
   getDeviceInfo() {
-    return this.call("miIO.info");
+    return this.call("miIO.info", []);
   }
 
   async getSerialNumber() {
-    const serial = await this.call("get_serial_number");
+    const serial = await this.call("get_serial_number", []);
     return serial[0].serial_number;
   }
 
   getRoomMap() {
-    return this.call("get_room_mapping");
+    return this.call("get_room_mapping", []);
   }
 
   cleanRooms(listOfRooms) {
@@ -320,7 +318,7 @@ export class Vacuum extends ATVacuum.with(
   }
 
   getTimer() {
-    return this.call("get_timer");
+    return this.call("get_timer", []);
   }
 
   /**
@@ -458,7 +456,7 @@ export class Vacuum extends ATVacuum.with(
    * the days it has been run.
    */
   getHistory() {
-    return this.call("get_clean_summary").then((result) => {
+    return this.call("get_clean_summary", []).then((result) => {
       return {
         count: result[2],
         days: result[3].map((ts) => new Date(ts * 1000)),
@@ -496,26 +494,23 @@ export class Vacuum extends ATVacuum.with(
     }));
   }
 
-  loadProperties(props) {
+  async loadProperties(props) {
     // We override loadProperties to use get_status and get_consumables
     props = props.map((key) => this._reversePropertyDefinitions[key] || key);
 
-    return Promise.all([
-      this.call("get_status"),
-      this.call("get_consumable"),
-    ]).then((result) => {
-      const status = result[0][0];
-      const consumables = result[1][0];
+    const [status, consumables] = await Promise.all([
+      this.call("get_status", []),
+      this.call("get_consumable", []),
+    ]);
 
-      const mapped = {};
-      props.forEach((prop) => {
-        let value = status[prop];
-        if (typeof value === "undefined") {
-          value = consumables[prop];
-        }
-        this._pushProperty(mapped, prop, value);
-      });
-      return mapped;
+    const mapped = {};
+    props.forEach((prop) => {
+      let value = status[prop];
+      if (typeof value === "undefined") {
+        value = consumables[prop];
+      }
+      this._pushProperty(mapped, prop, value);
     });
+    return mapped;
   }
 }
