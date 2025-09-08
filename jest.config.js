@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
@@ -92,7 +92,7 @@ module.exports = {
   // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-  modulePathIgnorePatterns: ['./dist'],
+  modulePathIgnorePatterns: ["./dist"],
 
   // Activates notifications for test results
   // notify: false,

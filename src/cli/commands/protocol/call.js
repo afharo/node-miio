@@ -1,66 +1,66 @@
-'use strict';
+"use strict";
 
-const log = require('../../log');
-const deviceFinder = require('../../device-finder');
+const { log } = require("../../log");
+const deviceFinder = require("../../device-finder");
 
-exports.command = 'call <idOrIp> <method> [params...]';
-exports.description = 'Call a raw method on a device';
+exports.command = "call <idOrIp> <method> [params...]";
+exports.description = "Call a raw method on a device";
 exports.builder = {
-	token: {
-		type: 'string',
-		description: 'The known token of the device to communicate with',
-	},
+  token: {
+    type: "string",
+    description: "The known token of the device to communicate with",
+  },
 };
 
 exports.handler = function (argv) {
-	let target = argv.idOrIp;
-	log.info('Attempting to call', argv.method, 'on', target);
+  let target = argv.idOrIp;
+  log.info("Attempting to call", argv.method, "on", target);
 
-	let foundDevice = false;
-	let pending = 0;
-	const browser = deviceFinder({
-		filter: target,
-		token: argv.token,
-	});
-	browser.on('available', (device) => {
-		pending++;
+  let foundDevice = false;
+  let pending = 0;
+  const browser = deviceFinder({
+    filter: target,
+    token: argv.token,
+  });
+  browser.on("available", (device) => {
+    pending++;
 
-		log.plain();
-		log.info('Device found, making call');
-		log.plain();
+    log.plain();
+    log.info("Device found, making call");
+    log.plain();
 
-		const parsedArgs = argv.params
-			? Array.isArray(argv.params)
-				? argv.params
-				: JSON.parse(argv.params)
-			: [];
-		log.plain(parsedArgs);
-		device
-			.miioCall(argv.method, parsedArgs)
-			.then((result) => {
-				log.info('Got result:');
-				log.plain(JSON.stringify(result, null, '  '));
-			})
-			.catch((err) => {
-				log.error('Encountered an error while controlling device');
-				log.plain();
-				log.plain('Error was:');
-				log.plain(err.message);
-			})
-			.then(() => {
-				pending--;
+    const parsedArgs = argv.params
+      ? Array.isArray(argv.params)
+        ? argv.params
+        : JSON.parse(argv.params)
+      : [];
+    log.plain(parsedArgs);
+    device
+      .miioCall(argv.method, parsedArgs)
+      .then((result) => {
+        log.info("Got result:");
+        log.plain(JSON.stringify(result, null, "  "));
+      })
+      .catch((err) => {
+        log.error("Encountered an error while controlling device");
+        log.plain();
+        log.plain("Error was:");
+        log.plain(err.message);
+      })
+      .then(() => {
+        pending--;
 				process.exit(0); // eslint-disable-line
-			});
-	});
+      });
+  });
 
-	const doneHandler = () => {
-		if (pending === 0) {
-			if (!foundDevice) {
-				log.warn('Could not find device');
-			}
+  const doneHandler = () => {
+    if (pending === 0) {
+      if (!foundDevice) {
+        log.warn("Could not find device");
+      }
 			process.exit(0); // eslint-disable-line
-		}
-	};
-	setTimeout(doneHandler, 5000);
-	browser.on('done', doneHandler);
+    }
+  };
+  setTimeout(doneHandler, 5000);
+  browser.on("done", doneHandler);
 };

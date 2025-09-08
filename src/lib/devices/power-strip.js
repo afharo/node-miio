@@ -1,38 +1,36 @@
-'use strict';
+"use strict";
 
-const { PowerStrip } = require('abstract-things/electrical');
+const { PowerStrip } = require("abstract-things/electrical");
 
-const MiioApi = require('../device');
-const Power = require('./capabilities/power');
-const Mode = require('./capabilities/mode');
+const { MiioApi } = require("../device");
 
-module.exports = class extends PowerStrip
-	.with(MiioApi, Power, Mode)
-{
-	static get type() {
-		return 'miio:power-strip';
-	}
+const { Power } = require("./capabilities/power");
+const { Mode } = require("./capabilities/mode");
 
-	constructor(options) {
-		super(options);
+module.exports = class extends PowerStrip.with(MiioApi, Power, Mode) {
+  static get type() {
+    return "miio:power-strip";
+  }
 
-		this.defineProperty('power', {
-			mapper: v => v === 'n'
-		});
+  constructor(options) {
+    super(options);
 
-		this.updateModes([
-			'green',
-			'normal'
-		]);
+    this.defineProperty("power", {
+      mapper: (v) => v === "n",
+    });
 
-		this.defineProperty('mode');
-	}
+    this.updateModes(["green", "normal"]);
 
-	changePower(power) {
-		return this.call('set_power', [ power ? 'on' : 'off' ], { refresh: [ 'power' ] });
-	}
+    this.defineProperty("mode");
+  }
 
-	changeMode(mode) {
-		return this.call('set_power_mode', [ mode ]);
-	}
+  changePower(power) {
+    return this.call("set_power", [power ? "on" : "off"], {
+      refresh: ["power"],
+    });
+  }
+
+  changeMode(mode) {
+    return this.call("set_power_mode", [mode]);
+  }
 };

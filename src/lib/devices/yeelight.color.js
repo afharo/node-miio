@@ -1,6 +1,5 @@
-'use strict';
+"use strict";
 
-const { Yeelight, ColorFull } = require('./yeelight');
+const { Yeelight, ColorFull } = require("./yeelight");
 
-module.exports = class YeelightColor extends Yeelight.with(ColorFull) {
-};
+module.exports = class YeelightColor extends Yeelight.with(ColorFull) {};
