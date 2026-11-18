@@ -1,3 +1,13 @@
+<!-- prettier-ignore -->
+> [!WARNING]
+> **Looking for a new maintainer**
+>
+> I no longer own a device supported by this project (my new vacuum supports Matter natively), so I can't test changes against real hardware anymore.
+> I'm happy to hand over ownership of the repository and the npm package to anyone who wants to continue its development.
+>
+> In the meantime, I'll keep addressing the reported issues with AI-assisted development, relying on the automated tests and **your feedback**: please, try the beta releases and report back.
+> Interested in taking over? Please, comment on [this issue](https://github.com/afharo/node-miio/issues/18).
+
 # miIO Device Library
 
 [![npm version](https://badge.fury.io/js/node-miio.svg)](https://badge.fury.io/js/node-miio)
