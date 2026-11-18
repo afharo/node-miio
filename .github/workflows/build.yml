@@ -48,3 +48,8 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Smoke-test the build
+        run: |
+          node -e "const miio = require('./dist/lib'); if (typeof miio.device !== 'function') process.exit(1)"
+          node dist/cli/index.js --help

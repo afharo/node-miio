@@ -1,11 +1,27 @@
+#!/usr/bin/env node
 "use strict";
 
-import path from "node:path";
-
-import yargs from "yargs";
+import yargs, { type CommandModule } from "yargs";
 import { hideBin } from "yargs/helpers";
 
-yargs(hideBin(process.argv))
-  .commandDir(path.join(__dirname, "commands"))
+import * as configure from "./commands/configure";
+import * as control from "./commands/control";
+import * as discover from "./commands/discover";
+import * as inspect from "./commands/inspect";
+import * as protocol from "./commands/protocol";
+import * as tokens from "./commands/tokens";
+
+// Commands are registered explicitly (instead of `commandDir`) because
+// `commandDir` is not supported when yargs is loaded as an ES module.
+void yargs(hideBin(process.argv))
+  .scriptName("node-miio")
+  .command(configure as unknown as CommandModule)
+  .command(control as unknown as CommandModule)
+  .command(discover as unknown as CommandModule)
+  .command(inspect as unknown as CommandModule)
+  .command(protocol as unknown as CommandModule)
+  .command(tokens as unknown as CommandModule)
   .recommendCommands()
-  .demandCommand();
+  .demandCommand()
+  .strict()
+  .parse();

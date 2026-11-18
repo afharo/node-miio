@@ -5,7 +5,7 @@ import { boolean } from "abstract-things/values";
 
 import { MiioApi } from "../../device";
 
-export class Buzzer extends Thing.mixin(
+export const Buzzer = Thing.mixin(
   (Parent) =>
     class extends Parent.with(State) {
       static get capability() {
@@ -81,4 +81,4 @@ export class Buzzer extends Thing.mixin(
         }).then(MiioApi.checkOk);
       }
     },
-) {}
+);

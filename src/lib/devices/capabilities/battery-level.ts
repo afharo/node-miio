@@ -3,7 +3,7 @@ import {
   BatteryLevel as AbstractThingsBatteryLevel,
 } from "abstract-things";
 
-export class BatteryLevel extends Thing.mixin(
+export const BatteryLevel = Thing.mixin(
   (Parent) =>
     class BatteryLevel extends Parent.with(AbstractThingsBatteryLevel) {
       propertyUpdated(key, value) {
@@ -14,4 +14,4 @@ export class BatteryLevel extends Thing.mixin(
         super.propertyUpdated(key, value);
       }
     },
-) {}
+);

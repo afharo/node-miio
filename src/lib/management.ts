@@ -1,6 +1,5 @@
 import { tokens } from "./tokens";
 import type { DeviceInfo } from "./device_info";
-import { connectToDevice } from "./connect_to_device";
 import type { Protocol } from "./protocol";
 
 export interface DeviceHandle {
@@ -101,6 +100,9 @@ export class DeviceManagement {
     }
 
     try {
+      // Lazy-loaded to avoid a circular dependency:
+      // device -> management -> connect_to_device -> placeholder -> device
+      const { connectToDevice } = await import("./connect_to_device.js");
       const device = await connectToDevice({
         address: this.address,
         port: this.port,

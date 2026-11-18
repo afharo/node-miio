@@ -1,6 +1,6 @@
 import { Thing, SwitchablePower } from "abstract-things";
 
-export class Power extends Thing.mixin(
+export const Power = Thing.mixin(
   (Parent) =>
     class extends Parent.with(SwitchablePower) {
       propertyUpdated<T>(key: string, value: T) {
@@ -11,4 +11,4 @@ export class Power extends Thing.mixin(
         super.propertyUpdated(key, value);
       }
     },
-) {}
+);

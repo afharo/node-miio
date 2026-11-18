@@ -4,6 +4,13 @@ import { connectToDevice } from "./connect_to_device";
 import { infoFromHostname } from "./info_from_hostname";
 import type { BrowserOptions, DevicesOptions } from "./discovery";
 
+export { Device as MiioDevice } from "./device";
+export { MiioError } from "./miio_error";
+export { Vacuum } from "./devices/vacuums/vacuum";
+export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
+export { ViomiVacuum } from "./devices/vacuums/viomivacuum";
+export { DreameVacuum } from "./devices/vacuums/dreamevacuum";
+
 export {
   /**
    * Get information about the models supported. Can be used to extend the models
