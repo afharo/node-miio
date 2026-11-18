@@ -264,13 +264,6 @@ export class Vacuum extends ATVacuum.with(
             message: "Error during charging",
           });
           break;
-        case "charger-offline":
-          // Charger is offline, trigger an error
-          this.updateError({
-            code: "charger-offline",
-            message: "Charger is offline",
-          });
-          break;
         default:
           // The vacuum is not cleaning
           this.updateCleaning(false);
@@ -498,10 +491,13 @@ export class Vacuum extends ATVacuum.with(
     // We override loadProperties to use get_status and get_consumables
     props = props.map((key) => this._reversePropertyDefinitions[key] || key);
 
-    const [status, consumables] = await Promise.all([
+    const [statusResponse, consumablesResponse] = await Promise.all([
       this.call("get_status", []),
       this.call("get_consumable", []),
     ]);
+    // Both methods respond with a single-item array: `[{ ...values }]`
+    const status = unwrapSingleItemArray(statusResponse);
+    const consumables = unwrapSingleItemArray(consumablesResponse);
 
     const mapped = {};
     props.forEach((prop) => {
@@ -513,4 +509,18 @@ export class Vacuum extends ATVacuum.with(
     });
     return mapped;
   }
+}
+
+/**
+ * Some methods respond with an array containing a single object. This helper unwraps it (and also accepts the object
+ * itself, in case some firmware responds without the wrapping array).
+ *
+ * @param response The response from the device
+ * @returns The inner object (or an empty object if the response is not valid)
+ */
+function unwrapSingleItemArray(response: unknown): Record<string, unknown> {
+  const value = Array.isArray(response) ? response[0] : response;
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
 }

@@ -6,7 +6,7 @@ const { percentage } = require("abstract-things/values");
 
 const { MiioApi } = require("../device");
 
-const MiioDimmable = require("./capabilities/dimmable");
+const { Dimmable: MiioDimmable } = require("./capabilities/dimmable");
 const { Power: MiioPower } = require("./capabilities/power");
 
 module.exports = class EyecareLamp2 extends (

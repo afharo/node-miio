@@ -93,6 +93,17 @@ module.exports = defineConfig([
         ecmaVersion: "latest",
       },
     },
+    settings: {
+      // Map the source files to the published ones, so `n/hashbang` knows `src/cli/index.ts` is the package's `bin`
+      n: {
+        convertPath: [
+          {
+            include: ["src/**/*.ts"],
+            replace: ["^src/(.+)\\.ts$", "dist/$1.js"],
+          },
+        ],
+      },
+    },
     rules: {
       // Override/add rules specific to typescript files here
       "no-unused-vars": "off", // Disable base rule for unused variables in test files

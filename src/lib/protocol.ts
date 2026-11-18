@@ -102,11 +102,11 @@ export interface Protocol {
   };
   get_status: {
     params: [];
-    response: Record<string, unknown>;
+    response: [Record<string, unknown>];
   };
   get_consumable: {
     params: [];
-    response: Record<string, unknown>;
+    response: [Record<string, unknown>];
   };
 
   // Viomi
