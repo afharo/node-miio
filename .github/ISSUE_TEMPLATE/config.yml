@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Using the Homebridge plugin?
+    url: https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/new/choose
+    about: Report it there. If node-miio needs a fix, it's moved here.
+  - name: Using the Matterbridge plugin?
+    url: https://github.com/afharo/matterbridge-xiaomi-roborock/issues/new/choose
+    about: Report it there. If node-miio needs a fix, it's moved here.
