@@ -31,7 +31,8 @@ export interface Protocol {
     response: GetTimerResponseTimer[];
   };
   app_segment_clean: {
-    params: number[];
+    // Legacy format: the list of segment ids. Newer firmwares also accept an object with the number of repeats.
+    params: number[] | [{ segments: number[]; repeat: number }];
     response: unknown;
   };
   resume_segment_clean: {
@@ -94,6 +95,69 @@ export interface Protocol {
     params: [];
     // [??, ??, count, days]
     response: [unknown, unknown, number, number[]];
+  };
+  // Roborock: Do Not Disturb
+  get_dnd_timer: {
+    params: [];
+    response: [RoborockDndTimer];
+  };
+  set_dnd_timer: {
+    // [start_hour, start_minute, end_hour, end_minute]
+    params: [number, number, number, number];
+    response: unknown;
+  };
+  close_dnd_timer: {
+    params: [];
+    response: unknown;
+  };
+  // Roborock: carpet mode (boost the suction on carpets)
+  get_carpet_mode: {
+    params: [];
+    response: [RoborockCarpetMode];
+  };
+  set_carpet_mode: {
+    params: [RoborockCarpetMode];
+    response: unknown;
+  };
+  // Roborock: mop route (S7 and newer)
+  get_mop_mode: {
+    params: [];
+    response: [number];
+  };
+  set_mop_mode: {
+    params: [number];
+    response: unknown;
+  };
+  // Roborock: multi-floor maps
+  get_multi_maps_list: {
+    params: [];
+    response: [RoborockMultiMapsList];
+  };
+  load_multi_map: {
+    params: [number];
+    response: unknown;
+  };
+  // Roborock: dock (mop washing)
+  app_start_wash: {
+    params: [];
+    response: unknown;
+  };
+  app_stop_wash: {
+    params: [];
+    response: unknown;
+  };
+  // Roborock: consumables and sound
+  reset_consumable: {
+    params: [string];
+    response: unknown;
+  };
+  get_sound_volume: {
+    params: [];
+    response: [number];
+  };
+  change_sound_volume: {
+    params: [number];
+    response: unknown;
   };
   get_clean_record: {
     params: [number];
@@ -175,6 +239,34 @@ export interface MiotActionResult {
   aiid?: number;
   code: number;
   out?: unknown[];
+}
+
+export interface RoborockDndTimer {
+  start_hour: number;
+  start_minute: number;
+  end_hour: number;
+  end_minute: number;
+  enabled: number;
+}
+
+export interface RoborockCarpetMode {
+  enable: number;
+  current_high: number;
+  current_integral: number;
+  current_low: number;
+  stall_time: number;
+}
+
+export interface RoborockMultiMapsList {
+  max_multi_map: number;
+  max_bak_map: number;
+  multi_map_count: number;
+  map_info: Array<{
+    mapFlag: number;
+    add_time: number;
+    length: number;
+    name: string;
+  }>;
 }
 
 export interface MiioDeviceInfo {

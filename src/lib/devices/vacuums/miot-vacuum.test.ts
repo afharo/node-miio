@@ -200,15 +200,15 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     expect(vacuum.property("state")).toBe("unknown-99");
   });
 
-  test("exposes the fan speeds and water levels from the spec", () => {
+  test("exposes the fan speeds and water levels from the spec", async () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch);
-    expect(vacuum.fanSpeeds()).toEqual([
+    expect(await vacuum.fanSpeeds()).toEqual([
       { value: 0, name: "Silent" },
       { value: 1, name: "Basic" },
       { value: 2, name: "Strong" },
       { value: 3, name: "Full Speed" },
     ]);
-    expect(vacuum.waterBoxModes()).toEqual([
+    expect(await vacuum.waterBoxModes()).toEqual([
       { value: 1, name: "Level1" },
       { value: 2, name: "Level2" },
       { value: 3, name: "Level3" },
@@ -305,26 +305,26 @@ describe("MiotVacuum (other models)", () => {
       "action",
       expect.objectContaining({ siid: 2, aiid: 1 }),
     ]);
-    expect(vacuum.fanSpeeds().map((m) => m.name)).toEqual([
+    expect((await vacuum.fanSpeeds()).map((m) => m.name)).toEqual([
       "Silent",
       "Basic",
       "Strong",
       "Full Speed",
     ]);
     // p2008's water level lives in a vendor-specific service only
-    expect(vacuum.waterBoxModes()).toEqual([]);
+    expect(await vacuum.waterBoxModes()).toEqual([]);
     await expect(vacuum.setWaterBoxMode(1)).rejects.toThrow("not supported");
   });
 
-  test("mijia.vacuum.v2 uses fan-level (not the cleaning mode) and target-water-level", () => {
+  test("mijia.vacuum.v2 uses fan-level (not the cleaning mode) and target-water-level", async () => {
     const { vacuum } = createMiotVacuum("mijia.vacuum.v2", mijiaV2);
-    expect(vacuum.fanSpeeds().map((m) => m.name)).toEqual([
+    expect((await vacuum.fanSpeeds()).map((m) => m.name)).toEqual([
       "Silence",
       "Stanrd",
       "Middle",
       "Enchance",
     ]);
-    expect(vacuum.waterBoxModes().map((m) => m.name)).toEqual([
+    expect((await vacuum.waterBoxModes()).map((m) => m.name)).toEqual([
       "Level1",
       "Level2",
       "Level3",
@@ -333,7 +333,7 @@ describe("MiotVacuum (other models)", () => {
 
   test("ijai.vacuum.v3 doesn't treat the cleaning type as a fan speed", async () => {
     const { vacuum } = createMiotVacuum("ijai.vacuum.v3", ijaiV3);
-    expect(vacuum.fanSpeeds()).toEqual([]);
+    expect(await vacuum.fanSpeeds()).toEqual([]);
     await expect(vacuum.changeFanSpeed(1)).rejects.toThrow("not supported");
   });
 
@@ -361,7 +361,7 @@ describe("MiotVacuum (other models)", () => {
       "2.1": 4, // Charging
       "3.1": 100,
     });
-    expect(vacuum.fanSpeeds().map((m) => m.name)).toEqual([
+    expect((await vacuum.fanSpeeds()).map((m) => m.name)).toEqual([
       "Silent",
       "Basic",
       "Medium",

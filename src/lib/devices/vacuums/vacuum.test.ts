@@ -6,7 +6,7 @@ import {
   sentCalls,
 } from "../../test_utils.test.mock";
 
-import { Vacuum } from "./vacuum";
+import { MOP_ROUTES, Vacuum } from "./vacuum";
 
 jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
 
@@ -329,6 +329,201 @@ describe("Vacuum (roborock miIO)", () => {
         ],
       });
       expect(sentCalls(call)[0]).toEqual(["get_clean_record", [1488240000]]);
+    });
+  });
+
+  describe("room cleaning with repeats", () => {
+    test("uses the list format by default", async () => {
+      const { vacuum, call } = createVacuum({ app_segment_clean: ["ok"] });
+      await withTimers(vacuum.cleanRooms([16, 17]));
+      expect(sentCalls(call)[0]).toEqual(["app_segment_clean", [16, 17]]);
+    });
+
+    test("uses the object format when repeating", async () => {
+      const { vacuum, call } = createVacuum({ app_segment_clean: ["ok"] });
+      await withTimers(vacuum.cleanRooms([16, 17], { repeat: 2 }));
+      expect(sentCalls(call)[0]).toEqual([
+        "app_segment_clean",
+        [{ segments: [16, 17], repeat: 2 }],
+      ]);
+    });
+  });
+
+  describe("modes", () => {
+    test("fan speeds depend on the firmware (and miIO.info is called once)", async () => {
+      const { vacuum, call } = createVacuum({
+        "miIO.info": { model: MODEL, fw_ver: "3.5.8_0008" },
+      });
+      await expect(vacuum.fanSpeeds()).resolves.toEqual([
+        { value: 105, name: "Soft" },
+        { value: 101, name: "Quiet" },
+        { value: 102, name: "Balanced" },
+        { value: 103, name: "Turbo" },
+        { value: 104, name: "Max" },
+      ]);
+      await expect(vacuum.waterBoxModes()).resolves.toEqual([]);
+      expect(sentCalls(call).filter(([m]) => m === "miIO.info")).toHaveLength(
+        1,
+      );
+    });
+
+    test("falls back to the model's default when miIO.info fails", async () => {
+      const { vacuum } = createVacuum({
+        "miIO.info": () => {
+          throw new Error("timeout");
+        },
+      });
+      const speeds = await vacuum.fanSpeeds();
+      expect(speeds.map((m) => m.value)).toEqual([105, 38, 60, 75, 100]);
+    });
+  });
+
+  describe("do not disturb", () => {
+    test("getDoNotDisturb", async () => {
+      const { vacuum } = createVacuum({
+        get_dnd_timer: [
+          {
+            start_hour: 22,
+            start_minute: 0,
+            end_hour: 8,
+            end_minute: 5,
+            enabled: 1,
+          },
+        ],
+      });
+      await expect(vacuum.getDoNotDisturb()).resolves.toEqual({
+        enabled: true,
+        start: "22:00",
+        end: "08:05",
+      });
+    });
+
+    test("setDoNotDisturb", async () => {
+      const { vacuum, call } = createVacuum({ set_dnd_timer: ["ok"] });
+      await vacuum.setDoNotDisturb("22:30", "7:00");
+      expect(sentCalls(call)).toEqual([["set_dnd_timer", [22, 30, 7, 0]]]);
+    });
+
+    test.each(["24:00", "12:60", "noon", "1230"])(
+      "setDoNotDisturb rejects invalid times (%p)",
+      async (time) => {
+        const { vacuum, call } = createVacuum();
+        await expect(vacuum.setDoNotDisturb(time, "08:00")).rejects.toThrow(
+          "Invalid time",
+        );
+        expect(call).not.toHaveBeenCalled();
+      },
+    );
+
+    test("disableDoNotDisturb", async () => {
+      const { vacuum, call } = createVacuum({ close_dnd_timer: ["ok"] });
+      await vacuum.disableDoNotDisturb();
+      expect(sentCalls(call)).toEqual([["close_dnd_timer", []]]);
+    });
+  });
+
+  describe("carpet mode", () => {
+    const carpet = {
+      enable: 0,
+      current_high: 500,
+      current_integral: 450,
+      current_low: 400,
+      stall_time: 10,
+    };
+
+    test("getCarpetMode", async () => {
+      const { vacuum } = createVacuum({ get_carpet_mode: [carpet] });
+      await expect(vacuum.getCarpetMode()).resolves.toBe(false);
+    });
+
+    test("setCarpetMode keeps the current settings", async () => {
+      const { vacuum, call } = createVacuum({
+        get_carpet_mode: [carpet],
+        set_carpet_mode: ["ok"],
+      });
+      await vacuum.setCarpetMode(true);
+      expect(sentCalls(call)[1]).toEqual([
+        "set_carpet_mode",
+        [{ ...carpet, enable: 1 }],
+      ]);
+    });
+  });
+
+  describe("other settings", () => {
+    test("mop route", async () => {
+      const { vacuum, call } = createVacuum({
+        get_mop_mode: [300],
+        set_mop_mode: ["ok"],
+      });
+      await expect(vacuum.getMopRoute()).resolves.toBe(MOP_ROUTES.standard);
+      await vacuum.setMopRoute(MOP_ROUTES.deep);
+      expect(sentCalls(call)[1]).toEqual(["set_mop_mode", [301]]);
+    });
+
+    test("multi-floor maps", async () => {
+      const { vacuum, call } = createVacuum({
+        get_multi_maps_list: [
+          {
+            max_multi_map: 4,
+            max_bak_map: 1,
+            multi_map_count: 2,
+            map_info: [
+              {
+                mapFlag: 0,
+                add_time: 1700000000,
+                length: 9,
+                name: "Ground floor",
+              },
+              { mapFlag: 1, add_time: 1700000001, length: 5, name: "Upstairs" },
+            ],
+          },
+        ],
+        load_multi_map: ["ok"],
+      });
+      await expect(vacuum.getMaps()).resolves.toEqual([
+        { id: 0, name: "Ground floor" },
+        { id: 1, name: "Upstairs" },
+      ]);
+      await vacuum.loadMap(1);
+      expect(sentCalls(call)[1]).toEqual(["load_multi_map", [1]]);
+    });
+
+    test("mop washing", async () => {
+      const { vacuum, call } = createVacuum({
+        app_start_wash: ["ok"],
+        app_stop_wash: ["ok"],
+      });
+      await vacuum.startMopWash();
+      await vacuum.stopMopWash();
+      expect(sentCalls(call)).toEqual([
+        ["app_start_wash", []],
+        ["app_stop_wash", []],
+      ]);
+    });
+
+    test("resetConsumable refreshes the related property", async () => {
+      const { vacuum, call } = createVacuum({ reset_consumable: ["ok"] });
+      await withTimers(vacuum.resetConsumable("filter_work_time"));
+      expect(sentCalls(call)[0]).toEqual([
+        "reset_consumable",
+        ["filter_work_time"],
+      ]);
+      expect(call.mock.calls[0][2]).toMatchObject({
+        refresh: ["filterWorkTime"],
+      });
+    });
+
+    test("sound volume", async () => {
+      const { vacuum, call } = createVacuum({
+        get_sound_volume: [90],
+        change_sound_volume: ["ok"],
+      });
+      await expect(vacuum.getSoundVolume()).resolves.toBe(90);
+      await vacuum.setSoundVolume(42.4);
+      expect(sentCalls(call)[1]).toEqual(["change_sound_volume", [42]]);
+      await expect(vacuum.setSoundVolume(101)).rejects.toThrow(
+        "Invalid volume",
+      );
     });
   });
 });

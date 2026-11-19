@@ -10,6 +10,30 @@ import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
 import { checkResult } from "../../check_result";
 import type { DeviceHandle } from "../../management";
+import type { Protocol } from "../../protocol";
+
+import {
+  resolveVacuumModes,
+  type VacuumMode,
+  type VacuumModes,
+} from "./vacuum_modes";
+
+/** Mop routes (`get_mop_mode`/`set_mop_mode`) of the S7 and newer */
+export const MOP_ROUTES = {
+  standard: 300,
+  deep: 301,
+  deepPlus: 303,
+} as const;
+
+/** Consumables that can be reset with {@link Vacuum.resetConsumable}, and the property they map to */
+const CONSUMABLE_PROPERTIES = {
+  main_brush_work_time: "mainBrushWorkTime",
+  side_brush_work_time: "sideBrushWorkTime",
+  filter_work_time: "filterWorkTime",
+  sensor_dirty_time: "sensorDirtyTime",
+} as const;
+
+export type RoborockConsumable = keyof typeof CONSUMABLE_PROPERTIES;
 
 /**
  * Implementation of the interface used by the Mi Robot Vacuum. This device
@@ -289,8 +313,20 @@ export class Vacuum extends ATVacuum.with(
     return this.call("get_room_mapping", []);
   }
 
-  cleanRooms(listOfRooms) {
-    return this.call("app_segment_clean", listOfRooms, {
+  /**
+   * Clean the given rooms (segment ids from {@link getRoomMap}).
+   *
+   * @param listOfRooms The segment ids
+   * @param options Options
+   * @param options.repeat How many times to clean each room (1-3). When > 1, the newer object format is sent,
+   * which older firmwares may not support.
+   */
+  cleanRooms(listOfRooms: number[], options: { repeat?: number } = {}) {
+    const params: Protocol["app_segment_clean"]["params"] =
+      options.repeat && options.repeat > 1
+        ? [{ segments: listOfRooms, repeat: options.repeat }]
+        : listOfRooms;
+    return this.call("app_segment_clean", params, {
       refresh: ["state"],
       refreshDelay: 1000,
     }).then(checkResult);
@@ -428,6 +464,204 @@ export class Vacuum extends ATVacuum.with(
    */
   find() {
     return this.call("find_me", [""]).then(() => null);
+  }
+
+  /**
+   * The fan speeds supported by this model (and firmware), to be used with {@link changeFanSpeed}.
+   *
+   * @returns The list of modes
+   */
+  async fanSpeeds(): Promise<VacuumMode[]> {
+    return (await this.modes()).fanSpeeds;
+  }
+
+  /**
+   * The water levels supported by this model, to be used with {@link setWaterBoxMode}. Empty if not supported.
+   *
+   * @returns The list of modes
+   */
+  async waterBoxModes(): Promise<VacuumMode[]> {
+    return (await this.modes()).waterBoxModes;
+  }
+
+  private modesPromise?: Promise<VacuumModes>;
+
+  private modes(): Promise<VacuumModes> {
+    // The firmware version is needed because some models changed their fan speeds in newer firmwares
+    const modes =
+      this.modesPromise ??
+      this.call("miIO.info", [])
+        .then((info) => info?.fw_ver)
+        .catch(() => undefined)
+        .then((firmware) => resolveVacuumModes(this.miioModel ?? "", firmware));
+    this.modesPromise = modes;
+    return modes;
+  }
+
+  /**
+   * Get the Do Not Disturb schedule.
+   *
+   * @returns Whether it's enabled, and the start and end times (`HH:mm`)
+   */
+  async getDoNotDisturb(): Promise<{
+    enabled: boolean;
+    start: string;
+    end: string;
+  }> {
+    const [dnd] = await this.call("get_dnd_timer", []);
+    const time = (h: number, min: number) =>
+      `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+    return {
+      enabled: dnd.enabled === 1,
+      start: time(dnd.start_hour, dnd.start_minute),
+      end: time(dnd.end_hour, dnd.end_minute),
+    };
+  }
+
+  /**
+   * Enable the Do Not Disturb schedule.
+   *
+   * @param start Start time (`HH:mm`)
+   * @param end End time (`HH:mm`)
+   */
+  async setDoNotDisturb(start: string, end: string) {
+    const parse = (time: string) => {
+      const match = time.match(/^(\d{1,2}):(\d{2})$/);
+      const [h, min] = match
+        ? [Number(match[1]), Number(match[2])]
+        : [NaN, NaN];
+      if (!(h >= 0 && h < 24 && min >= 0 && min < 60)) {
+        throw new Error(`Invalid time "${time}", expected HH:mm`);
+      }
+      return [h, min] as const;
+    };
+    const [startHour, startMinute] = parse(start);
+    const [endHour, endMinute] = parse(end);
+    await this.call("set_dnd_timer", [
+      startHour,
+      startMinute,
+      endHour,
+      endMinute,
+    ]).then(checkResult);
+  }
+
+  /**
+   * Disable the Do Not Disturb schedule.
+   */
+  async disableDoNotDisturb() {
+    await this.call("close_dnd_timer", []).then(checkResult);
+  }
+
+  /**
+   * Whether the carpet mode (suction boost on carpets) is enabled.
+   *
+   * @returns `true` if enabled
+   */
+  async getCarpetMode(): Promise<boolean> {
+    const [mode] = await this.call("get_carpet_mode", []);
+    return mode.enable === 1;
+  }
+
+  /**
+   * Enable or disable the carpet mode (keeps the current sensitivity settings).
+   *
+   * @param enabled Whether to enable it
+   */
+  async setCarpetMode(enabled: boolean) {
+    const [current] = await this.call("get_carpet_mode", []);
+    await this.call("set_carpet_mode", [
+      { ...current, enable: enabled ? 1 : 0 },
+    ]).then(checkResult);
+  }
+
+  /**
+   * The mop route (S7 and newer).
+   *
+   * @returns The raw value (see {@link MOP_ROUTES})
+   */
+  async getMopRoute(): Promise<number> {
+    const [mode] = await this.call("get_mop_mode", []);
+    return mode;
+  }
+
+  /**
+   * Set the mop route (S7 and newer).
+   *
+   * @param route One of the values of {@link MOP_ROUTES}
+   */
+  async setMopRoute(route: number) {
+    await this.call("set_mop_mode", [route]).then(checkResult);
+  }
+
+  /**
+   * The saved maps (multi-floor).
+   *
+   * @returns The id and name of each map
+   */
+  async getMaps(): Promise<Array<{ id: number; name: string }>> {
+    const [list] = await this.call("get_multi_maps_list", []);
+    return (list?.map_info ?? []).map(({ mapFlag, name }) => ({
+      id: mapFlag,
+      name,
+    }));
+  }
+
+  /**
+   * Switch to another saved map (multi-floor).
+   *
+   * @param id The id from {@link getMaps}
+   */
+  async loadMap(id: number) {
+    await this.call("load_multi_map", [id]).then(checkResult);
+  }
+
+  /**
+   * Wash the mop in the dock (docks with mop washing only).
+   */
+  async startMopWash() {
+    await this.call("app_start_wash", []).then(checkResult);
+  }
+
+  /**
+   * Stop washing the mop.
+   */
+  async stopMopWash() {
+    await this.call("app_stop_wash", []).then(checkResult);
+  }
+
+  /**
+   * Reset a consumable after replacing it.
+   *
+   * @param consumable The consumable to reset
+   */
+  async resetConsumable(consumable: RoborockConsumable) {
+    await this.call("reset_consumable", [consumable], {
+      refresh: [CONSUMABLE_PROPERTIES[consumable]],
+    }).then(checkResult);
+  }
+
+  /**
+   * The volume of the voice.
+   *
+   * @returns 0-100
+   */
+  async getSoundVolume(): Promise<number> {
+    const [volume] = await this.call("get_sound_volume", []);
+    return volume;
+  }
+
+  /**
+   * Change the volume of the voice.
+   *
+   * @param volume 0-100
+   */
+  async setSoundVolume(volume: number) {
+    if (!(volume >= 0 && volume <= 100)) {
+      throw new Error(`Invalid volume ${volume}, expected 0-100`);
+    }
+    await this.call("change_sound_volume", [Math.round(volume)]).then(
+      checkResult,
+    );
   }
 
   /**
