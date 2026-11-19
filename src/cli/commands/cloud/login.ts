@@ -12,6 +12,7 @@ import {
 } from "../../../lib/cloud/index";
 import { log } from "../../log";
 import { prompt } from "../../prompt";
+import { terminalQr } from "../../terminal_qr";
 
 export const command = "login";
 export const description =
@@ -36,9 +37,12 @@ export const handler = async (argv: { qr?: boolean; username?: string }) => {
             log.info(
               "Scan this QR code with the Mi Home app (Profile → Scan):",
             );
+            // The QR code image encodes the login URL
+            console.log(terminalQr(loginUrl));
+            log.plain(
+              "If it doesn't scan, open this image and scan it instead:",
+            );
             log.plain(`  ${imageUrl}`);
-            log.plain("Or open this page and scan the QR code shown:");
-            log.plain(`  ${loginUrl}`);
             log.plain(
               `Waiting up to ${Math.round(timeoutMs / 60000)} minutes…`,
             );
