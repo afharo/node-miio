@@ -39,6 +39,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Snapshot the MIoT specs (bundled for offline use)
+        run: npm run snapshot
+
       - name: Publish to npm
         run: npm publish
         env:

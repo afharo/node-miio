@@ -5,11 +5,52 @@ import { models } from "./models";
 import { Vacuum } from "./devices/vacuums/vacuum";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
+import {
+  isSupportedMiotVacuum,
+  MiotVacuum,
+} from "./devices/vacuums/miot-vacuum";
+import { getMiotSpecClient } from "./miot/spec_client";
+import { MiotSpecIndex } from "./miot/miot_spec";
 import { isMiioError, MiioError } from "./miio_error";
 import type { DeviceInfo } from "./device_info";
 
 export interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
   withPlaceholder?: boolean;
+}
+
+/** Vacuum brands that speak the legacy miIO protocol (their MIoT specs are stubs for the cloud/voice assistants) */
+const LEGACY_VACUUM_MODEL = /^(roborock|rockrobo|viomi)\./;
+
+type DeviceHandleForConnect = ConstructorParameters<typeof Device>[0];
+
+/**
+ * Tries to create a spec-driven vacuum. It only succeeds if a spec is available, it describes a supported vacuum,
+ * and the device responds to `get_properties` for its status (so devices that only speak legacy miIO keep working).
+ *
+ * @param model The device model
+ * @param handle The device handle
+ * @returns The device, or `undefined` if MIoT can't be used
+ */
+async function tryMiotVacuum(
+  model: string,
+  handle: DeviceHandleForConnect,
+): Promise<IDevice | undefined> {
+  const resolved = await getMiotSpecClient()
+    .getSpec(model)
+    .catch(() => undefined);
+  if (!resolved || !isSupportedMiotVacuum(resolved.spec)) return undefined;
+
+  const status = new MiotSpecIndex(resolved.spec).property("vacuum", "status");
+  if (!status) return undefined;
+  try {
+    const [result] = await handle.api.call("get_properties", [
+      { did: "status", siid: status.siid, piid: status.piid },
+    ]);
+    if (!result || result.code !== 0) return undefined;
+  } catch {
+    return undefined;
+  }
+  return new MiotVacuum(handle, resolved.spec) as unknown as IDevice;
 }
 
 /**
@@ -31,17 +72,26 @@ export async function connectToDevice(options: ConnectToDeviceOptions) {
     // Try to resolve the correct model, otherwise use the generic device
     let d = models[deviceInfo.model as string];
 
-    // Hack to accept any vacuum in the form of 'WORD.vacuum.*'
-    if (!d && deviceInfo.model?.match(/^\w+\.vacuum\./)) {
-      d = Vacuum;
-      if (deviceInfo.model?.startsWith("viomi.")) {
+    const model = deviceInfo.model ?? "";
+    let miotDevice: IDevice | undefined;
+
+    // Accept any vacuum in the form of 'WORD.vacuum.*'
+    if (!d && /^\w+\.vacuum\./.test(model)) {
+      if (!LEGACY_VACUUM_MODEL.test(model)) {
+        miotDevice = await tryMiotVacuum(model, deviceHandle);
+      }
+      if (model.startsWith("viomi.")) {
         d = ViomiVacuum;
-      } else if (deviceInfo.model?.startsWith("dreame.")) {
+      } else if (model.startsWith("dreame.")) {
         d = DreameVacuum;
+      } else {
+        d = Vacuum;
       }
     }
 
-    if (!d) {
+    if (miotDevice) {
+      device = miotDevice;
+    } else if (!d) {
       device = new Device(deviceHandle);
     } else {
       device = new d(deviceHandle);

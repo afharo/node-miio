@@ -2,3 +2,6 @@ node_modules/
 npm-debug.log
 .node-persist/
 dist/
+
+# MIoT spec snapshot, generated at release time (npm run snapshot)
+snapshots/

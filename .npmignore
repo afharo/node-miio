@@ -32,3 +32,6 @@ jest.config.js
 # Docs
 images/
 
+
+# Scripts
+scripts/

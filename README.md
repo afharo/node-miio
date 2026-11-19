@@ -37,7 +37,9 @@ Currently supported devices are:
 * Air Purifiers (1, 2 and Pro)
 * Mi Humidifier
 * Mi Smart Socket Plug and Power Strips
-* Mi Robot Vacuum (V1 and V2)
+* Robot vacuums:
+  * Roborock / Mi Robot Vacuum (legacy miIO protocol), Viomi and Dreame (mc1808)
+  * **Any MIoT vacuum** (Xiaomi, Dreame, Mijia, ijai, …), driven by its spec from [miot-spec.org](https://home.miot-spec.com) (see [MIoT devices](#miot-devices))
 * Mi Smart Home Gateway (Aqara) and accessories - switches, sensors, etc
 * Philips Light Bulb and Eyecare Lamp
 * Yeelights (White Bulb, Color Bulb, Desk Lamp and Strip)
@@ -46,6 +48,33 @@ See [documentation for devices](docs/devices/README.md) for information about
 the types, their API and supported device models. You can also check
 [Missing devices](docs/missing-devices.md) if you want to know what you can do
 to help this library with support for your device.
+
+## MIoT devices
+
+Newer devices use the MIoT protocol, where every feature is a numbered property or action described in a per-model spec
+published on [miot-spec.org](https://home.miot-spec.com). `node-miio` downloads the spec of your model on first use and
+caches it on disk (`~/.cache/node-miio`, `~/Library/Caches/node-miio` or `%LOCALAPPDATA%\node-miio\Cache`).
+
+Each release also bundles a snapshot of the specs of **every vacuum** listed on miot-spec.org, so it works in
+air-gapped environments too:
+
+```js
+const miio = require("node-miio");
+
+miio.configureMiotSpecs({
+  offline: true, // Never use the network (or set the env var MIIO_OFFLINE=1)
+  cacheDir: "/path/to/cache", // Or the env var MIIO_CACHE_DIR. `false` disables the cache
+  specDir: "/path/to/specs", // Optional: your own specs, named `<model>.json`
+});
+```
+
+To inspect the spec of a model (and whether it's supported as a vacuum):
+
+```
+$ npx node-miio spec xiaomi.vacuum.d110ch
+```
+
+MIoT vacuums expose `fanSpeeds()` and `waterBoxModes()` with the values (and names) supported by the model.
 
 ## Installation
 

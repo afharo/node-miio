@@ -7,6 +7,7 @@ import Gateway from "./devices/gateway";
 import { Vacuum } from "./devices/vacuums/vacuum";
 import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
+import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
 import PowerPlug from "./devices/power-plug";
 import PowerPlugChuangmiV1 from "./devices/chuangmi.plug.v1";
 import PowerStrip from "./devices/power-strip";
@@ -52,6 +53,9 @@ export const models = {
 
   "viomi.vacuum.v7": ViomiVacuum,
   "viomi.vacuum.v8": ViomiVacuum,
+
+  // Hand-mapped MIoT vacuum (other `dreame.vacuum.*` models are resolved from their MIoT spec)
+  "dreame.vacuum.mc1808": DreameVacuum,
 
   "lumi.gateway.v2": Gateway.WithLightAndSensor,
   "lumi.gateway.v3": Gateway.WithLightAndSensor,
