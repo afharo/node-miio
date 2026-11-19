@@ -1,0 +1,21 @@
+{
+  "ssecurity": "AAECAwQFBgcICQoLDA0ODw==",
+  "random": [1, 2, 3, 4, 5, 6, 7, 8],
+  "millis": 1763550000000,
+  "nonce": "AQIDBAUGBwgBwH50",
+  "signedNonce": "DACL8Or6BmKb9UL+yFBVtNsJ/eCxLuHKlFS5/Yb39uc=",
+  "url": "https://de.api.io.mi.com/app/v2/homeroom/gethome",
+  "data": "{\"fg\": true, \"fetch_share\": true, \"fetch_share_dev\": true, \"limit\": 300, \"app_ver\": 7}",
+  "params": {
+    "data": "fxlPepxZFqXq7HRfQxJAs/8pUTpwZWBkK3iKF45gH+okXv1289syNKk35gDwkUsn6GOrgxgjc1lpvnHfOJNq2cnfJCyN62rdwTdkgs0i9mvBIC6J1XM=",
+    "rc4_hash__": "TGtrcfouQaDL6FoqO1Viv+IgfVwwd2lFdjf9Cg==",
+    "signature": "Z682jgi78z7AuIfIwdnmIPQvl30=",
+    "ssecurity": "AAECAwQFBgcICQoLDA0ODw==",
+    "_nonce": "AQIDBAUGBwgBwH50"
+  },
+  "responsePlain": "{\"code\":0,\"message\":\"ok\",\"result\":{\"homelist\":[]}}",
+  "responseEncrypted": "fxlKctoGFOuotTMeBkNVt+wvG18hYmo0YnjCUolnBvsqRKQy/sA8OZot/RWgzk8e8Gg=",
+  "rc4PlainKeyHex": "000102030405060708090a0b0c0d0e0f",
+  "rc4PlainOut": "9df9338d",
+  "_comment": "Generated from the reference Python implementation of Xiaomi-cloud-tokens-extractor (RC4 cross-checked with OpenSSL)"
+}
