@@ -6,7 +6,7 @@
  */
 import crypto from "node:crypto";
 
-import debugFactory from "debug";
+import { createDebug } from "../logger";
 
 import {
   CloudAuthError,
@@ -16,7 +16,7 @@ import {
 } from "./errors";
 import { type FetchLike, HttpSession, parseXiaomiJson } from "./http";
 
-const debug = debugFactory("miio:cloud");
+const debug = createDebug("miio:cloud");
 
 const ACCOUNT = "https://account.xiaomi.com";
 const STS_CALLBACK = "https://sts.api.io.mi.com/sts";

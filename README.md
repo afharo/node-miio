@@ -252,6 +252,28 @@ To activate both namespaces set `DEBUG` to both:
 $ DEBUG=miio\*,thing\* miio discover
 ```
 
+### Sending the debug messages to your own logger
+
+Apps (e.g. Homebridge or Matterbridge plugins) can send node-miio's debug messages to their own logger, so users don't
+need to set `DEBUG`. Tokens and passwords are redacted from these messages.
+
+```javascript
+const miio = require("node-miio");
+
+// The messages of this device (requests, responses, property changes…)
+const device = await miio.device({
+  address,
+  token,
+  logger: { debug: (msg) => log.debug(msg) },
+});
+
+// Everything that isn't about a specific device (network, MIoT specs, Xiaomi Cloud…)
+miio.configureLogging({ logger: { debug: (msg) => log.debug(msg) } });
+```
+
+The messages are prefixed with their namespace, e.g. `[thing:miio:1234] <- Message: ...`. The low-level packet details
+(`miio:packet`) are only available through `DEBUG`.
+
 ## Protocol documentation
 
 This library is based on the documentation provided by OpenMiHome. See https://github.com/OpenMiHome/mihome-binary-protocol for details. For details

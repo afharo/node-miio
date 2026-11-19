@@ -53,7 +53,9 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
   In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required.
-- `console` is only allowed in `src/cli/**` and `scripts/**`. Use `debug` in the library.
+- `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
+  (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
+  `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
 
 ## Gotchas learned the hard way
 

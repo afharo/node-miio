@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
-import createDebug from "debug";
+import { createDebug } from "../logger";
 
 import type { MiotSpec } from "./miot_spec";
 
