@@ -28,6 +28,7 @@ import {
 } from "../../miot/miot_spec";
 
 import type { VacuumMode } from "./vacuum_modes";
+import { clearErrorOnRecovery } from "./vacuum_errors";
 
 /** A selectable mode (fan speed or water level), as described by the spec */
 export type MiotMode = VacuumMode;
@@ -359,6 +360,7 @@ export class MiotVacuum extends ATVacuum.with(
 
   propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
+      clearErrorOnRecovery(this, value);
       const state = value as unknown as string;
       this.updateCleaning(CLEANING_STATES.has(state));
       if (state === "error") {

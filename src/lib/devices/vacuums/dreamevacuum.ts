@@ -10,6 +10,7 @@ import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
 
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
+import { clearErrorOnRecovery } from "./vacuum_errors";
 
 /**
  * Implementation of the interface used by the Dreame Vacuum. This device
@@ -157,6 +158,7 @@ export class DreameVacuum extends Vacuum.with(
 
   propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
+      clearErrorOnRecovery(this, value);
       // Update charging state
       this.updateCharging(value === "charging");
 
