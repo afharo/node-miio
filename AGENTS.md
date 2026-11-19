@@ -21,7 +21,8 @@ npm run build   # tsc -> dist/
 node dist/cli/index.js --help   # smoke-test the CLI after building
 ```
 
-CI (`.github/workflows/build.yml`) runs lint, test and build on Node 20/22/24.
+CI (`.github/workflows/build.yml`) runs lint, test and build on Node 22/24/26. The minimum is Node 22.12 (`engines`):
+the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` support.
 
 ## Layout
 

@@ -9,8 +9,6 @@ declare module "abstract-things" {
       addCapabilities(...capabilities: string[]): void;
     };
 
-    constructor(...args: unknown[]);
-
     init(): Promise<undefined | this>;
     initCallback(): Promise<void>;
 
