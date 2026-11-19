@@ -19,6 +19,7 @@ import {
   type VacuumMode,
   type VacuumModes,
 } from "./vacuum_modes";
+import { clearErrorOnRecovery } from "./vacuum_errors";
 
 /** Mop routes (`get_mop_mode`/`set_mop_mode`) of the S7 and newer */
 export const MOP_ROUTES = {
@@ -290,6 +291,7 @@ export class Vacuum extends ATVacuum.with(
 
   propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
+      clearErrorOnRecovery(this, value);
       // Update charging state
       this.updateCharging(value === "charging");
 
