@@ -6,7 +6,9 @@ import {
   isVacuum,
   MiotVacuum,
   Vacuum,
+  type ErrorChangedEvent,
   type MiioLogger,
+  type StateChangedEvent,
   type VacuumDevice,
   type VacuumMode,
 } from "node-miio";
@@ -24,10 +26,15 @@ export async function connect(address: string, token: string) {
 
 async function useVacuum(device: VacuumDevice) {
   const model: string | undefined = device.miioModel;
-  device.on("stateChanged", (change: { key: string; value: unknown }) =>
+  device.on("stateChanged", (change: StateChangedEvent) =>
     console.log(model, change.key, change.value),
   );
-  device.on("errorChanged", (error: unknown) => console.log(error));
+  device.on("errorChanged", (error: ErrorChangedEvent) =>
+    console.log(error?.id, error?.description),
+  );
+  if (!device.connected) {
+    return undefined;
+  }
 
   await device.poll();
   const state: string | undefined = device.property<string>("state");

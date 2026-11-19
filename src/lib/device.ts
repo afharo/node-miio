@@ -340,6 +340,14 @@ export class Device extends Thing.type(
         return this._properties[key] as T;
       }
 
+      /**
+       * Whether the device can still be used: `false` once it (and every other device sharing the network socket) has
+       * been destroyed. Connect again with `device()` in that case.
+       */
+      get connected(): boolean {
+        return this.handle.api.connected;
+      }
+
       get properties() {
         return Object.assign({}, this._properties);
       }

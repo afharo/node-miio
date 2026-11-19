@@ -7,6 +7,7 @@ import type { BrowserOptions, DevicesOptions } from "./discovery";
 export { Device as MiioDevice } from "./device";
 export { MiioError } from "./miio_error";
 export { configureLogging, type MiioLogger } from "./logger";
+export type { StateChangedEvent, ErrorChangedEvent } from "./events";
 export {
   Vacuum,
   MOP_ROUTES,

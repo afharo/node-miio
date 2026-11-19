@@ -60,6 +60,19 @@ export class DeviceInfo {
     );
   }
 
+  /**
+   * Whether the network socket used to talk to the device is still open. It's closed when every device using it has
+   * been destroyed: connect again with `device()` in that case.
+   */
+  public get connected(): boolean {
+    try {
+      return Boolean(this.parent.socket);
+    } catch {
+      // The network throws when the socket is gone ("device might be destroyed")
+      return false;
+    }
+  }
+
   public get token() {
     return this.packet.token;
   }
