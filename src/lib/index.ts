@@ -10,6 +10,15 @@ export { Vacuum } from "./devices/vacuums/vacuum";
 export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 export { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 export { DreameVacuum } from "./devices/vacuums/dreamevacuum";
+export { MiotVacuum, type MiotMode } from "./devices/vacuums/miot-vacuum";
+export {
+  MiotSpecClient,
+  configureMiotSpecs,
+  type MiotSpecOptions,
+  type ResolvedMiotSpec,
+} from "./miot/spec_client";
+export { MiotSpecIndex, parseUrn, type MiotSpec } from "./miot/miot_spec";
+export { MiotError } from "./miot/miot_api";
 
 export {
   /**

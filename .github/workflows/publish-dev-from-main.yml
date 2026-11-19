@@ -36,6 +36,7 @@ jobs:
           npm run lint
           npm t
           npm run build
+          npm run snapshot
           npm pkg delete devDependencies
           npx shx rm -rf ./node_modules
           npm install --omit=dev

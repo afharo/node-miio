@@ -131,15 +131,15 @@ export interface Protocol {
     response: unknown;
   };
 
-  // Dreame
+  // MIoT (https://miot-spec.org)
   action: {
     params: {
       did: string;
       siid: number;
       aiid: number;
-      in: [];
+      in: unknown[];
     };
-    response: unknown;
+    response: MiotActionResult;
   };
   set_properties: {
     params: {
@@ -148,7 +148,7 @@ export interface Protocol {
       piid: number;
       value: unknown;
     }[];
-    response: unknown;
+    response: MiotPropertyResult[];
   };
   get_properties: {
     params: {
@@ -156,8 +156,25 @@ export interface Protocol {
       siid: number;
       piid: number;
     }[];
-    response: { code: number; did: string; value: unknown }[];
+    response: MiotPropertyResult[];
   };
+}
+
+/** `code` is `0` on success, a negative number otherwise (e.g. `-4001`: property not available) */
+export interface MiotPropertyResult {
+  did: string;
+  siid?: number;
+  piid?: number;
+  code: number;
+  value?: unknown;
+}
+
+export interface MiotActionResult {
+  did?: string;
+  siid?: number;
+  aiid?: number;
+  code: number;
+  out?: unknown[];
 }
 
 export interface MiioDeviceInfo {
