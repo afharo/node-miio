@@ -395,3 +395,46 @@ describe("MiotVacuum (other models)", () => {
     await expect(vacuum.charging).resolves.toBe(true);
   });
 });
+
+describe("MiotVacuum cleaning types", () => {
+  test("xiaomi.vacuum.d110ch uses vacuum:sweep-mop-type", async () => {
+    const { vacuum, call } = createMiotVacuum("xiaomi.vacuum.d110ch", d110ch, {
+      "2.6": 4,
+    });
+    await expect(vacuum.cleaningTypes()).resolves.toEqual([
+      { value: 1, name: "Sweep" },
+      { value: 2, name: "Mop" },
+      { value: 3, name: "Sweep Mop" },
+      { value: 4, name: "Sweep Before Mopping" },
+    ]);
+    await vacuum.poll();
+    expect(vacuum.property("cleaningType")).toBe(4);
+
+    call.mockClear();
+    await withTimers(vacuum.setCleaningType(3));
+    expect(sentCalls(call)[0]).toEqual([
+      "set_properties",
+      [{ did: "cleaning_type", siid: 2, piid: 6, value: 3 }],
+    ]);
+  });
+
+  test("ijai.vacuum.v3 uses vacuum:mode (its values are cleaning types)", async () => {
+    const { vacuum } = createMiotVacuum("ijai.vacuum.v3", ijaiV3);
+    expect((await vacuum.cleaningTypes()).map((m) => m.name)).toEqual([
+      "Sweep",
+      "Sweep And Mop",
+      "Mop",
+    ]);
+  });
+
+  test("mijia.vacuum.v2: vacuum:mode is not a cleaning type (Auto-clean / Spot-clean…)", async () => {
+    const { vacuum } = createMiotVacuum("mijia.vacuum.v2", mijiaV2);
+    await expect(vacuum.cleaningTypes()).resolves.toEqual([]);
+    await expect(vacuum.setCleaningType(1)).rejects.toThrow("not supported");
+  });
+
+  test("dreame.vacuum.p2008: vacuum:mode is the fan speed, not a cleaning type", async () => {
+    const { vacuum } = createMiotVacuum("dreame.vacuum.p2008", p2008);
+    await expect(vacuum.cleaningTypes()).resolves.toEqual([]);
+  });
+});
