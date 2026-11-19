@@ -1,104 +1,58 @@
 # Contributing
 
-Contributions are welcomed in this repository, not only code changes but also
-opening issues, helping with questions and otherwise giving feedback.
+Thank you for helping! The maintainer **doesn't own most of the supported devices**: changes are developed against
+automated tests that replay what real devices answered, and they're validated by users on beta releases. So the most
+valuable contributions don't need any code:
 
-Please note that this project has a code of conduct, please read it before
-jumping in and contributing to this project.
+- [Become a beta tester](#become-a-beta-tester)
+- [Share what your device reports](#share-what-your-device-reports)
+- [Contributing code](#contributing-code)
 
-## Working with the code
+## Become a beta tester
 
-This project doesn't have a super-strict code-style, contributions are expected
-to look about the same as existing code. Tabs are used for indentation except
-for Markdown and a few JSON-files. Install an [Editorconfig](http://editorconfig.org/)
-plugin in your editor to simplify white-space handling.
+Most users run node-miio through a plugin. Sign up as a beta tester in the plugin you use, with your **model**,
+**firmware version** and dock (if any). You'll be mentioned whenever a beta needs a device like yours:
 
-Before submitting a pull request, run `npm test` to run a few basic linting
-tests. If you have an ESLint-plugin in your editor it should run automatically
-while you work.
+- Homebridge: [homebridge-xiaomi-roborock-vacuum#1232](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/1232)
+- Matterbridge: [matterbridge-xiaomi-roborock#387](https://github.com/afharo/matterbridge-xiaomi-roborock/issues/387)
 
-## Issues and helping out with questions
+If you use node-miio directly, comment on [#18](https://github.com/afharo/node-miio/issues/18) instead. Betas are
+published with the `beta` tag: `npm install node-miio@beta`.
 
-This project is used both directly by developers and indirectly by end-users
-via other projects. When opening an issue try to include as much details about
-how the library is used, such as if its being used via a third-party project
-and the version being used.
+## Share what your device reports
 
-If you have know-how about the API and library please feel free to answer any
-questions you can. If you have the same issue as someone else, try adding a few
-more details if you can.
+Supporting a model or a feature starts with knowing what the device answers. When opening an issue, include:
 
-## Code of Conduct
+- [ ] The **model** and **firmware version**: `npx node-miio@latest protocol call <ip> miIO.info --token <token>` (the
+      `model` and `fw_ver` fields).
+- [ ] What you'd like to do, and **how you do it in the Mi Home app**.
+- [ ] Raw captures:
+  - Roborock (`roborock.vacuum.*`, `rockrobo.vacuum.*`):
+    `npx node-miio@latest protocol call <ip> get_status --token <token>`. Ideally twice: before and after doing the
+    action in the app, so we can see which field changes.
+  - Any other brand (MIoT devices): `npx node-miio@latest spec <model>`.
+- [ ] Whether you can test a beta.
 
-### Our Pledge
+Replies are turned into test fixtures (`src/lib/__fixtures__/`), so the behaviour stays covered without the device.
 
-In the interest of fostering an open and welcoming environment, we as
-contributors and maintainers pledge to making participation in our project and
-our community a harassment-free experience for everyone, regardless of age, body
-size, disability, ethnicity, gender identity and expression, level of experience,
-nationality, personal appearance, race, religion, or sexual identity and
-orientation.
+**Remove private data before posting**: the token (and any `ssecurity` / `serviceToken`), the serial number, the MAC and
+IP addresses, your Wi-Fi name (`ssid`) and anything else that identifies your home.
 
-### Our Standards
+## Contributing code
 
-Examples of behavior that contributes to creating a positive environment
-include:
+Pull requests are very welcome, too. Read [AGENTS.md](./AGENTS.md) first: it describes the layout, the commands, how to
+test without hardware, and the gotchas (for humans as well).
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Open PRs from a feature branch against `main`, with a label (`enhancement`, `bug`, `dependencies`, `documentation`):
+  the release notes are generated from them.
+- Every behavioural change needs **unit tests**. Use `createFakeHandle(model, responses)` to replay device responses,
+  ideally real captures from users.
+- Before pushing: `npm run lint` (ESLint and Prettier, warnings fail too), `npm test` and `npm run build`.
+- **Licensing**: node-miio is MIT. Don't copy or translate code, mappings or tables from GPL projects (e.g. python-miio).
+  Using them as a reference for how a device behaves is fine.
 
-Examples of unacceptable behavior by participants include:
+## Code of conduct
 
-* The use of sexualized language or imagery and unwelcome sexual attention or
-advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic
-  address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
-
-### Our Responsibilities
-
-Project maintainers are responsible for clarifying the standards of acceptable
-behavior and are expected to take appropriate and fair corrective action in
-response to any instances of unacceptable behavior.
-
-Project maintainers have the right and responsibility to remove, edit, or
-reject comments, commits, code, wiki edits, issues, and other contributions
-that are not aligned to this Code of Conduct, or to ban temporarily or
-permanently any contributor for other behaviors that they deem inappropriate,
-threatening, offensive, or harmful.
-
-### Scope
-
-This Code of Conduct applies both within project spaces and in public spaces
-when an individual is representing the project or its community. Examples of
-representing a project or community include using an official project e-mail
-address, posting via an official social media account, or acting as an appointed
-representative at an online or offline event. Representation of a project may be
-further defined and clarified by project maintainers.
-
-### Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the main developer at a@holstenson.se. All
-complaints will be reviewed and investigated and will result in a response that
-is deemed necessary and appropriate to the circumstances. The project team is
-obligated to maintain confidentiality with regard to the reporter of an incident.
-Further details of specific enforcement policies may be posted separately.
-
-Project maintainers who do not follow or enforce the Code of Conduct in good
-faith may face temporary or permanent repercussions as determined by other
-members of the project's leadership.
-
-### Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
-available at [http://contributor-covenant.org/version/1/4][version]
-
-[homepage]: http://contributor-covenant.org
-[version]: http://contributor-covenant.org/version/1/4/
+Be kind and respectful. This project follows the
+[Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Unacceptable behaviour can be
+reported to the maintainer ([@afharo](https://github.com/afharo)).

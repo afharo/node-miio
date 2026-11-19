@@ -1,12 +1,10 @@
 <!-- prettier-ignore -->
-> [!WARNING]
-> **Looking for a new maintainer**
+> [!NOTE]
+> **Beta testers wanted**
 >
-> I no longer own a device supported by this project (my new vacuum supports Matter natively), so I can't test changes against real hardware anymore.
-> I'm happy to hand over ownership of the repository and the npm package to anyone who wants to continue its development.
->
-> In the meantime, I'll keep addressing the reported issues with AI-assisted development, relying on the automated tests and **your feedback**: please, try the beta releases and report back.
-> Interested in taking over? Please, comment on [this issue](https://github.com/afharo/node-miio/issues/18).
+> The maintainer no longer owns most of the supported devices, so changes are developed against automated tests and validated by users on beta releases.
+> If you'd like to help, sign up as a beta tester in the plugin you use ([Homebridge](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/1232), [Matterbridge](https://github.com/afharo/matterbridge-xiaomi-roborock/issues/387)) or in [#18](https://github.com/afharo/node-miio/issues/18).
+> See [CONTRIBUTING.md](./CONTRIBUTING.md) for other ways to help. Co-maintainers are welcome too.
 
 # miIO Device Library
 
