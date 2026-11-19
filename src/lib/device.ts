@@ -6,6 +6,7 @@ import isDeepEqual from "deep-equal";
 import { Thing, Polling } from "abstract-things";
 
 import { type DeviceHandle, DeviceManagement } from "./management";
+import { createDebug, type DebugFn } from "./logger";
 import type { Protocol } from "./protocol";
 
 const IDENTITY_MAPPER = <T>(v: T) => v;
@@ -91,6 +92,20 @@ export class Device extends Thing.type(
       > = {};
       protected readonly _reversePropertyDefinitions: Record<string, string>;
       private readonly management: DeviceManagement;
+      private debugFn?: DebugFn;
+
+      /**
+       * Logs a debug message to the `debug` package (`thing:<id>`) and to the device's logger (`device({ logger })`).
+       *
+       * @param msgs The message parts
+       */
+      debug(...msgs: unknown[]) {
+        this.debugFn ??= createDebug(
+          "thing:" + this.id,
+          () => this.handle.api.logger,
+        );
+        this.debugFn(...msgs);
+      }
 
       constructor(public readonly handle: DeviceHandle) {
         super();
