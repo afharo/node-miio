@@ -49,6 +49,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Type-check a consumer against the published types
+        run: npm run test:types
+
       - name: Smoke-test the build
         run: |
           node -e "const miio = require('./dist/lib'); if (typeof miio.device !== 'function') process.exit(1)"

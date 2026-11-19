@@ -16,7 +16,15 @@ const unusedImports = require("eslint-plugin-unused-imports");
 module.exports = defineConfig([
   {
     name: "Global Ignores",
-    ignores: ["dist", "node_modules", "coverage", "build", "types"],
+    ignores: [
+      "dist",
+      "node_modules",
+      "coverage",
+      "build",
+      "types",
+      // A fixture compiled against the published types (`npm run test:types`)
+      "test-types",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.strict,

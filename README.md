@@ -94,6 +94,22 @@ npm install -g node-miio
 const miio = require("node-miio");
 ```
 
+The package includes TypeScript declarations. With TypeScript, use `isVacuum()` to narrow the device to a
+`VacuumDevice`, and `instanceof` for the API of a specific implementation:
+
+```typescript
+import * as miio from "node-miio";
+import { isVacuum, Vacuum } from "node-miio";
+
+const device = await miio.device({ address, token });
+if (isVacuum(device)) {
+  await device.activateCleaning(); // shared by every vacuum
+  if (device instanceof Vacuum) {
+    await device.startMopWash(); // Roborock only
+  }
+}
+```
+
 Resolve a handle to the device:
 
 ```javascript

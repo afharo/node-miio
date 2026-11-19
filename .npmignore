@@ -6,12 +6,13 @@
 src/
 
 # Test files
+test-types/
 coverage/
 __snapshots__/
 __fixtures__/
-**.test.{js,js.map}
-**.test.mock.{js,js.map}
-**.mock.{js,js.map}
+**.test.{js,js.map,d.ts}
+**.test.mock.{js,js.map,d.ts}
+**.mock.{js,js.map,d.ts}
 test.mocks.{js,js.map}
 .node-persist/
 

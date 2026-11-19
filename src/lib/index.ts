@@ -18,6 +18,7 @@ export {
   type VacuumModes,
 } from "./devices/vacuums/vacuum_modes";
 export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
+export { isVacuum, type VacuumDevice } from "./devices/vacuums/vacuum_device";
 export { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 export { DreameVacuum } from "./devices/vacuums/dreamevacuum";
 export { MiotVacuum, type MiotMode } from "./devices/vacuums/miot-vacuum";

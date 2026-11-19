@@ -1,4 +1,11 @@
 declare module "abstract-things" {
+  /** The instance type of a class (or of a constructor type, e.g. a mixin) */
+  type Proto<T> = T extends abstract new (...args: never[]) => infer I
+    ? I
+    : T extends { prototype: infer P }
+      ? P
+      : never;
+
   export class Thing {
     constructor(...args: unknown[]);
 
@@ -21,6 +28,8 @@ declare module "abstract-things" {
     propertyUpdated(key: string, value: unknown, oldValue?: unknown): void;
 
     emitEvent(event: string, data?: unknown, options?: unknown): void;
+    on(event: string, listener: (...args: never[]) => void): unknown;
+    off(event: string, listener: (...args: never[]) => void): unknown;
     // on: InstanceType<typeof EventEmitter>["on"];
     // off: InstanceType<typeof EventEmitter>["off"];
     // onAny: InstanceType<typeof EventEmitter>["onAny"];
@@ -29,7 +38,7 @@ declare module "abstract-things" {
     static with<
       T1 extends { prototype: unknown },
       constructorArgs extends unknown[],
-    >(t1: T1): new (...args: constructorArgs) => Thing & T1["prototype"];
+    >(t1: T1): new (...args: constructorArgs) => Thing & Proto<T1>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -38,9 +47,7 @@ declare module "abstract-things" {
     >(
       t1: T1,
       t2: T2,
-    ): new (
-      ...args: constructorArgs
-    ) => Thing & T1["prototype"] & T2["prototype"];
+    ): new (...args: constructorArgs) => Thing & Proto<T1> & Proto<T2>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -53,7 +60,7 @@ declare module "abstract-things" {
       t3: T3,
     ): new (
       ...args: constructorArgs
-    ) => Thing & T1["prototype"] & T2["prototype"] & T3["prototype"];
+    ) => Thing & Proto<T1> & Proto<T2> & Proto<T3>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -68,11 +75,7 @@ declare module "abstract-things" {
       t4: T4,
     ): new (
       ...args: constructorArgs
-    ) => Thing &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"];
+    ) => Thing & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -89,12 +92,7 @@ declare module "abstract-things" {
       t5: T5,
     ): new (
       ...args: constructorArgs
-    ) => Thing &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"];
+    ) => Thing & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4> & Proto<T5>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -114,12 +112,12 @@ declare module "abstract-things" {
     ): new (
       ...args: constructorArgs
     ) => Thing &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -141,13 +139,13 @@ declare module "abstract-things" {
     ): new (
       ...args: constructorArgs
     ) => Thing &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7>;
 
     static type<U, constructorArgs extends unknown[]>(
       func: (
@@ -171,13 +169,15 @@ declare module "abstract-things" {
   export class Polling extends Thing {
     updatePollDuration(duration: number): void;
     updateMaxPollFailures(failures: number): void;
-    poll(isInitial: boolean): Promise<void>;
+    poll(isInitial?: boolean): Promise<void>;
   }
 
   export class BatteryLevel extends Thing {
+    batteryLevel(): Promise<number>;
     updateBatteryLevel(level: number): void;
   }
   export class ChargingState extends Thing {
+    get charging(): Promise<boolean>;
     updateCharging(charging: boolean): void;
   }
   export abstract class AutonomousCharging extends Thing {
@@ -186,6 +186,7 @@ declare module "abstract-things" {
 
   export class Children extends Thing {}
   export class State extends Thing {
+    state(): Promise<Record<string, unknown>>;
     getState<T>(name: string): T;
     updateState<T>(name: string, value: T): boolean;
   }
