@@ -16,13 +16,13 @@ jobs:
     steps:
       # Always check out the main branch, even for scheduled runs
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
 
       - name: Set up Node.js & registry
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
