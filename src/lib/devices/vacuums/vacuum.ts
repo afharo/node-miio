@@ -37,6 +37,17 @@ const CONSUMABLE_PROPERTIES = {
 
 export type RoborockConsumable = keyof typeof CONSUMABLE_PROPERTIES;
 
+/** Properties that are also exposed in `state()` and the `stateChanged` events */
+const STATE_PROPERTIES = ["waterBoxAttached", "waterShortage", "mopDrying"];
+
+/**
+ * Maps a 0/1 flag to a boolean. Missing values stay `undefined`, so models that don't report them don't get the property.
+ *
+ * @param value The raw value
+ * @returns The boolean value, or `undefined`
+ */
+const isOne = (value: unknown) => (value == null ? undefined : value === 1);
+
 /**
  * Implementation of the interface used by the Mi Robot Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_status.
@@ -261,6 +272,20 @@ export class Vacuum extends ATVacuum.with(
     this.defineProperty("dust_collection_status", {
       name: "dustCollectionStatus",
     });
+
+    // Water tank and dock status. Only reported by the models that have them (otherwise they're not stored).
+    this.defineProperty("water_box_status", {
+      name: "waterBoxAttached",
+      mapper: isOne,
+    });
+    this.defineProperty("water_shortage_status", {
+      name: "waterShortage",
+      mapper: isOne,
+    });
+    this.defineProperty("dry_status", {
+      name: "mopDrying",
+      mapper: isOne,
+    });
   }
 
   propertyUpdated<T>(key: string, value: T, oldValue?: T) {
@@ -297,6 +322,9 @@ export class Vacuum extends ATVacuum.with(
       }
     } else if (key === "fanSpeed") {
       this.updateFanSpeed(value);
+    } else if (STATE_PROPERTIES.includes(key)) {
+      // Exposed in `state()` and the `stateChanged` events
+      this.updateState(key, value);
     }
 
     super.propertyUpdated(key, value, oldValue);
@@ -670,6 +698,34 @@ export class Vacuum extends ATVacuum.with(
    */
   async stopMopWash() {
     await this.call("app_stop_wash", []).then(checkResult);
+  }
+
+  /**
+   * Dry the mop in the dock (docks with a mop dryer only).
+   */
+  async startMopDrying() {
+    await this.call(
+      "app_set_dryer_status",
+      { status: 1 },
+      {
+        refresh: ["mopDrying"],
+        refreshDelay: 1000,
+      },
+    ).then(checkResult);
+  }
+
+  /**
+   * Stop drying the mop.
+   */
+  async stopMopDrying() {
+    await this.call(
+      "app_set_dryer_status",
+      { status: 0 },
+      {
+        refresh: ["mopDrying"],
+        refreshDelay: 1000,
+      },
+    ).then(checkResult);
   }
 
   /**
