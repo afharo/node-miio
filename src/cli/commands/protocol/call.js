@@ -22,7 +22,7 @@ exports.handler = function (argv) {
     filter: target,
     token: argv.token,
   });
-  browser.on("available", (device) => {
+  browser.on("available", async (device) => {
     pending++;
 
     log.plain();
@@ -35,22 +35,19 @@ exports.handler = function (argv) {
         : JSON.parse(argv.params)
       : [];
     log.plain(parsedArgs);
-    device
-      .miioCall(argv.method, parsedArgs)
-      .then((result) => {
-        log.info("Got result:");
-        log.plain(JSON.stringify(result, null, "  "));
-      })
-      .catch((err) => {
-        log.error("Encountered an error while controlling device");
-        log.plain();
-        log.plain("Error was:");
-        log.plain(err.message);
-      })
-      .then(() => {
-        pending--;
-				process.exit(0); // eslint-disable-line
-      });
+    try {
+      const result = await device.miioCall(argv.method, parsedArgs);
+      log.info("Got result:");
+      log.plain(JSON.stringify(result, null, "  "));
+    } catch (err) {
+      log.error("Encountered an error while controlling device");
+      log.plain();
+      log.plain("Error was:");
+      log.plain(err.message);
+    } finally {
+      pending--;
+      process.exit(0); // eslint-disable-line n/no-process-exit
+    }
   });
 
   const doneHandler = () => {
@@ -58,7 +55,7 @@ exports.handler = function (argv) {
       if (!foundDevice) {
         log.warn("Could not find device");
       }
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
   };
   setTimeout(doneHandler, 5000);

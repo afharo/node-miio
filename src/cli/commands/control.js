@@ -16,28 +16,26 @@ exports.handler = function (argv) {
   const browser = deviceFinder({
     filter: target,
   });
-  browser.on("available", (device) => {
+  browser.on("available", async (device) => {
     if (!device[argv.method]) {
       log.error("The method " + argv.method + " is not available");
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
 
     pending++;
 
-    Promise.resolve(device[argv.method](...argv.params))
-      .then((result) => {
-        log.plain(JSON.stringify(result, null, "  "));
-      })
-      .catch((err) => {
-        log.error("Encountered an error while controlling device");
-        log.plain();
-        log.plain("Error was:");
-        log.plain(err.message);
-      })
-      .then(() => {
-        pending--;
-				process.exit(0); // eslint-disable-line
-      });
+    try {
+      const result = await Promise.resolve(device[argv.method](...argv.params));
+      log.plain(JSON.stringify(result, null, "  "));
+    } catch (err) {
+      log.error("Encountered an error while controlling device");
+      log.plain();
+      log.plain("Error was:");
+      log.plain(err.message);
+    } finally {
+      pending--;
+      process.exit(0); // eslint-disable-line n/no-process-exit
+    }
   });
 
   const doneHandler = () => {
@@ -45,7 +43,7 @@ exports.handler = function (argv) {
       if (!foundDevice) {
         log.warn("Could not find device");
       }
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
   };
   setTimeout(doneHandler, 5000);

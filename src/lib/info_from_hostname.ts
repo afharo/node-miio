@@ -1,6 +1,6 @@
 /**
  *
- * @param {string} hostname
+ * @param hostname
  */
 export function infoFromHostname(hostname: string) {
   // Extract info via hostname structure

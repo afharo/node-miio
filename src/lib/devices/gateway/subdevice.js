@@ -118,8 +118,8 @@ module.exports = Thing.type(
        * Define a property and how the value should be mapped. All defined
        * properties are monitored if #monitor() is called.
        *
-       * @param name
-       * @param def
+       * @param {string} name The raw property name
+       * @param {object} def How the value is mapped
        */
       defineProperty(name, def) {
         if (!def || typeof def.poll === "undefined" || def.poll) {
@@ -167,11 +167,9 @@ module.exports = Thing.type(
       /**
        * Stub for loadProperties to match full device.
        *
-       * @param props
+       * @param {string[]} props The properties to load
        */
       loadProperties(props) {
-        if (this._propertiesToMonitor.length === 0) Promise.resolve();
-
         if (this._currentRead) {
           return this._currentRead.promise;
         }
@@ -191,30 +189,28 @@ module.exports = Thing.type(
            * Fallback behavior, use a regular call if properties have not
            * been resolved in a second.
            */
-          setTimeout(() => {
+          setTimeout(async () => {
             this.debug("Read via DEV timed out, using fallback API");
-            this._parent
-              .call("get_device_prop_exp", [
+            try {
+              const result = await this._parent.call("get_device_prop_exp", [
                 ["lumi." + this.internalId, ...this._propertiesToMonitor],
-              ])
-              .then((result) => {
-                for (let i = 0; i < result[0].length; i++) {
-                  let name = this._propertiesToMonitor[i];
-                  const def = this._propertyDefinitions[name];
-                  let value = result[0][i];
+              ]);
+              for (let i = 0; i < result[0].length; i++) {
+                let name = this._propertiesToMonitor[i];
+                const def = this._propertyDefinitions[name];
+                let value = result[0][i];
 
-                  name = def.name || name;
-                  value = def.mapper(value);
+                name = def.name || name;
+                value = def.mapper(value);
 
-                  this.setProperty(name, value);
-                }
+                this.setProperty(name, value);
+              }
 
-                this._currentRead.resolve();
-              })
-              .catch((err) => {
-                this._currentRead = null;
-                reject(err);
-              });
+              this._currentRead.resolve();
+            } catch (err) {
+              this._currentRead = null;
+              reject(err);
+            }
           }, 1000);
         });
 
@@ -224,9 +220,9 @@ module.exports = Thing.type(
       /**
        * Call a method for this sub device.
        *
-       * @param method
-       * @param args
-       * @param options
+       * @param {string} method The method
+       * @param {Array} args The arguments
+       * @param {object} options Call options
        */
       call(method, args, options) {
         if (!options) {

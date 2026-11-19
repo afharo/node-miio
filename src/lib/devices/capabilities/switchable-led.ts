@@ -34,7 +34,7 @@ export const SwitchableLED = Thing.mixin(
       /**
        * Get or set if the LED should be on.
        *
-       * @param {boolean} power Optional power to set LED to
+       * @param power Optional power to set LED to
        */
       led(power) {
         if (typeof power === "undefined") {

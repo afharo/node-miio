@@ -21,29 +21,26 @@ exports.handler = function (argv) {
   const browser = deviceFinder({
     filter: target,
   });
-  browser.on("available", (device) => {
+  browser.on("available", async (device) => {
     pending++;
 
     log.plain();
     log.info("Connected to", device.id, " - trying to change token");
     log.plain();
 
-    device.management
-      .updateToken(argv.token)
-      .then((status) => {
-        if (status) {
-          log.plain("Token has been updated");
-        } else {
-          log.error("Could not update token, double-check the given token");
-        }
-      })
-      .catch((err) => {
-        log.error("Could update token. Error was:", err.message);
-      })
-      .then(() => {
-        pending--;
-				process.exit(0); // eslint-disable-line
-      });
+    try {
+      const status = await device.management.updateToken(argv.token);
+      if (status) {
+        log.plain("Token has been updated");
+      } else {
+        log.error("Could not update token, double-check the given token");
+      }
+    } catch (err) {
+      log.error("Could update token. Error was:", err.message);
+    } finally {
+      pending--;
+      process.exit(0); // eslint-disable-line n/no-process-exit
+    }
   });
 
   const doneHandler = () => {
@@ -51,7 +48,7 @@ exports.handler = function (argv) {
       if (!foundDevice) {
         log.warn("Could not find device");
       }
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
   };
   setTimeout(doneHandler, 5000);

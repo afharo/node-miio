@@ -8,9 +8,9 @@ import {
 
 import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
+import { checkResult } from "../../check_result";
 
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
-import { checkResult } from "../../check_result";
 
 export class ViomiVacuum extends Vacuum.with(
   MiioApi,

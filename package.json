@@ -30,7 +30,7 @@
     "test:verbose": "jest --verbose",
     "test:watch": "jest --watch -verbose",
     "test:coverage": "jest --verbose --coverage",
-    "lint": "eslint ."
+    "lint": "eslint --max-warnings=0 ."
   },
   "engines": {
     "node": ">=22.12.0"

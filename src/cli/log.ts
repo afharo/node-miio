@@ -1,5 +1,3 @@
-/* eslint no-console: 0 */
-
 import chalk from "chalk";
 
 export const log = {

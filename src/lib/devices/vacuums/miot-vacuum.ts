@@ -8,8 +8,6 @@ import {
 import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
 import type { DeviceHandle } from "../../management";
-
-import type { VacuumMode } from "./vacuum_modes";
 import {
   callAction,
   getProperties,
@@ -28,6 +26,8 @@ import {
   type ResolvedAction,
   type ResolvedProperty,
 } from "../../miot/miot_spec";
+
+import type { VacuumMode } from "./vacuum_modes";
 
 /** A selectable mode (fan speed or water level), as described by the spec */
 export type MiotMode = VacuumMode;
@@ -140,6 +140,11 @@ function modesOf(resolved?: ResolvedProperty): MiotMode[] | undefined {
   }));
 }
 
+/**
+ *
+ * @param list
+ * @param value
+ */
 function describe(list: MiotValueListItem[] | undefined, value: unknown) {
   return list?.find((item) => item.value === value)?.description;
 }

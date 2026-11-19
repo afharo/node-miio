@@ -9,8 +9,9 @@ const IP =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
+ * Converts a device id, IP or model into a filter function.
  *
- * @param filter
+ * @param {string|number|Function} filter The id, address or filter function
  */
 function asFilter(filter) {
   if (typeof filter === "number") {
@@ -39,8 +40,9 @@ function asFilter(filter) {
 }
 
 /**
+ * Wraps a filter so gateways are always included (to find their sub devices).
  *
- * @param filter
+ * @param {Function} filter The filter function
  */
 function asToplevelFilter(filter) {
   return (reg) => reg.type === "gateway" || filter(reg);

@@ -12,10 +12,11 @@ const {
 } = require("abstract-things/sensors");
 
 /**
+ * Creates a mixin that updates a sensor capability when a property changes.
  *
- * @param Type
- * @param updateName
- * @param property
+ * @param {Function} Type The abstract-things sensor capability
+ * @param {string} updateName The update method of the capability (e.g. `updateTemperature`)
+ * @param {string} property The property that holds the value
  */
 function bind(Type, updateName, property) {
   return Thing.mixin(
@@ -63,8 +64,8 @@ module.exports.PowerConsumed = bind(
 /**
  * Setup sensor support for a device.
  *
- * @param device
- * @param options
+ * @param {object} device The device
+ * @param {object} options The sensor options
  */
 function mixin(device, options) {
   if (device.capabilities.indexOf("sensor") < 0) {

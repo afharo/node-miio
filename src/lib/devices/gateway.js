@@ -7,11 +7,11 @@ const { MiioApi } = require("../device");
 
 const { Illuminance } = require("./capabilities/sensor");
 const DeveloperApi = require("./gateway/developer-api");
-const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
-
 const LightMixin = require("./gateway/light-mixin");
 const SubDevice = require("./gateway/subdevice");
 const types = require("./gateway/subdevices");
+
+const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 /**
  * Generate a key for use with the local developer API. This does not generate
@@ -107,28 +107,24 @@ const Gateway = Thing.type(
         });
       }
 
-      initCallback() {
-        return super
-          .initCallback()
-          .then(() => this._findDeveloperKey())
-          .then(() => this._updateDeviceList())
-          .then(() => {
-            // Update devices once every half an hour
-            this._deviceListTimer = setInterval(
-              this._updateDeviceList.bind(this),
-              30 * 60 * 1000,
-            );
-          });
+      async initCallback() {
+        await super.initCallback();
+        await this._findDeveloperKey();
+        await this._updateDeviceList();
+        // Update devices once every half an hour
+        this._deviceListTimer = setInterval(
+          this._updateDeviceList.bind(this),
+          30 * 60 * 1000,
+        );
       }
 
-      destroyCallback() {
-        return super.destroyCallback().then(() => {
-          if (this.devApi) {
-            this.devApi.destroy();
-          }
+      async destroyCallback() {
+        await super.destroyCallback();
+        if (this.devApi) {
+          this.devApi.destroy();
+        }
 
-          clearInterval(this._deviceListTimer);
-        });
+        clearInterval(this._deviceListTimer);
       }
 
       addExtraChild(child) {
@@ -138,7 +134,7 @@ const Gateway = Thing.type(
       _updateDeviceList() {
         /**
          *
-         * @param id
+         * @param {string} id The device id
          */
         function stripLumiFromId(id) {
           if (id.indexOf("lumi.") === 0) {
@@ -195,7 +191,7 @@ const Gateway = Thing.type(
       /**
        * Set the developer key and start listenting for events from the gateway.
        *
-       * @param key
+       * @param {string} key The developer key
        */
       _setDeveloperKey(key) {
         this._developerKey = key;
@@ -247,7 +243,7 @@ const Gateway = Thing.type(
       /**
        * Remove a device from the gateway using the identifier of the device.
        *
-       * @param id
+       * @param {string} id The device id
        */
       removeDevice(id) {
         return (

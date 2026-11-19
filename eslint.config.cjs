@@ -68,6 +68,10 @@ module.exports = defineConfig([
         { definedTags: ["created", "contributor", "remarks"] },
       ], // Allow custom tags
       "jsdoc/no-undefined-types": "off",
+      // JSDoc is encouraged but not mandatory on every function: when present, it's still checked for correctness
+      // (`require-param`, `check-param-names`, `check-tag-names`…), but descriptions and `@returns` are optional.
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
       "prettier/prettier": "warn", // Use Prettier for formatting
     },
   },
@@ -111,6 +115,10 @@ module.exports = defineConfig([
     },
     rules: {
       // Override/add rules specific to typescript files here
+      // Types come from the TypeScript signatures: don't require them in JSDoc too
+      ...pluginJsdoc.configs["flat/recommended-typescript"].rules,
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
       "no-unused-vars": "off", // Disable base rule for unused variables in test files
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -151,10 +159,21 @@ module.exports = defineConfig([
       "@typescript-eslint/no-unused-vars": "off", // Disable TypeScript rule for unused variables in test files
       "@typescript-eslint/no-explicit-any": "off", // Allow 'any' type in test files
       "@typescript-eslint/no-empty-function": "off", // Allow empty functions in test files
+      ...pluginJsdoc.configs["flat/recommended-typescript"].rules,
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
       "jsdoc/require-jsdoc": "off", // Disable JSDoc rule in test files
+      "jsdoc/require-param": "off", // Helpers in tests don't need to document every param
 
       // Recommended Jest rules
       ...pluginJest.configs.recommended.rules,
+    },
+  },
+  {
+    name: "CLI and scripts",
+    files: ["src/cli/**", "scripts/**"],
+    rules: {
+      "no-console": "off", // Printing to the console is their job
     },
   },
   {

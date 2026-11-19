@@ -305,7 +305,6 @@ export class DeviceInfo {
    *
    * @param retries Max number of attempts
    * @param actionPromiseFn Method that returns a promise to repeat
-   * @private
    */
   async _retryOnTimeout(retries = 5, actionPromiseFn) {
     while (retries > 0) {

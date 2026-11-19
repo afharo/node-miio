@@ -442,7 +442,7 @@ export class Vacuum extends ATVacuum.with(
   /**
    * Get WaterBoxMode (only working for the model S6)
    *
-   * @returns {Promise<*>}
+   * @returns The current water box mode
    */
   async getWaterBoxMode() {
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md

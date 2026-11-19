@@ -112,37 +112,29 @@ module.exports = class extends (
   /**
    * Set the mode of this device.
    *
-   * @param mode
+   * @param {string} mode The mode (or `idle` to power off)
    */
-  changeMode(mode) {
-    let promise;
+  async changeMode(mode) {
     if (mode === "idle") {
       return this.setPower(false);
-    } else {
-      if (this.power()) {
-        // Already powered on, do nothing
-        promise = Promise.resolve();
-      } else {
-        // Not powered on, power on
-        promise = this.setPower(true);
-      }
+    }
+    if (!this.power()) {
+      // Not powered on, power on
+      await this.setPower(true);
     }
 
-    return promise.then(() => {
-      return (
-        this.call("set_mode", [mode], {
-          refresh: ["power", "mode"],
-          refreshDelay: 200,
-        })
-          // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
-          .then(MiioApi.checkOk)
-          .catch((err) => {
-            throw err.code === -5001
-              ? new Error("Mode `" + mode + "` not supported")
-              : err;
-          })
-      );
-    });
+    try {
+      const result = await this.call("set_mode", [mode], {
+        refresh: ["power", "mode"],
+        refreshDelay: 200,
+      });
+      // @ts-expect-error Static methods of MiioApi are not resolved correctly with the Thing approach
+      return MiioApi.checkOk(result);
+    } catch (err) {
+      throw err.code === -5001
+        ? new Error("Mode `" + mode + "` not supported")
+        : err;
+    }
   }
 
   changeTargetHumidity(humidity) {
@@ -155,7 +147,7 @@ module.exports = class extends (
   /**
    * Set the LED brightness to either `bright`, `dim` or `off`.
    *
-   * @param level
+   * @param {string} level `bright`, `dim` or `off`
    */
   changeLEDBrightness(level) {
     switch (level) {

@@ -43,138 +43,135 @@ exports.handler = function (argv) {
     instances: true,
     filter: target,
   });
-  browser.on("available", (device) => {
+  browser.on("available", async (device) => {
     pending++;
 
     // TODO: Error handling
     const mgmt = device.management;
-    mgmt
-      .info()
-      .then((info) => {
+    try {
+      const info = await mgmt.info();
+      log.plain();
+      log.device(device, true);
+
+      if (!mgmt.parent) {
+        log.plain(chalk.bold("Firmware version:"), info.fw_ver);
+        log.plain(chalk.bold("Hardware version:"), info.hw_ver);
+        if (info.mcu_fw_ver) {
+          log.plain(chalk.bold("MCU firmware version:"), info.mcu_fw_ver);
+        }
         log.plain();
-        log.device(device, true);
 
-        if (!mgmt.parent) {
-          log.plain(chalk.bold("Firmware version:"), info.fw_ver);
-          log.plain(chalk.bold("Hardware version:"), info.hw_ver);
-          if (info.mcu_fw_ver) {
-            log.plain(chalk.bold("MCU firmware version:"), info.mcu_fw_ver);
-          }
-          log.plain();
-
-          if (info.ap) {
-            log.plain(
-              chalk.bold("WiFi:"),
-              info.ap.ssid,
-              chalk.dim("(" + info.ap.bssid + ")"),
-              chalk.bold("RSSI:"),
-              info.ap.rssi,
-            );
-          } else {
-            log.plain(chalk.bold("WiFi:"), "Not Connected");
-          }
-          if (info.wifi_fw_ver) {
-            log.plain(chalk.bold("WiFi firmware version:"), info.wifi_fw_ver);
-          }
-          log.plain();
-
-          if (info.ot) {
-            let type;
-            switch (info.ot) {
-              case "otu":
-                type = "UDP";
-                break;
-              case "ott":
-                type = "TCP";
-                break;
-              default:
-                type = "Unknown (" + info.ot + ")";
-            }
-            log.plain(chalk.bold("Remote access (Mi Home App):"), type);
-          } else {
-            log.plain(chalk.bold("Remote access (Mi Home App):"), "Maybe");
-          }
-          log.plain();
+        if (info.ap) {
+          log.plain(
+            chalk.bold("WiFi:"),
+            info.ap.ssid,
+            chalk.dim("(" + info.ap.bssid + ")"),
+            chalk.bold("RSSI:"),
+            info.ap.rssi,
+          );
+        } else {
+          log.plain(chalk.bold("WiFi:"), "Not Connected");
         }
+        if (info.wifi_fw_ver) {
+          log.plain(chalk.bold("WiFi firmware version:"), info.wifi_fw_ver);
+        }
+        log.plain();
 
-        const props = device.properties;
-        const keys = Object.keys(props);
-        if (keys.length > 0) {
-          log.plain(chalk.bold("Properties:"));
-          for (const key of keys) {
-            log.plain("  -", key + ":", props[key]);
+        if (info.ot) {
+          let type;
+          switch (info.ot) {
+            case "otu":
+              type = "UDP";
+              break;
+            case "ott":
+              type = "TCP";
+              break;
+            default:
+              type = "Unknown (" + info.ot + ")";
           }
-          log.plain();
+          log.plain(chalk.bold("Remote access (Mi Home App):"), type);
+        } else {
+          log.plain(chalk.bold("Remote access (Mi Home App):"), "Maybe");
         }
+        log.plain();
+      }
 
-        if (mgmt.parent) {
-          log.plain(chalk.bold("Parent:"));
-          log.group(() => {
-            log.device(mgmt.parent);
-          });
+      const props = device.properties;
+      const keys = Object.keys(props);
+      if (keys.length > 0) {
+        log.plain(chalk.bold("Properties:"));
+        for (const key of keys) {
+          log.plain("  -", key + ":", props[key]);
         }
+        log.plain();
+      }
 
-        log.plain(chalk.bold("Actions:"));
+      if (mgmt.parent) {
+        log.plain(chalk.bold("Parent:"));
         log.group(() => {
-          const actions = device.metadata.actions;
-          const handled = new Set();
-          for (const group of GROUPS) {
-            let seenTags = new Set();
-            let actionsToPrint = [];
+          log.device(mgmt.parent);
+        });
+      }
 
-            /*
-             * Go through all actions and collect those that
-             * belong to this group.
-             */
-            for (const name of Object.keys(actions)) {
-              if (handled.has(name)) continue;
-              const action = actions[name];
+      log.plain(chalk.bold("Actions:"));
+      log.group(() => {
+        const actions = device.metadata.actions;
+        const handled = new Set();
+        for (const group of GROUPS) {
+          let seenTags = new Set();
+          let actionsToPrint = [];
 
-              for (const t of group.tags) {
-                if (action.tags.indexOf(t) >= 0) {
-                  seenTags.add(t);
-                  actionsToPrint.push(action);
-                  break;
-                }
-              }
-            }
-
-            if (actionsToPrint.length > 0) {
-              log.plain(
-                chalk.bold(group.name),
-                "-",
-                Array.from(seenTags).join(", "),
-              );
-
-              for (const action of actionsToPrint) {
-                printAction(action);
-                handled.add(action.name);
-              }
-
-              log.plain();
-            }
-          }
-
-          let isFirst = true;
+          /*
+           * Go through all actions and collect those that
+           * belong to this group.
+           */
           for (const name of Object.keys(actions)) {
             if (handled.has(name)) continue;
+            const action = actions[name];
 
-            if (isFirst) {
-              log.plain(chalk.bold("Other actions"));
-              isFirst = false;
+            for (const t of group.tags) {
+              if (action.tags.indexOf(t) >= 0) {
+                seenTags.add(t);
+                actionsToPrint.push(action);
+                break;
+              }
+            }
+          }
+
+          if (actionsToPrint.length > 0) {
+            log.plain(
+              chalk.bold(group.name),
+              "-",
+              Array.from(seenTags).join(", "),
+            );
+
+            for (const action of actionsToPrint) {
+              printAction(action);
+              handled.add(action.name);
             }
 
-            printAction(actions[name]);
+            log.plain();
           }
-        });
-      })
-      .catch((err) => {
-        log.error("Could inspect device. Error was:", err.message);
-      })
-      .then(() => {
-        pending--;
-				process.exit(0); // eslint-disable-line
+        }
+
+        let isFirst = true;
+        for (const name of Object.keys(actions)) {
+          if (handled.has(name)) continue;
+
+          if (isFirst) {
+            log.plain(chalk.bold("Other actions"));
+            isFirst = false;
+          }
+
+          printAction(actions[name]);
+        }
       });
+    } catch (err) {
+      log.error("Could inspect device. Error was:", err.message);
+    } finally {
+      pending--;
+      process.exit(0); // eslint-disable-line n/no-process-exit
+    }
   });
 
   const doneHandler = () => {
@@ -182,7 +179,7 @@ exports.handler = function (argv) {
       if (!foundDevice) {
         log.warn("Could not find device");
       }
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
   };
   setTimeout(doneHandler, 5000);
@@ -190,8 +187,9 @@ exports.handler = function (argv) {
 };
 
 /**
+ * Prints an action and its arguments.
  *
- * @param action
+ * @param {object} action The action metadata
  */
 function printAction(action) {
   log.group(() => {

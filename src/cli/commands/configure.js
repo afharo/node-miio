@@ -29,31 +29,28 @@ exports.handler = function (argv) {
   const browser = deviceFinder({
     filter: target,
   });
-  browser.on("available", (device) => {
+  browser.on("available", async (device) => {
     pending++;
 
     log.plain();
 
-    device.management
-      .updateWireless({
+    try {
+      await device.management.updateWireless({
         ssid: argv.ssid,
         passwd: argv.passwd,
-      })
-      .then((_result) => {
-        log.plain("Updated wireless configuration");
-
-        return tokens.update(device.id, device.management.token);
-      })
-      .catch((err) => {
-        log.error("Encountered an error while updating wireless");
-        log.plain();
-        log.plain("Error was:");
-        log.plain(err.message);
-      })
-      .then(() => {
-        pending--;
-				process.exit(0); // eslint-disable-line
       });
+      log.plain("Updated wireless configuration");
+
+      await tokens.update(device.id, device.management.token);
+    } catch (err) {
+      log.error("Encountered an error while updating wireless");
+      log.plain();
+      log.plain("Error was:");
+      log.plain(err.message);
+    } finally {
+      pending--;
+      process.exit(0); // eslint-disable-line n/no-process-exit
+    }
   });
 
   const doneHandler = () => {
@@ -61,7 +58,7 @@ exports.handler = function (argv) {
       if (!foundDevice) {
         log.warn("Could not find device");
       }
-			process.exit(0); // eslint-disable-line
+      process.exit(0); // eslint-disable-line
     }
   };
   setTimeout(doneHandler, 5000);
