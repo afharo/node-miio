@@ -127,6 +127,8 @@ export async function loginWithPassword(
     // Step 2: send the credentials
     const fields: Record<string, string> = {
       sid: "xiaomiio",
+      // The Xiaomi login protocol expects the (uppercase) MD5 of the password, like the Mi Home app sends.
+      // It's a wire format we don't choose, not a hash we store: the password and its hash are never persisted.
       hash: crypto
         .createHash("md5")
         .update(password)
