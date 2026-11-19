@@ -49,6 +49,12 @@ const WATER_LEVEL_CANDIDATES = [
 ];
 /** `vacuum:mode` is sometimes the cleaning type (e.g. Sweep / Mop / Spot-clean) instead of the fan speed */
 const NOT_A_FAN_SPEED = /sweep|mop|clean/i;
+/**
+ * Candidate properties for the cleaning type (vacuum only, mop only, both, vacuum then mop…), in order of preference.
+ * `vacuum:mode` is only used when its values are cleaning types (e.g. `ijai.vacuum.v3`: Sweep / Sweep And Mop / Mop).
+ */
+const CLEANING_TYPE_CANDIDATES = ["sweep-mop-type", "mode"];
+const CLEANING_TYPE = /sweep|mop/i;
 const MIN_MODES = 3;
 
 /**
@@ -170,6 +176,8 @@ export class MiotVacuum extends ATVacuum.with(
   private readonly fanModes?: MiotMode[];
   private readonly waterProperty?: ResolvedProperty;
   private readonly waterModes?: MiotMode[];
+  private readonly cleaningTypeProperty?: ResolvedProperty;
+  private readonly cleaningTypeModes?: MiotMode[];
 
   constructor(handle: DeviceHandle, spec: MiotSpec) {
     super(handle);
@@ -234,6 +242,27 @@ export class MiotVacuum extends ATVacuum.with(
         this.waterModes = modes;
         this.defineMiotProperty("water_level", resolved, {
           name: "waterBoxMode",
+        });
+        break;
+      }
+    }
+
+    for (const candidate of CLEANING_TYPE_CANDIDATES) {
+      const resolved = this.specIndex.property("vacuum", candidate);
+      const modes = modesOf(resolved);
+      if (
+        // Never reuse the property used for the fan speed
+        !(
+          resolved?.siid === this.fanProperty?.siid &&
+          resolved?.piid === this.fanProperty?.piid
+        ) &&
+        modes &&
+        modes.every((mode) => CLEANING_TYPE.test(mode.name))
+      ) {
+        this.cleaningTypeProperty = resolved;
+        this.cleaningTypeModes = modes;
+        this.defineMiotProperty("cleaning_type", resolved, {
+          name: "cleaningType",
         });
         break;
       }
@@ -355,6 +384,39 @@ export class MiotVacuum extends ATVacuum.with(
   /** The water levels supported by the device (empty if the spec doesn't describe them) */
   async waterBoxModes(): Promise<MiotMode[]> {
     return this.waterModes ?? [];
+  }
+
+  /**
+   * The cleaning types supported by the device, e.g. `Sweep`, `Mop`, `Sweep Mop`, `Sweep Before Mopping`
+   * (empty if the spec doesn't describe them).
+   *
+   * @returns The list of cleaning types
+   */
+  async cleaningTypes(): Promise<MiotMode[]> {
+    return this.cleaningTypeModes ?? [];
+  }
+
+  /**
+   * Set the cleaning type (vacuum only, mop only, both, vacuum then mop…).
+   *
+   * @param type One of the values of {@link cleaningTypes}
+   */
+  async setCleaningType(type: number) {
+    if (!this.cleaningTypeProperty) {
+      throw new Error(
+        `Changing the cleaning type is not supported by ${this.miioModel}`,
+      );
+    }
+    await setProperty(
+      this.caller,
+      {
+        did: "cleaning_type",
+        siid: this.cleaningTypeProperty.siid,
+        piid: this.cleaningTypeProperty.piid,
+      },
+      type,
+      { refresh: ["cleaningType"] },
+    );
   }
 
   getDeviceInfo() {

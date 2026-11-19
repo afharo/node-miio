@@ -94,6 +94,8 @@ Implementation (`src/lib/miot/`):
   - Many specs carry placeholder value-lists (`[Auto, Level1]`). Modes need ≥3 entries and a writable property.
   - Fan speed: first match of `fan-level`, `suction-level`, `mode` (unless its values are cleaning types like Sweep/Mop), `speed-level`.
   - Water: `mop-water-output-level`, `target-water-level`, `water-level`.
+  - Cleaning type (`cleaningTypes()` / `setCleaningType()`): `sweep-mop-type` (Sweep / Mop / Sweep Mop / Sweep Before Mopping),
+    or `mode` when all its values are sweep/mop types (e.g. ijai). Never the property used for the fan speed.
   - `vacuum:status` descriptions are normalized by `normalizeState()` to the state names used by the legacy classes.
 - Routing (`connect_to_device.ts`): `roborock.*` and `rockrobo.*` always use the legacy classes.
   Other `*.vacuum.*` models use `MiotVacuum` only if a spec exists **and** the device answers `get_properties` for `vacuum:status`.

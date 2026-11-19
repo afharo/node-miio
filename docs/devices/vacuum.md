@@ -95,6 +95,16 @@ const waterLevels = await device.waterBoxModes(); // [] if not supported
 if (waterLevels.length) await device.setWaterBoxMode(waterLevels[1].value);
 ```
 
+### Cleaning type (MIoT vacuums)
+
+MIoT vacuums that let you choose between vacuuming, mopping or both expose the options from their spec:
+
+```javascript
+const types = await device.cleaningTypes();
+// [{ value: 1, name: "Sweep" }, { value: 2, name: "Mop" }, { value: 3, name: "Sweep Mop" }, { value: 4, name: "Sweep Before Mopping" }]
+await device.setCleaningType(types[3].value);
+```
+
 ### Roborock-only features
 
 ```javascript
