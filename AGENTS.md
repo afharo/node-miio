@@ -10,12 +10,15 @@ Guidance for AI coding agents (and humans) working on `node-miio`.
 - **The maintainer no longer owns test hardware** (see [#18](https://github.com/afharo/node-miio/issues/18)).
   Every behavioural change must be covered by unit tests that replay device responses, and be released as a beta for users to validate.
 - Changes are delivered as PRs from feature branches into `main`. Do not push to `main` directly.
+- **Label every PR** when creating it, so `.github/release.yml` can group the release notes:
+  `enhancement` (features), `bug` (fixes), `dependencies` (deps / Node.js engines), `documentation` (docs only).
+  PRs labelled `release` (version bumps) are excluded from the notes.
 
 ## Commands
 
 ```sh
 npm ci
-npm run lint    # eslint (warnings are tolerated for now, errors are not)
+npm run lint    # eslint --max-warnings=0: warnings fail CI too
 npm test        # jest (babel-jest: tests are NOT type-checked, `npm run build` is)
 npm run build   # tsc -> dist/
 node dist/cli/index.js --help   # smoke-test the CLI after building
@@ -45,6 +48,12 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
   Prefer real captures from users' bug reports (`node-miio protocol call <ip> <method>`); scrub tokens, serial numbers and IPs.
 - Commands using `refresh`/`refreshDelay` wait on timers: use fake timers and `jest.advanceTimersByTimeAsync`.
 - `src/lib/modules_load.test.ts` loads every module in isolation. It catches broken mixins and circular imports.
+
+## Linting
+
+- JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
+  In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required.
+- `console` is only allowed in `src/cli/**` and `scripts/**`. Use `debug` in the library.
 
 ## Gotchas learned the hard way
 

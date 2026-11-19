@@ -139,8 +139,8 @@ const Yeelight = Thing.type(
       /**
        * Helper method to combine an argument with effect information.
        *
-       * @param arg
-       * @param duration
+       * @param {*} arg The argument(s) of the command
+       * @param {number} duration The duration of the effect in ms
        */
       static withEffect(arg, duration) {
         const result = Array.isArray(arg) ? arg : [arg];

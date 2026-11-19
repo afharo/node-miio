@@ -53,7 +53,7 @@ export const Buzzer = Thing.mixin(
       /**
        * Get or set if the buzzer is active.
        *
-       * @param {boolean} active
+       * @param active
        *   Optional boolean to switch buzzer to.
        */
       buzzer(active) {

@@ -1,8 +1,8 @@
 /**
  * Safer JSON parser
  *
- * @param {string} str The string to parse into a JSON
- * @returns {T} The parsed JSON
+ * @param str The string to parse into a JSON
+ * @returns The parsed JSON
  */
 export function safeishJSON<T>(str: string): T {
   try {

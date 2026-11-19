@@ -122,9 +122,8 @@ class Network extends EventEmitter {
   /**
    * Caches the device if not previously cached (could be the reason of failures when reconnecting?)
    *
-   * @private
-   * @param {DeviceInfo} device {@link DeviceInfo}
-   * @returns {DeviceInfo} New device or the previously cached one
+   * @param device {@link DeviceInfo}
+   * @returns New device or the previously cached one
    */
   cacheDevice(device: DeviceInfo): DeviceInfo {
     const deviceId = device.id || null;

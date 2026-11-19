@@ -1,7 +1,7 @@
 /**
  * Helper to validate that the response from the RVC is successful.
  *
- * @param {unknown} r The response of the request
+ * @param r The response of the request
  */
 export function checkResult(r: unknown) {
   // console.log(r)

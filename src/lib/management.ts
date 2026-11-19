@@ -55,7 +55,6 @@ export class DeviceManagement {
    *
    * @param options
    * @param options.ssid
-   * @param options.password
    * @param options.passwd
    */
   async updateWireless(options: { ssid?: string; passwd?: string }) {
@@ -88,7 +87,7 @@ export class DeviceManagement {
   /**
    * Update the token used to connect to this device.
    *
-   * @param {string|Buffer} token
+   * @param token
    */
   async updateToken(token: string | Buffer) {
     if (token instanceof Buffer) {

@@ -32,7 +32,7 @@ export const LEDBrightness = Thing.mixin(
       /**
        * Get or set if the LED brightness.
        *
-       * @param {string} brightness The LED brightness
+       * @param brightness The LED brightness
        */
       async ledBrightness(brightness?: string | unknown) {
         if (typeof brightness === "undefined") {

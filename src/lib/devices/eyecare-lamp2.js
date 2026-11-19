@@ -103,7 +103,7 @@ module.exports = class EyecareLamp2 extends (
   /**
    * Enable the eyeCare
    *
-   * @param enable
+   * @param {boolean} enable Whether to enable it
    */
   setEyeCare(enable) {
     return this.call("set_eyecare", [enable ? "on" : "off"], {

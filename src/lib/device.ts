@@ -113,8 +113,8 @@ export class Device extends Thing.type(
       /**
        * Public API: Call a miio method.
        *
-       * @param {string} method
-       * @param {*} args
+       * @param method
+       * @param args
        */
       public miioCall<
         Method extends keyof Protocol,
@@ -127,9 +127,9 @@ export class Device extends Thing.type(
       /**
        * Call a raw method on the device.
        *
-       * @param {*} method
-       * @param {*} args
-       * @param {*} options
+       * @param method
+       * @param args
+       * @param options
        * @param options.refresh
        * @param options.refreshDelay
        * @param options.sid
@@ -208,9 +208,9 @@ export class Device extends Thing.type(
       /**
        * Map and add a property to an object.
        *
-       * @param {object} result
-       * @param {string} name
-       * @param {*} value
+       * @param result
+       * @param name
+       * @param value
        */
       _pushProperty(
         result: Record<string, unknown>,
@@ -295,7 +295,7 @@ export class Device extends Thing.type(
       /**
        * Get several properties at once.
        *
-       * @param {Array} props
+       * @param props
        */
       public getProperties(props: string[]) {
         const result = {};
@@ -308,7 +308,7 @@ export class Device extends Thing.type(
       /**
        * Load properties from the device.
        *
-       * @param {*} props
+       * @param props
        */
       public async loadProperties(props: string[]) {
         // Rewrite property names to device internal ones

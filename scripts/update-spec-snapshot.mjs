@@ -17,6 +17,13 @@ const { values: args } = parseArgs({
   },
 });
 
+/**
+ * Fetches a JSON document, retrying with exponential backoff.
+ *
+ * @param {string} url The URL to fetch
+ * @param {number} attempt The current attempt (starts at 1)
+ * @returns {Promise<any>} The parsed JSON
+ */
 async function fetchJson(url, attempt = 1) {
   try {
     const res = await fetch(url, { headers: { "User-Agent": "node-miio" } });
@@ -29,7 +36,12 @@ async function fetchJson(url, attempt = 1) {
   }
 }
 
-/** Same selection rule as the runtime client: prefer `released`, then the highest version. */
+/**
+ * Same selection rule as the runtime client: prefer `released`, then the highest version.
+ *
+ * @param {Array<{ model: string, type: string, status: string, version: number }>} instances The list from `instances?status=all`
+ * @returns {Map<string, { model: string, type: string, status: string, version: number }>} The selected instance per model
+ */
 function pickInstances(instances) {
   const byModel = new Map();
   for (const instance of instances) {
@@ -56,6 +68,9 @@ console.log(`${selected.size} vacuum models, ${urns.length} unique specs`);
 const specs = {};
 const failed = [];
 let next = 0;
+/**
+ *
+ */
 async function worker() {
   while (next < urns.length) {
     const urn = urns[next++];
