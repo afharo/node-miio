@@ -28,6 +28,7 @@ export {
 } from "./miot/spec_client";
 export { MiotSpecIndex, parseUrn, type MiotSpec } from "./miot/miot_spec";
 export { MiotError } from "./miot/miot_api";
+export * from "./cloud/index";
 
 export {
   /**

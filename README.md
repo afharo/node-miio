@@ -34,15 +34,15 @@ them.
 
 Currently supported devices are:
 
-* Air Purifiers (1, 2 and Pro)
-* Mi Humidifier
-* Mi Smart Socket Plug and Power Strips
-* Robot vacuums:
-  * Roborock / Mi Robot Vacuum (legacy miIO protocol), Viomi and Dreame (mc1808)
-  * **Any MIoT vacuum** (Xiaomi, Dreame, Mijia, ijai, …), driven by its spec from [miot-spec.org](https://home.miot-spec.com) (see [MIoT devices](#miot-devices))
-* Mi Smart Home Gateway (Aqara) and accessories - switches, sensors, etc
-* Philips Light Bulb and Eyecare Lamp
-* Yeelights (White Bulb, Color Bulb, Desk Lamp and Strip)
+- Air Purifiers (1, 2 and Pro)
+- Mi Humidifier
+- Mi Smart Socket Plug and Power Strips
+- Robot vacuums:
+  - Roborock / Mi Robot Vacuum (legacy miIO protocol), Viomi and Dreame (mc1808)
+  - **Any MIoT vacuum** (Xiaomi, Dreame, Mijia, ijai, …), driven by its spec from [miot-spec.org](https://home.miot-spec.com) (see [MIoT devices](#miot-devices))
+- Mi Smart Home Gateway (Aqara) and accessories - switches, sensors, etc
+- Philips Light Bulb and Eyecare Lamp
+- Yeelights (White Bulb, Color Bulb, Desk Lamp and Strip)
 
 See [documentation for devices](docs/devices/README.md) for information about
 the types, their API and supported device models. You can also check
@@ -93,30 +93,33 @@ npm install -g node-miio
 ## Usage
 
 ```javascript
-const miio = require('node-miio');
+const miio = require("node-miio");
 ```
 
 Resolve a handle to the device:
 
 ```javascript
 // Resolve a device, resolving the token automatically or from storage
-miio.device({ address: '192.168.100.8' })
-  .then(device => console.log('Connected to', device))
-  .catch(err => handleErrorHere);
+miio
+  .device({ address: "192.168.100.8" })
+  .then((device) => console.log("Connected to", device))
+  .catch((err) => handleErrorHere);
 
 // Resolve a device, specifying the token (see below for how to get the token)
-miio.device({ address: '192.168.100.8', token: 'token-as-hex' })
-  .then(device => console.log('Connected to', device))
-  .catch(err => handleErrorHere);
+miio
+  .device({ address: "192.168.100.8", token: "token-as-hex" })
+  .then((device) => console.log("Connected to", device))
+  .catch((err) => handleErrorHere);
 ```
 
 Call methods to interact with the device:
 
 ```javascript
 // Switch the power of the device
-device.togglePower()
-  .then(on => console.log('Power is now', on))
-  .catch(err => handleErrorHere);
+device
+  .togglePower()
+  .then((on) => console.log("Power is now", on))
+  .catch((err) => handleErrorHere);
 
 // Using async/await
 await device.togglePower();
@@ -126,25 +129,24 @@ Listen to events such as property changes and actions:
 
 ```javascript
 // Listen for power changes
-device.on('power', power => console.log('Power changed to', power));
+device.on("power", (power) => console.log("Power changed to", power));
 
 // The device is available for event handlers
-const handler = ({ action }, device) => console.log('Action', action, 'performed on', device);
-device1.on('action', handler);
-device2.on('action', handler);
+const handler = ({ action }, device) =>
+  console.log("Action", action, "performed on", device);
+device1.on("action", handler);
+device2.on("action", handler);
 ```
 
 Capabilities and types are used to hint about what a device can do:
 
 ```javascript
-if(device.matches('cap:temperature')) {
+if (device.matches("cap:temperature")) {
   console.log(await device.temperature());
 }
 
-if(device.matches('cap:switchable-power')) {
-  device.setPower(false)
-    .then(console.log)
-    .catch(console.error);
+if (device.matches("cap:switchable-power")) {
+  device.setPower(false).then(console.log).catch(console.error);
 }
 ```
 
@@ -164,6 +166,10 @@ There is a command line tool named `miio` that helps with finding and storing
 tokens. See [Device management](docs/management.md) for details
 and common use cases.
 
+The easiest way to get the tokens is from your Xiaomi account (opt-in):
+`npx node-miio cloud login --qr` (scan the QR code with the Mi Home app), then
+`npx node-miio cloud devices`. See [Xiaomi Cloud](docs/cloud.md).
+
 ## Discovering devices
 
 Use `miio.devices()` to look for and connect to devices on the local network.
@@ -175,29 +181,29 @@ Example using `miio.devices()`:
 
 ```javascript
 const devices = miio.devices({
-  cacheTime: 300 // 5 minutes. Default is 1800 seconds (30 minutes)
+  cacheTime: 300, // 5 minutes. Default is 1800 seconds (30 minutes)
 });
 
-devices.on('available', device => {
-  if(device.matches('placeholder')) {
+devices.on("available", (device) => {
+  if (device.matches("placeholder")) {
     // This device is either missing a token or could not be connected to
   } else {
     // Do something useful with device
   }
 });
 
-devices.on('unavailable', device => {
+devices.on("unavailable", (device) => {
   // Device is no longer available and is destroyed
 });
 ```
 
 `miio.devices()` supports these options:
 
-* `cacheTime`, the maximum amount of seconds a device can be unreachable before it becomes unavailable. Default: `1800`
-* `filter`, function used to filter what devices are connected to. Default: `reg => true`
-* `skipSubDevices`, if sub devices on Aqara gateways should be skipped. Default: `false`
-* `useTokenStorage`, if tokens should be fetched from storage (see device management). Default: `true`
-* `tokens`, object with manual mapping between ids and tokens (advanced, use [Device management](docs/management.md) if possible)
+- `cacheTime`, the maximum amount of seconds a device can be unreachable before it becomes unavailable. Default: `1800`
+- `filter`, function used to filter what devices are connected to. Default: `reg => true`
+- `skipSubDevices`, if sub devices on Aqara gateways should be skipped. Default: `false`
+- `useTokenStorage`, if tokens should be fetched from storage (see device management). Default: `true`
+- `tokens`, object with manual mapping between ids and tokens (advanced, use [Device management](docs/management.md) if possible)
 
 See [Advanced API](docs/advanced-api.md) for details about `miio.browse()`.
 
