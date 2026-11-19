@@ -21,6 +21,8 @@ import {
   type MiotSpec,
   MiotSpecIndex,
   type MiotValueListItem,
+  parseUrn,
+  STANDARD_NAMESPACE,
   type ResolvedAction,
   type ResolvedProperty,
 } from "../../miot/miot_spec";
@@ -400,7 +402,9 @@ export class MiotVacuum extends ATVacuum.with(
    * Pause the current cleaning session (stops it if the device doesn't support pausing).
    */
   pause() {
-    const pause = this.specIndex.action("vacuum", "pause-sweeping");
+    const pause =
+      this.specIndex.action("vacuum", "pause-sweeping") ??
+      this.specIndex.action("vacuum", "pause");
     return pause
       ? this.runAction("pause_sweeping", pause)
       : this.deactivateCleaning();
@@ -518,4 +522,25 @@ export function isSupportedMiotVacuum(spec: MiotSpec): boolean {
     !!index.property("vacuum", "status") &&
     !!index.action("vacuum", "start-sweep")
   );
+}
+
+/** Specs this small (and without vendor services) are cloud/voice-assistant stubs of legacy miIO devices */
+const PLACEHOLDER_SPEC_MAX_PROPERTIES = 10;
+
+/**
+ * Whether a spec is just a placeholder (e.g. legacy miIO devices like `roborock.vacuum.s5` or `viomi.vacuum.v7`
+ * publish minimal specs with only status, mode and battery, which are not what the device speaks locally).
+ *
+ * @param spec The spec
+ * @returns `true` if the spec has no vendor-specific services and very few properties
+ */
+export function isPlaceholderSpec(spec: MiotSpec): boolean {
+  const hasVendorServices = spec.services.some(
+    (service) => parseUrn(service.type).namespace !== STANDARD_NAMESPACE,
+  );
+  const properties = spec.services.reduce(
+    (count, service) => count + (service.properties?.length ?? 0),
+    0,
+  );
+  return !hasVendorServices && properties <= PLACEHOLDER_SPEC_MAX_PROPERTIES;
 }

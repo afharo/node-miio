@@ -3,10 +3,13 @@ import ijaiV3 from "../../__fixtures__/miot/ijai.vacuum.v3.json";
 import mijiaV2 from "../../__fixtures__/miot/mijia.vacuum.v2.json";
 import p2008 from "../../__fixtures__/miot/dreame.vacuum.p2008.json";
 import roborockS5 from "../../__fixtures__/miot/roborock.vacuum.s5.json";
+import viomiV10 from "../../__fixtures__/miot/viomi.vacuum.v10.json";
+import viomiV18 from "../../__fixtures__/miot/viomi.vacuum.v18.json";
 import type { MiotSpec } from "../../miot/miot_spec";
 import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
 
 import {
+  isPlaceholderSpec,
   isSupportedMiotVacuum,
   MiotVacuum,
   normalizeState,
@@ -104,6 +107,23 @@ describe("isSupportedMiotVacuum", () => {
     expect(
       isSupportedMiotVacuum({ type: "x", description: "", services: [] }),
     ).toBe(false);
+  });
+});
+
+describe("isPlaceholderSpec", () => {
+  test.each([
+    ["roborock.vacuum.s5", roborockS5],
+    ["viomi.vacuum.v10", viomiV10],
+  ])("%s has a placeholder spec", (_model, spec) => {
+    expect(isPlaceholderSpec(spec as MiotSpec)).toBe(true);
+  });
+
+  test.each([
+    ["viomi.vacuum.v18", viomiV18],
+    ["dreame.vacuum.p2008", p2008],
+    ["xiaomi.vacuum.d110ch", d110ch],
+  ])("%s has a real spec", (_model, spec) => {
+    expect(isPlaceholderSpec(spec as MiotSpec)).toBe(false);
   });
 });
 
@@ -333,6 +353,33 @@ describe("MiotVacuum (other models)", () => {
     expect(sentCalls(call)[0]).toEqual([
       "action",
       { did: "pause_sweeping", siid: 2, aiid: 50, in: [] },
+    ]);
+  });
+
+  test("viomi.vacuum.v18 (Viomi S9): fan speed via vacuum:mode, pause and dock", async () => {
+    const { vacuum, call } = createMiotVacuum("viomi.vacuum.v18", viomiV18, {
+      "2.1": 4, // Charging
+      "3.1": 100,
+    });
+    expect(vacuum.fanSpeeds().map((m) => m.name)).toEqual([
+      "Silent",
+      "Basic",
+      "Medium",
+      "Strong",
+    ]);
+    await vacuum.poll();
+    expect(vacuum.property("state")).toBe("charging");
+    await expect(vacuum.charging).resolves.toBe(true);
+
+    call.mockClear();
+    await withTimers(vacuum.pause());
+    await withTimers(vacuum.activateCharging());
+    await withTimers(vacuum.changeFanSpeed(2));
+    const sent = sentCalls(call).filter(([m]) => m !== "get_properties");
+    expect(sent).toEqual([
+      ["action", { did: "pause_sweeping", siid: 2, aiid: 3, in: [] }],
+      ["action", { did: "start_charge", siid: 2, aiid: 4, in: [] }],
+      ["set_properties", [{ did: "fan_speed", siid: 2, piid: 19, value: 2 }]],
     ]);
   });
 

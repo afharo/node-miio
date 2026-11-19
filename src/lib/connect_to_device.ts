@@ -6,6 +6,7 @@ import { Vacuum } from "./devices/vacuums/vacuum";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
 import {
+  isPlaceholderSpec,
   isSupportedMiotVacuum,
   MiotVacuum,
 } from "./devices/vacuums/miot-vacuum";
@@ -18,8 +19,18 @@ export interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
   withPlaceholder?: boolean;
 }
 
-/** Vacuum brands that speak the legacy miIO protocol (their MIoT specs are stubs for the cloud/voice assistants) */
-const LEGACY_VACUUM_MODEL = /^(roborock|rockrobo|viomi)\./;
+/**
+ * Vacuum brands that always speak the legacy miIO protocol (their MIoT specs are stubs for the cloud/voice assistants).
+ * Viomi is not listed: older models (v6/v7/v8/v10…) publish placeholder specs and fall back to `ViomiVacuum`, while
+ * newer ones (v13, v18…) are real MIoT devices.
+ */
+const LEGACY_VACUUM_MODEL = /^(roborock|rockrobo)\./;
+
+/**
+ * Brands with both legacy miIO and MIoT models: placeholder specs mean "legacy miIO" for them.
+ * (For other brands, a small spec may still be a genuine MIoT device, and there's no working legacy fallback.)
+ */
+const LEGACY_WHEN_PLACEHOLDER_SPEC = /^viomi\./;
 
 type DeviceHandleForConnect = ConstructorParameters<typeof Device>[0];
 
@@ -38,7 +49,14 @@ async function tryMiotVacuum(
   const resolved = await getMiotSpecClient()
     .getSpec(model)
     .catch(() => undefined);
-  if (!resolved || !isSupportedMiotVacuum(resolved.spec)) return undefined;
+  if (
+    !resolved ||
+    !isSupportedMiotVacuum(resolved.spec) ||
+    (LEGACY_WHEN_PLACEHOLDER_SPEC.test(model) &&
+      isPlaceholderSpec(resolved.spec))
+  ) {
+    return undefined;
+  }
 
   const status = new MiotSpecIndex(resolved.spec).property("vacuum", "status");
   if (!status) return undefined;

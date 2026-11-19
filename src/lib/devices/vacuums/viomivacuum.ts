@@ -222,12 +222,7 @@ export class ViomiVacuum extends Vacuum.with(
 
   /**
    * Set the power of the fan.
-   * From https://github.com/rytilahti/python-miio/blob/20f915c9589fed55544a5417abe3fd3d9e12d08d/miio/viomivacuum.py#L16-L20
-   * class ViomiVacuumSpeed(Enum):
-   * Silent = 0
-   * Standard = 1
-   * Medium = 2
-   * Turbo = 3
+   * Values reported by users (#216 in homebridge-xiaomi-roborock-vacuum): 0 (Silent), 1 (Standard), 2 (Medium), 3 (Turbo).
    *
    * @param speed
    */

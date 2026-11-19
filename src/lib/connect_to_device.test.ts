@@ -69,6 +69,9 @@ describe("connectToDevice", () => {
     ["rockrobo.vacuum.v1", Vacuum],
     ["roborock.vacuum.m1s", MijiaVacuum],
     ["viomi.vacuum.v8", ViomiVacuum],
+    ["viomi.vacuum.v7", ViomiVacuum],
+    // Not pinned in models.ts, but its spec is a placeholder
+    ["viomi.vacuum.v10", ViomiVacuum],
     ["dreame.vacuum.mc1808", DreameVacuum],
   ])("%s uses the legacy miIO class", async (model, expected) => {
     // Even if they answer get_properties, legacy brands are not routed to MIoT
@@ -81,6 +84,7 @@ describe("connectToDevice", () => {
     "dreame.vacuum.p2008",
     "mijia.vacuum.v2",
     "ijai.vacuum.v3",
+    "viomi.vacuum.v18",
   ])("%s uses the spec-driven MiotVacuum", async (model) => {
     mockDevice(model, respondOk);
     await expect(connect()).resolves.toBeInstanceOf(MiotVacuum);
@@ -92,6 +96,9 @@ describe("connectToDevice", () => {
 
     mockDevice("xiaomi.vacuum.d110ch");
     await expect(connect()).resolves.toBeInstanceOf(Vacuum);
+
+    mockDevice("viomi.vacuum.v18");
+    await expect(connect()).resolves.toBeInstanceOf(ViomiVacuum);
   });
 
   test("falls back when the status property is not available", async () => {
