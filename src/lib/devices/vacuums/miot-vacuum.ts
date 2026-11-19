@@ -8,6 +8,8 @@ import {
 import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
 import type { DeviceHandle } from "../../management";
+
+import type { VacuumMode } from "./vacuum_modes";
 import {
   callAction,
   getProperties,
@@ -28,12 +30,7 @@ import {
 } from "../../miot/miot_spec";
 
 /** A selectable mode (fan speed or water level), as described by the spec */
-export interface MiotMode {
-  /** Raw value to send to the device */
-  value: number;
-  /** Human-readable name, from the spec */
-  name: string;
-}
+export type MiotMode = VacuumMode;
 
 /**
  * Candidate properties for the fan speed, in order of preference.
@@ -346,12 +343,12 @@ export class MiotVacuum extends ATVacuum.with(
   }
 
   /** The fan speeds supported by the device (empty if the spec doesn't describe them) */
-  fanSpeeds(): MiotMode[] {
+  async fanSpeeds(): Promise<MiotMode[]> {
     return this.fanModes ?? [];
   }
 
   /** The water levels supported by the device (empty if the spec doesn't describe them) */
-  waterBoxModes(): MiotMode[] {
+  async waterBoxModes(): Promise<MiotMode[]> {
     return this.waterModes ?? [];
   }
 

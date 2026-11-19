@@ -57,6 +57,15 @@ CI (`.github/workflows/build.yml`) runs lint, test and build on Node 20/22/24.
 - Legacy Roborock models (`roborock.vacuum.*`, `rockrobo.vacuum.*`) speak the **legacy miIO** command set (`get_status`, `app_start`, …).
   Their MIoT specs on miot-spec.org are stubs, and their fan-speed values differ from the spec (and change with the firmware).
 
+## Legacy Roborock
+
+- Fan speeds / water levels of legacy miIO models live in `src/lib/devices/vacuums/vacuum_modes.ts` (`resolveVacuumModes(model, fw)`),
+  moved from the plugins' `models/` folders. When a user reports wrong speeds, fix them **here**, with a test in `vacuum_modes.test.ts`.
+- `Vacuum.fanSpeeds()` reads `fw_ver` from `miIO.info` once (some models changed their values in newer firmwares, e.g. S5 ≥ 3.5.7).
+- All vacuum classes expose the same async `fanSpeeds()` / `waterBoxModes()` API returning `{ value, name }[]`.
+  There's no "Off" entry: that's a plugin/UI concept.
+- `cleanRooms(ids, { repeat })` only sends the object format (`[{ segments, repeat }]`) when `repeat > 1`, because older firmwares only accept the list.
+
 ## Device specs (MIoT)
 
 - Model → URN: `https://miot-spec.org/miot-spec-v2/instances?status=all` (~7 MB). Prefer `released` and the highest `version`.

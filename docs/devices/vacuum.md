@@ -1,7 +1,9 @@
 # Robot Vacuums
 
-* **Devices**: Mi Robot Vacuum
-* **Model identifiers**: `rockrobo.vacuum.v1`
+* **Devices**:
+  * Roborock / Mi Robot Vacuum (legacy miIO): `rockrobo.vacuum.*`, `roborock.vacuum.*` (class `Vacuum`)
+  * Viomi (legacy miIO): older `viomi.vacuum.*` such as v6/v7/v8 (class `ViomiVacuum`)
+  * Any MIoT vacuum (Xiaomi, Dreame, Mijia, ijai, newer Viomi…), driven by its spec (class `MiotVacuum`, see the README)
 
 Robot vacuums are mapped into a device of type [`vacuum`][vacuum]. The device
 will support many different capabilities, such as autonomous cleaning, getting
@@ -12,7 +14,8 @@ the cleaning state and more.
 ### Check if device is a vacuum
 
 ```javascript
-if(device.matches('type:vacuum')) {
+// Note: abstract-things spells the type as "vaccuum"
+if(device.matches('type:vaccuum')) {
   /*
    * This device is a vacuum.
    */
@@ -78,3 +81,50 @@ device.batteryLevel()
 // With async/wait
 const level = await device.batteryLevel();
 ```
+
+### Fan speeds and water levels
+
+Every vacuum class lists the values supported by the model (and firmware, for legacy Roborock models):
+
+```javascript
+const speeds = await device.fanSpeeds();
+// [{ value: 105, name: "Soft" }, { value: 101, name: "Quiet" }, ...]
+await device.changeFanSpeed(speeds[1].value);
+
+const waterLevels = await device.waterBoxModes(); // [] if not supported
+if (waterLevels.length) await device.setWaterBoxMode(waterLevels[1].value);
+```
+
+### Roborock-only features
+
+```javascript
+// Clean rooms (segment ids from getRoomMap()), twice
+await device.cleanRooms([16, 17], { repeat: 2 });
+
+// Do Not Disturb
+await device.getDoNotDisturb(); // { enabled: true, start: "22:00", end: "08:00" }
+await device.setDoNotDisturb("22:00", "08:00");
+await device.disableDoNotDisturb();
+
+// Carpet mode (suction boost on carpets)
+await device.setCarpetMode(true);
+
+// Mop route (S7 and newer)
+const { MOP_ROUTES } = require("node-miio");
+await device.setMopRoute(MOP_ROUTES.deep);
+
+// Multi-floor maps
+const maps = await device.getMaps(); // [{ id: 0, name: "Ground floor" }, ...]
+await device.loadMap(maps[1].id);
+
+// Docks with mop washing
+await device.startMopWash();
+
+// Consumables and volume
+await device.resetConsumable("filter_work_time");
+await device.setSoundVolume(50);
+```
+
+> These commands follow the community-documented miIO protocol and are not tested on every model.
+> Please report which ones work on yours.
+

@@ -6,7 +6,16 @@ import type { BrowserOptions, DevicesOptions } from "./discovery";
 
 export { Device as MiioDevice } from "./device";
 export { MiioError } from "./miio_error";
-export { Vacuum } from "./devices/vacuums/vacuum";
+export {
+  Vacuum,
+  MOP_ROUTES,
+  type RoborockConsumable,
+} from "./devices/vacuums/vacuum";
+export {
+  resolveVacuumModes,
+  type VacuumMode,
+  type VacuumModes,
+} from "./devices/vacuums/vacuum_modes";
 export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 export { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 export { DreameVacuum } from "./devices/vacuums/dreamevacuum";

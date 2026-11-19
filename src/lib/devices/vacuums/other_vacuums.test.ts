@@ -125,6 +125,26 @@ describe("ViomiVacuum", () => {
   });
 });
 
+describe("fan speeds of the other legacy classes", () => {
+  test("viomi", async () => {
+    const { handle } = createFakeHandle("viomi.vacuum.v8", {});
+    const speeds = await new ViomiVacuum(handle).fanSpeeds();
+    expect(speeds.map((m) => m.value)).toEqual([0, 1, 2, 3]);
+  });
+
+  test("dreame mc1808", async () => {
+    const { handle } = createFakeHandle("dreame.vacuum.mc1808", {});
+    const vacuum = new DreameVacuum(handle);
+    expect((await vacuum.fanSpeeds()).map((m) => m.name)).toEqual([
+      "Quiet",
+      "Default",
+      "Medium",
+      "Strong",
+    ]);
+    await expect(vacuum.waterBoxModes()).resolves.toEqual([]);
+  });
+});
+
 describe("DreameVacuum", () => {
   test.each([
     // [model, expected siid/piid of the state property, expected siid of start/stop]

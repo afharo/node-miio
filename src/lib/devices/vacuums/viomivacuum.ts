@@ -8,6 +8,8 @@ import {
 
 import { MiioApi } from "../../device";
 import { BatteryLevel } from "../capabilities/battery-level";
+
+import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
 import { checkResult } from "../../check_result";
 
 export class ViomiVacuum extends Vacuum.with(
@@ -142,6 +144,24 @@ export class ViomiVacuum extends Vacuum.with(
     }
 
     super.propertyUpdated(key, value, oldValue);
+  }
+
+  /**
+   * The fan speeds supported by this model, to be used with {@link changeFanSpeed}.
+   *
+   * @returns The list of modes
+   */
+  async fanSpeeds(): Promise<VacuumMode[]> {
+    return resolveVacuumModes(this.miioModel ?? "").fanSpeeds;
+  }
+
+  /**
+   * The water levels supported by this model. Empty if not supported.
+   *
+   * @returns The list of modes
+   */
+  async waterBoxModes(): Promise<VacuumMode[]> {
+    return resolveVacuumModes(this.miioModel ?? "").waterBoxModes;
   }
 
   getDeviceInfo() {
