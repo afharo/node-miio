@@ -77,7 +77,38 @@ describe("Vacuum (roborock miIO)", () => {
         sideBrushWorkTime: 32453,
         filterWorkTime: 32453,
         sensorDirtyTime: 13110,
+        waterBoxAttached: false,
       });
+    });
+
+    test.each([
+      ["water_box_status", "waterBoxAttached"],
+      ["water_shortage_status", "waterShortage"],
+      ["dry_status", "mopDrying"],
+    ])("maps %p to %p and exposes it in the state", async (raw, name) => {
+      const { vacuum } = createVacuum();
+      const events: unknown[] = [];
+      vacuum.on("stateChanged", (change) => events.push(change));
+
+      vacuum.setRawProperty(raw, 1);
+      expect(vacuum.property(name)).toBe(true);
+      await expect(vacuum.state()).resolves.toMatchObject({ [name]: true });
+      // abstract-things emits the events asynchronously
+      await jest.advanceTimersByTimeAsync(100);
+      expect(events).toContainEqual({ key: name, value: true });
+
+      vacuum.setRawProperty(raw, 0);
+      expect(vacuum.property(name)).toBe(false);
+      await expect(vacuum.state()).resolves.toMatchObject({ [name]: false });
+      await jest.advanceTimersByTimeAsync(100);
+      expect(events).toContainEqual({ key: name, value: false });
+    });
+
+    test("doesn't report the dock properties when the model doesn't have them", async () => {
+      const { vacuum } = createVacuum();
+      await vacuum.poll();
+      expect(vacuum.property("waterShortage")).toBeUndefined();
+      expect(vacuum.property("mopDrying")).toBeUndefined();
     });
 
     test("accepts get_status responses that are not wrapped in an array", async () => {
@@ -538,6 +569,21 @@ describe("Vacuum (roborock miIO)", () => {
         ["app_start_wash", []],
         ["app_stop_wash", []],
       ]);
+    });
+
+    test("mop drying", async () => {
+      const { vacuum, call } = createVacuum({
+        app_set_dryer_status: ["ok"],
+      });
+      await withTimers(vacuum.startMopDrying());
+      await withTimers(vacuum.stopMopDrying());
+      expect(
+        sentCalls(call).filter(([method]) => method === "app_set_dryer_status"),
+      ).toEqual([
+        ["app_set_dryer_status", { status: 1 }],
+        ["app_set_dryer_status", { status: 0 }],
+      ]);
+      expect(call.mock.calls[0][2]).toMatchObject({ refresh: ["mopDrying"] });
     });
 
     test("resetConsumable refreshes the related property", async () => {
