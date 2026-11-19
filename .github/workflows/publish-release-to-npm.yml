@@ -4,6 +4,12 @@ on:
   release:
     types: [created]
 
+# Publishing uses npm's Trusted Publishing (OIDC): no NPM_TOKEN needed.
+# https://docs.npmjs.com/trusted-publishers
+permissions:
+  contents: read
+  id-token: write # Required to request the OIDC token used by `npm publish` (it also generates provenance)
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,7 +21,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          # Node 24 ships npm 11 (Trusted Publishing requires npm >= 11.5.1)
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Clean cache
@@ -26,6 +33,20 @@ jobs:
 
       - name: Verify Npm version
         run: npm -v
+
+      - name: Check the release tag matches package.json
+        id: version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "v$VERSION" != "$TAG_NAME" ] && [ "$VERSION" != "$TAG_NAME" ]; then
+            echo "::error::The release tag ($TAG_NAME) doesn't match the version in package.json ($VERSION)"
+            exit 1
+          fi
+          # Prereleases (e.g. 0.3.0-beta.3) are published under their identifier (e.g. `beta`), not `latest`
+          PRERELEASE=$(node -p "(require('./package.json').version.split('-')[1] || '').split('.')[0]")
+          echo "dist_tag=${PRERELEASE:-latest}" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: npm ci
@@ -43,6 +64,4 @@ jobs:
         run: npm run snapshot
 
       - name: Publish to npm
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag "${{ steps.version.outputs.dist_tag }}"
