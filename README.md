@@ -1,12 +1,10 @@
 <!-- prettier-ignore -->
-> [!WARNING]
-> **Looking for a new maintainer**
+> [!NOTE]
+> **Beta testers wanted**
 >
-> I no longer own a device supported by this project (my new vacuum supports Matter natively), so I can't test changes against real hardware anymore.
-> I'm happy to hand over ownership of the repository and the npm package to anyone who wants to continue its development.
->
-> In the meantime, I'll keep addressing the reported issues with AI-assisted development, relying on the automated tests and **your feedback**: please, try the beta releases and report back.
-> Interested in taking over? Please, comment on [this issue](https://github.com/afharo/node-miio/issues/18).
+> The maintainer no longer owns most of the supported devices, so changes are developed against automated tests and validated by users on beta releases.
+> If you'd like to help, sign up as a beta tester in the plugin you use ([Homebridge](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/1232), [Matterbridge](https://github.com/afharo/matterbridge-xiaomi-roborock/issues/387)) or in [#18](https://github.com/afharo/node-miio/issues/18).
+> See [CONTRIBUTING.md](./CONTRIBUTING.md) for other ways to help. Co-maintainers are welcome too.
 
 # miIO Device Library
 
@@ -94,6 +92,22 @@ npm install -g node-miio
 
 ```javascript
 const miio = require("node-miio");
+```
+
+The package includes TypeScript declarations. With TypeScript, use `isVacuum()` to narrow the device to a
+`VacuumDevice`, and `instanceof` for the API of a specific implementation:
+
+```typescript
+import * as miio from "node-miio";
+import { isVacuum, Vacuum } from "node-miio";
+
+const device = await miio.device({ address, token });
+if (isVacuum(device)) {
+  await device.activateCleaning(); // shared by every vacuum
+  if (device instanceof Vacuum) {
+    await device.startMopWash(); // Roborock only
+  }
+}
 ```
 
 Resolve a handle to the device:
@@ -253,6 +267,28 @@ To activate both namespaces set `DEBUG` to both:
 ```
 $ DEBUG=miio\*,thing\* miio discover
 ```
+
+### Sending the debug messages to your own logger
+
+Apps (e.g. Homebridge or Matterbridge plugins) can send node-miio's debug messages to their own logger, so users don't
+need to set `DEBUG`. Tokens and passwords are redacted from these messages.
+
+```javascript
+const miio = require("node-miio");
+
+// The messages of this device (requests, responses, property changes…)
+const device = await miio.device({
+  address,
+  token,
+  logger: { debug: (msg) => log.debug(msg) },
+});
+
+// Everything that isn't about a specific device (network, MIoT specs, Xiaomi Cloud…)
+miio.configureLogging({ logger: { debug: (msg) => log.debug(msg) } });
+```
+
+The messages are prefixed with their namespace, e.g. `[thing:miio:1234] <- Message: ...`. The low-level packet details
+(`miio:packet`) are only available through `DEBUG`.
 
 ## Protocol documentation
 

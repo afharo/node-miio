@@ -11,6 +11,7 @@ import { BatteryLevel } from "../capabilities/battery-level";
 import { checkResult } from "../../check_result";
 
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
+import { clearErrorOnRecovery } from "./vacuum_errors";
 
 export class ViomiVacuum extends Vacuum.with(
   MiioApi,
@@ -102,6 +103,7 @@ export class ViomiVacuum extends Vacuum.with(
 
   propertyUpdated<T>(key: string, value: T, oldValue?: T) {
     if (key === "state") {
+      clearErrorOnRecovery(this, value);
       // Update charging state
       this.updateCharging(value === "charging");
 
@@ -168,8 +170,8 @@ export class ViomiVacuum extends Vacuum.with(
     return this.call("miIO.info", []);
   }
 
-  async getSerialNumber() {
-    return this.property("hw_info") || "Unknown"; // We don't know the command to retrieve this bit of info for these models
+  async getSerialNumber(): Promise<string> {
+    return this.property<string | undefined>("hw_info") || "Unknown"; // We don't know the command to retrieve this bit of info for these models
   }
 
   getRoomMap() {

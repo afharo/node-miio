@@ -191,4 +191,18 @@ describe("DreameVacuum", () => {
       ]);
     },
   );
+
+  test("doesn't support room cleaning (it rejects, instead of crashing)", async () => {
+    const { handle, call } = createFakeHandle("dreame.vacuum.p2008", {});
+    const vacuum = new DreameVacuum(handle);
+    await expect(vacuum.getRoomMap()).resolves.toEqual([]);
+    await expect(vacuum.getTimer()).resolves.toEqual([]);
+    await expect(vacuum.cleanRooms([16])).rejects.toThrow(
+      "Room cleaning is not supported by dreame.vacuum.p2008 yet",
+    );
+    await expect(vacuum.resumeCleanRooms([16])).rejects.toThrow(
+      "Room cleaning is not supported",
+    );
+    expect(call).not.toHaveBeenCalled();
+  });
 });

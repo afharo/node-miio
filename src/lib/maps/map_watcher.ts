@@ -1,13 +1,12 @@
 import { EventEmitter } from "node:events";
 
-import debugFactory from "debug";
-
+import { createDebug } from "../logger";
 import type { CloudServer, XiaomiCloud } from "../cloud/client";
 import { CloudSessionExpiredError } from "../cloud/errors";
 
 import type { MapPoint, RoborockMap } from "./roborock_map";
 
-const debug = debugFactory("miio:map-watcher");
+const debug = createDebug("miio:map-watcher");
 
 /** What the watcher needs from the vacuum (e.g. a Roborock {@link Vacuum}) */
 export interface MapWatcherDevice {

@@ -6,13 +6,14 @@ import isDeepEqual from "deep-equal";
 import { Thing, Polling } from "abstract-things";
 
 import { type DeviceHandle, DeviceManagement } from "./management";
+import { createDebug, type DebugFn } from "./logger";
 import type { Protocol } from "./protocol";
 
 const IDENTITY_MAPPER = <T>(v: T) => v;
 
-type Mapper<T, V> = (input: T) => V;
+export type Mapper<T, V> = (input: T) => V;
 
-interface PropertyDefinition<T, V> {
+export interface PropertyDefinition<T, V> {
   name: string;
   siid?: number;
   piid?: number;
@@ -20,7 +21,7 @@ interface PropertyDefinition<T, V> {
   handler?: (result: Record<string, unknown>, value: unknown) => void;
 }
 
-type PersistedPropertyDefinition<T, V> = PropertyDefinition<T, V> & {
+export type PersistedPropertyDefinition<T, V> = PropertyDefinition<T, V> & {
   mapper: Mapper<T, V>;
 };
 
@@ -83,14 +84,34 @@ export class Device extends Thing.type(
       }
 
       public readonly miioModel?: string;
-      private readonly _properties: Record<string, unknown> = {};
-      private readonly _propertiesToMonitor: string[] = [];
-      protected readonly _propertyDefinitions: Record<
+      /** @internal */
+      readonly _properties: Record<string, unknown> = {};
+      /** @internal */
+      readonly _propertiesToMonitor: string[] = [];
+      /** @internal */
+      readonly _propertyDefinitions: Record<
         string,
         PersistedPropertyDefinition<never, never>
       > = {};
-      protected readonly _reversePropertyDefinitions: Record<string, string>;
-      private readonly management: DeviceManagement;
+      /** @internal */
+      readonly _reversePropertyDefinitions: Record<string, string>;
+      /** @internal */
+      readonly management: DeviceManagement;
+      /** @internal */
+      debugFn?: DebugFn;
+
+      /**
+       * Logs a debug message to the `debug` package (`thing:<id>`) and to the device's logger (`device({ logger })`).
+       *
+       * @param msgs The message parts
+       */
+      debug(...msgs: unknown[]) {
+        this.debugFn ??= createDebug(
+          "thing:" + this.id,
+          () => this.handle.api.logger,
+        );
+        this.debugFn(...msgs);
+      }
 
       constructor(public readonly handle: DeviceHandle) {
         super();
@@ -108,6 +129,38 @@ export class Device extends Thing.type(
         this.updateMaxPollFailures(10);
 
         this.management = new DeviceManagement(this);
+
+        // Not a `[util.inspect.custom]()` method: a computed method can't be named in the published types. And not on
+        // the prototype either: the vacuum classes compose this class as a mixin, without inheriting from it.
+        Object.defineProperty(this, util.inspect.custom, {
+          value: (
+            depth: number,
+            options: { stylize: (text: string, style: string) => string },
+          ) => {
+            if (depth === 0) {
+              return (
+                options.stylize("MiioDevice", "special") +
+                "[" +
+                this.miioModel +
+                "]"
+              );
+            }
+
+            return (
+              options.stylize("MiioDevice", "special") +
+              " {\n" +
+              "  model=" +
+              this.miioModel +
+              ",\n" +
+              "  types=" +
+              Array.from(this.metadata.types).join(", ") +
+              ",\n" +
+              "  capabilities=" +
+              Array.from(this.metadata.capabilities).join(", ") +
+              "\n}"
+            );
+          },
+        });
       }
 
       /**
@@ -232,7 +285,13 @@ export class Device extends Thing.type(
         return this._loadProperties();
       }
 
-      private async _loadProperties(properties?: string[]) {
+      /**
+       * Loads the properties from the device.
+       *
+       * @internal
+       * @param properties The properties to load (default: the monitored ones)
+       */
+      async _loadProperties(properties?: string[]) {
         if (typeof properties === "undefined") {
           properties = this._propertiesToMonitor;
         }
@@ -279,6 +338,14 @@ export class Device extends Thing.type(
 
       public property<T>(key: string): T {
         return this._properties[key] as T;
+      }
+
+      /**
+       * Whether the device can still be used: `false` once it (and every other device sharing the network socket) has
+       * been destroyed. Connect again with `device()` in that case.
+       */
+      get connected(): boolean {
+        return this.handle.api.connected;
       }
 
       get properties() {
@@ -332,31 +399,6 @@ export class Device extends Thing.type(
         await super.destroyCallback();
         // Release the reference to the network
         this.handle.ref.release();
-      }
-
-      [util.inspect.custom](depth, options) {
-        if (depth === 0) {
-          return (
-            options.stylize("MiioDevice", "special") +
-            "[" +
-            this.miioModel +
-            "]"
-          );
-        }
-
-        return (
-          options.stylize("MiioDevice", "special") +
-          " {\n" +
-          "  model=" +
-          this.miioModel +
-          ",\n" +
-          "  types=" +
-          Array.from(this.metadata.types).join(", ") +
-          ",\n" +
-          "  capabilities=" +
-          Array.from(this.metadata.capabilities).join(", ") +
-          "\n}"
-        );
       }
     },
 ) {

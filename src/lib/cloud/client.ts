@@ -5,7 +5,7 @@
  * and Xiaomi-Cloud-Map-Extractor (https://github.com/PiotrMachowski/Home-Assistant-custom-components-Xiaomi-Cloud-Map-Extractor)
  * Copyright (c) 2020 Piotr Machowski. Licensed under the MIT License.
  */
-import debugFactory from "debug";
+import { createDebug } from "../logger";
 
 import {
   decryptRc4,
@@ -24,7 +24,7 @@ import {
   type QrLoginOptions,
 } from "./login";
 
-const debug = debugFactory("miio:cloud");
+const debug = createDebug("miio:cloud");
 
 /** The regional servers of the Xiaomi Cloud */
 export const CLOUD_SERVERS = [

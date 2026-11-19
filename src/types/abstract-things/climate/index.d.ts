@@ -1,10 +1,17 @@
 declare module "abstract-things/climate" {
+  /** The instance type of a class (or of a constructor type, e.g. a mixin) */
+  type Proto<T> = T extends abstract new (...args: never[]) => infer I
+    ? I
+    : T extends { prototype: infer P }
+      ? P
+      : never;
+
   import { Thing, ErrorState } from "abstract-things";
   export class Vacuum extends Thing {
     static with<
       T1 extends { prototype: unknown },
       constructorArgs extends unknown[],
-    >(t1: T1): new (...args: constructorArgs) => Vacuum & T1["prototype"];
+    >(t1: T1): new (...args: constructorArgs) => Vacuum & Proto<T1>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -13,9 +20,7 @@ declare module "abstract-things/climate" {
     >(
       t1: T1,
       t2: T2,
-    ): new (
-      ...args: constructorArgs
-    ) => Vacuum & T1["prototype"] & T2["prototype"];
+    ): new (...args: constructorArgs) => Vacuum & Proto<T1> & Proto<T2>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -28,7 +33,7 @@ declare module "abstract-things/climate" {
       t3: T3,
     ): new (
       ...args: constructorArgs
-    ) => Vacuum & T1["prototype"] & T2["prototype"] & T3["prototype"];
+    ) => Vacuum & Proto<T1> & Proto<T2> & Proto<T3>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -43,11 +48,7 @@ declare module "abstract-things/climate" {
       t4: T4,
     ): new (
       ...args: constructorArgs
-    ) => Vacuum &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"];
+    ) => Vacuum & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -64,12 +65,7 @@ declare module "abstract-things/climate" {
       t5: T5,
     ): new (
       ...args: constructorArgs
-    ) => Vacuum &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"];
+    ) => Vacuum & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4> & Proto<T5>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -89,12 +85,12 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => Vacuum &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -116,18 +112,20 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => Vacuum &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7>;
   }
   export class AdjustableFanSpeed extends Thing {
+    fanSpeed(): Promise<number>;
     updateFanSpeed(speed: unknown): void;
   }
   export class CleaningState extends ErrorState {
+    cleaning(): Promise<boolean>;
     updateCleaning(cleaning: boolean): void;
   }
   export class AutonomousCleaning extends CleaningState {}
@@ -137,7 +135,7 @@ declare module "abstract-things/climate" {
     static with<
       T1 extends { prototype: unknown },
       constructorArgs extends unknown[],
-    >(t1: T1): new (...args: constructorArgs) => AirMonitor & T1["prototype"];
+    >(t1: T1): new (...args: constructorArgs) => AirMonitor & Proto<T1>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -146,9 +144,7 @@ declare module "abstract-things/climate" {
     >(
       t1: T1,
       t2: T2,
-    ): new (
-      ...args: constructorArgs
-    ) => AirMonitor & T1["prototype"] & T2["prototype"];
+    ): new (...args: constructorArgs) => AirMonitor & Proto<T1> & Proto<T2>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -161,7 +157,7 @@ declare module "abstract-things/climate" {
       t3: T3,
     ): new (
       ...args: constructorArgs
-    ) => AirMonitor & T1["prototype"] & T2["prototype"] & T3["prototype"];
+    ) => AirMonitor & Proto<T1> & Proto<T2> & Proto<T3>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -176,11 +172,7 @@ declare module "abstract-things/climate" {
       t4: T4,
     ): new (
       ...args: constructorArgs
-    ) => AirMonitor &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"];
+    ) => AirMonitor & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -197,12 +189,7 @@ declare module "abstract-things/climate" {
       t5: T5,
     ): new (
       ...args: constructorArgs
-    ) => AirMonitor &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"];
+    ) => AirMonitor & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4> & Proto<T5>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -222,12 +209,12 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirMonitor &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -249,20 +236,20 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirMonitor &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7>;
   }
 
   export class AirPurifier extends Thing {
     static with<
       T1 extends { prototype: unknown },
       constructorArgs extends unknown[],
-    >(t1: T1): new (...args: constructorArgs) => AirMonitor & T1["prototype"];
+    >(t1: T1): new (...args: constructorArgs) => AirMonitor & Proto<T1>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -271,9 +258,7 @@ declare module "abstract-things/climate" {
     >(
       t1: T1,
       t2: T2,
-    ): new (
-      ...args: constructorArgs
-    ) => AirPurifier & T1["prototype"] & T2["prototype"];
+    ): new (...args: constructorArgs) => AirPurifier & Proto<T1> & Proto<T2>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -286,7 +271,7 @@ declare module "abstract-things/climate" {
       t3: T3,
     ): new (
       ...args: constructorArgs
-    ) => AirPurifier & T1["prototype"] & T2["prototype"] & T3["prototype"];
+    ) => AirPurifier & Proto<T1> & Proto<T2> & Proto<T3>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -301,11 +286,7 @@ declare module "abstract-things/climate" {
       t4: T4,
     ): new (
       ...args: constructorArgs
-    ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"];
+    ) => AirPurifier & Proto<T1> & Proto<T2> & Proto<T3> & Proto<T4>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -323,11 +304,11 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -347,12 +328,12 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -374,13 +355,13 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -404,14 +385,14 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"] &
-      T8["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7> &
+      Proto<T8>;
 
     static with<
       T1 extends { prototype: unknown },
@@ -437,14 +418,14 @@ declare module "abstract-things/climate" {
     ): new (
       ...args: constructorArgs
     ) => AirPurifier &
-      T1["prototype"] &
-      T2["prototype"] &
-      T3["prototype"] &
-      T4["prototype"] &
-      T5["prototype"] &
-      T6["prototype"] &
-      T7["prototype"] &
-      T8["prototype"] &
-      T9["prototype"];
+      Proto<T1> &
+      Proto<T2> &
+      Proto<T3> &
+      Proto<T4> &
+      Proto<T5> &
+      Proto<T6> &
+      Proto<T7> &
+      Proto<T8> &
+      Proto<T9>;
   }
 }

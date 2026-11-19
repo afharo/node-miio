@@ -1,7 +1,11 @@
 import type { Socket } from "node:dgram";
 
-import debugFactory from "debug";
-
+import {
+  createDebug,
+  type DebugFn,
+  maskToken,
+  type MiioLogger,
+} from "./logger";
 import { Packet } from "./packet";
 import { safeishJSON } from "./safeish_json";
 import { isMiioError, MiioError } from "./miio_error";
@@ -20,7 +24,9 @@ interface Parent {
 }
 
 export class DeviceInfo {
-  private debug: (...msgs: unknown[]) => void;
+  private debug: DebugFn;
+  /** Where the debug messages of this device go, in addition to the `debug` package (see `device({ logger })`) */
+  public logger?: MiioLogger;
   private readonly packet = new Packet();
   // Tracker for all promises associated with this device
   public readonly promises = new Map<
@@ -44,9 +50,27 @@ export class DeviceInfo {
     public readonly address: string,
     public readonly port?: number,
   ) {
-    this.debug = this.id
-      ? debugFactory("thing:miio:" + this.id)
-      : debugFactory("thing:miio:pending");
+    this.debug = this.createDebug();
+  }
+
+  private createDebug(): DebugFn {
+    return createDebug(
+      "thing:miio:" + (this.id ?? "pending"),
+      () => this.logger,
+    );
+  }
+
+  /**
+   * Whether the network socket used to talk to the device is still open. It's closed when every device using it has
+   * been destroyed: connect again with `device()` in that case.
+   */
+  public get connected(): boolean {
+    try {
+      return Boolean(this.parent.socket);
+    } catch {
+      // The network throws when the socket is gone ("device might be destroyed")
+      return false;
+    }
   }
 
   public get token() {
@@ -54,7 +78,7 @@ export class DeviceInfo {
   }
 
   public set token(t) {
-    this.debug("Using manual token:", t?.toString("hex"));
+    this.debug("Using manual token:", maskToken(t?.toString("hex")));
     this.packet.token = t;
     this.tokenChanged = true;
   }
@@ -78,7 +102,10 @@ export class DeviceInfo {
         this.autoToken = false;
       } else {
         this.autoToken = true;
-        this.debug("Using automatic token:", this.packet.token.toString("hex"));
+        this.debug(
+          "Using automatic token:",
+          maskToken(this.packet.token.toString("hex")),
+        );
       }
     }
 
@@ -216,7 +243,7 @@ export class DeviceInfo {
         if (this.id !== this.packet.deviceId) {
           // Update the identifier if needed
           this.id = this.packet.deviceId;
-          this.debug = debugFactory("thing:miio:" + this.id);
+          this.debug = this.createDebug();
           this.debug("Identifier of device updated");
         }
 

@@ -3,8 +3,7 @@
 import EventEmitter from "node:events";
 import dgram from "node:dgram";
 
-import debug from "debug";
-
+import { createDebug, type MiioLogger } from "./logger";
 import { Packet } from "./packet";
 import { DeviceInfo } from "./device_info";
 import { isMiioError } from "./miio_error";
@@ -16,6 +15,8 @@ export interface FindDeviceViaAddressOptions {
   port?: number;
   token?: string | Buffer;
   model?: string;
+  /** Where the debug messages of this device go, in addition to the `debug` package */
+  logger?: MiioLogger;
 }
 
 /**
@@ -39,7 +40,7 @@ class Network extends EventEmitter {
   constructor() {
     super();
 
-    this.debug = debug("miio:network");
+    this.debug = createDebug("miio:network");
   }
 
   search() {
@@ -97,6 +98,10 @@ class Network extends EventEmitter {
       device.token = Buffer.from(options.token, "hex");
     } else if (options.token instanceof Buffer) {
       device.token = options.token;
+    }
+
+    if (options.logger) {
+      device.logger = options.logger;
     }
 
     // Set the model if provided

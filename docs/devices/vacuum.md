@@ -127,8 +127,16 @@ await device.setMopRoute(MOP_ROUTES.deep);
 const maps = await device.getMaps(); // [{ id: 0, name: "Ground floor" }, ...]
 await device.loadMap(maps[1].id);
 
-// Docks with mop washing
+// Docks with mop washing / drying
 await device.startMopWash();
+await device.startMopDrying();
+await device.stopMopDrying();
+
+// Water tank and dock status (only on the models that report them, `undefined` otherwise).
+// They're also part of `device.state()` and the `stateChanged` events.
+device.property("waterBoxAttached"); // true when the water tank is mounted
+device.property("waterShortage"); // true when the (dock's) clean water tank is empty
+device.property("mopDrying"); // true while the dock dries the mop
 
 // Consumables and volume
 await device.resetConsumable("filter_work_time");

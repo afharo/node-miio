@@ -151,6 +151,11 @@ export interface Protocol {
     params: [];
     response: unknown;
   };
+  // Roborock: dock (mop drying). 1 = start, 0 = stop
+  app_set_dryer_status: {
+    params: { status: 0 | 1 };
+    response: unknown;
+  };
   // Roborock: consumables and sound
   reset_consumable: {
     params: [string];

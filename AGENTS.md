@@ -20,7 +20,8 @@ Guidance for AI coding agents (and humans) working on `node-miio`.
 npm ci
 npm run lint    # eslint --max-warnings=0: warnings fail CI too
 npm test        # jest (babel-jest: tests are NOT type-checked, `npm run build` is)
-npm run build   # tsc -> dist/
+npm run build   # tsc -> dist/ (JS + .d.ts), then scripts/copy-types.mjs ships src/types/ (abstract-things)
+npm run test:types   # after build: type-checks test-types/consumer.ts against the published types, like a plugin
 node dist/cli/index.js --help   # smoke-test the CLI after building
 ```
 
@@ -49,11 +50,25 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 - Commands using `refresh`/`refreshDelay` wait on timers: use fake timers and `jest.advanceTimersByTimeAsync`.
 - `src/lib/modules_load.test.ts` loads every module in isolation. It catches broken mixins and circular imports.
 
+## Published types
+
+- The package ships declarations (`"types": "dist/lib/index.d.ts"`), so the plugins don't need hand-written ones.
+  `test-types/consumer.ts` uses the API the way the plugins do: when you add or change public API, use it there too.
+- The class-mixin pattern (`Thing.type(...)`, `.with(...)`) can't publish private/protected members (TS4094): mark them
+  `/** @internal */` (removed from the declarations with `stripInternal`). Computed methods (e.g. `[util.inspect.custom]`)
+  can't be named either: `Device` defines that one in its constructor.
+- The mixin typings live in `src/types/abstract-things/` (the package has none) and are published with the library.
+  `Proto<T>` (the instance type of a class or mixin) keeps the composed classes typed: `T["prototype"]` was `any`.
+- `VacuumDevice` is the union of the vacuum classes: only their shared API is available without narrowing
+  (`instanceof Vacuum`…). Keep that shared API consistent across the classes (e.g. `cleanRooms` rejects when unsupported).
+
 ## Linting
 
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
   In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required.
-- `console` is only allowed in `src/cli/**` and `scripts/**`. Use `debug` in the library.
+- `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
+  (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
+  `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
 
 ## Gotchas learned the hard way
 
