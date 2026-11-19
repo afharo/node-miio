@@ -227,12 +227,20 @@ export class DreameVacuum extends Vacuum.with(
     return "unknown";
   }
 
-  getRoomMap() {
+  async getRoomMap(): Promise<unknown[]> {
     return [];
   }
 
-  getTimer() {
+  async getTimer(): Promise<unknown[]> {
     return [];
+  }
+
+  async cleanRooms(_listOfRooms: unknown[]): Promise<void> {
+    throw new Error(`Room cleaning is not supported by ${this.miioModel} yet`);
+  }
+
+  async resumeCleanRooms(listOfRooms: unknown[]): Promise<void> {
+    return this.cleanRooms(listOfRooms);
   }
 
   /**

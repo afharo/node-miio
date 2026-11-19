@@ -5,6 +5,8 @@
     "moduleResolution": "nodenext",
     "lib": ["ESNext"],
     "sourceMap": true,
+    "declaration": true,
+    "stripInternal": true,
     "rootDir": "src",
     "outDir": "dist",
 

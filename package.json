@@ -13,6 +13,7 @@
     "url": "https://github.com/afharo/node-miio/issues"
   },
   "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "keywords": [
     "xiaomi",
     "mi",
@@ -26,11 +27,12 @@
   },
   "scripts": {
     "clean": "rimraf ./dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && node scripts/copy-types.mjs",
+    "test:types": "node scripts/check-types.mjs",
     "snapshot": "node scripts/update-spec-snapshot.mjs",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
-    "preversion": "npm run lint && npm run build && npm test",
+    "preversion": "npm run lint && npm run build && npm run test:types && npm test",
     "version": "git add .",
     "postversion": "git push && git push --tags",
     "test": "jest",
@@ -43,6 +45,7 @@
     "node": ">=22.12.0"
   },
   "dependencies": {
+    "@types/debug": "^4.1.13",
     "abstract-things": "^0.9.0",
     "chalk": "^4.1.2",
     "debug": "^4.4.3",

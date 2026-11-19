@@ -168,8 +168,8 @@ export class ViomiVacuum extends Vacuum.with(
     return this.call("miIO.info", []);
   }
 
-  async getSerialNumber() {
-    return this.property("hw_info") || "Unknown"; // We don't know the command to retrieve this bit of info for these models
+  async getSerialNumber(): Promise<string> {
+    return this.property<string | undefined>("hw_info") || "Unknown"; // We don't know the command to retrieve this bit of info for these models
   }
 
   getRoomMap() {
