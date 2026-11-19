@@ -11,6 +11,8 @@ import { BatteryLevel } from "../capabilities/battery-level";
 import { checkResult } from "../../check_result";
 import type { DeviceHandle } from "../../management";
 import type { Protocol } from "../../protocol";
+import type { CloudServer, XiaomiCloud } from "../../cloud/client";
+import { parseRoborockMap, type RoborockMap } from "../../maps/roborock_map";
 
 import {
   resolveVacuumModes,
@@ -604,6 +606,47 @@ export class Vacuum extends ATVacuum.with(
       id: mapFlag,
       name,
     }));
+  }
+
+  /**
+   * The name of the current map file in the Xiaomi Cloud. The robot answers `retry` while it's uploading the
+   * map, so it's asked again a few times (with an increasing delay).
+   *
+   * @param options The options
+   * @param options.retries How many times to ask (default 5)
+   * @param options.delayMs The first delay between retries, doubled every time (default 100ms, up to 15s)
+   * @returns The map name, to use with {@link XiaomiCloud.getMapFileUrl}
+   */
+  async getMapName(
+    options: { retries?: number; delayMs?: number } = {},
+  ): Promise<string> {
+    const retries = options.retries ?? 5;
+    let delay = options.delayMs ?? 100;
+    for (let attempt = 1; ; attempt++) {
+      const [name] = await this.call("get_map_v1", []);
+      if (name && name !== "retry") return name;
+      if (attempt >= retries) {
+        throw new Error("The vacuum didn't return the map name");
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay = Math.min(delay * 2, 15_000);
+    }
+  }
+
+  /**
+   * Downloads and parses the current map from the Xiaomi Cloud: rooms, robot position, current room…
+   *
+   * @param cloud A logged-in Xiaomi Cloud client
+   * @param server The server the device is registered in (see {@link XiaomiCloud.findDevice})
+   * @returns The map
+   */
+  async getCloudMap(
+    cloud: Pick<XiaomiCloud, "getMapFileUrl" | "download">,
+    server: CloudServer | string,
+  ): Promise<RoborockMap> {
+    const name = await this.getMapName();
+    const url = await cloud.getMapFileUrl(server, name);
+    return parseRoborockMap(await cloud.download(url));
   }
 
   /**

@@ -140,6 +140,23 @@ describe("XiaomiCloud", () => {
       ]);
     });
 
+    test("findDevice by ID, token or IP", async () => {
+      const { fetch } = fakeFetch(routes());
+      const cloud = new XiaomiCloud(session, { fetch });
+      await expect(cloud.findDevice({ did: 999 })).resolves.toMatchObject({
+        name: "Shared",
+      });
+      await expect(
+        cloud.findDevice({ token: vacuum.token.toUpperCase() }),
+      ).resolves.toMatchObject({ did: "123456", server: "de" });
+      await expect(
+        cloud.findDevice({ ip: "192.168.1.20" }),
+      ).resolves.toMatchObject({ did: "123456" });
+      await expect(
+        cloud.findDevice({ ip: "10.0.0.1" }),
+      ).resolves.toBeUndefined();
+    });
+
     test("only the given servers", async () => {
       const { fetch, requests } = fakeFetch(routes());
       const cloud = new XiaomiCloud(session, { fetch });

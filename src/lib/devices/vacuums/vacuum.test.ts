@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import getStatus from "../../__fixtures__/roborock.vacuum.s5/get_status.json";
 import getConsumable from "../../__fixtures__/roborock.vacuum.s5/get_consumable.json";
 import {
@@ -486,6 +489,42 @@ describe("Vacuum (roborock miIO)", () => {
       ]);
       await vacuum.loadMap(1);
       expect(sentCalls(call)[1]).toEqual(["load_multi_map", [1]]);
+    });
+
+    test("getMapName retries while the vacuum answers retry", async () => {
+      let attempts = 0;
+      const { vacuum } = createVacuum({
+        get_map_v1: () => (++attempts < 3 ? ["retry"] : ["robomap%2F1%2F2"]),
+      });
+      await expect(withTimers(vacuum.getMapName())).resolves.toBe(
+        "robomap%2F1%2F2",
+      );
+      expect(attempts).toBe(3);
+    });
+
+    test("getMapName gives up after the retries", async () => {
+      const { vacuum } = createVacuum({ get_map_v1: ["retry"] });
+      await expect(
+        withTimers(vacuum.getMapName({ retries: 2, delayMs: 10 })),
+      ).rejects.toThrow("didn't return the map name");
+    });
+
+    test("getCloudMap: map name → cloud URL → download → parse", async () => {
+      const { vacuum } = createVacuum({ get_map_v1: ["robomap%2F1%2F2"] });
+      const file = fs.readFileSync(
+        path.join(
+          __dirname,
+          "../../__fixtures__/maps/roborock/S8_FW1286_with_obstacles.bin.gz",
+        ),
+      );
+      const cloud = {
+        getMapFileUrl: jest.fn().mockResolvedValue("https://files/map.gz"),
+        download: jest.fn().mockResolvedValue(file),
+      };
+      const map = await withTimers(vacuum.getCloudMap(cloud, "de"));
+      expect(cloud.getMapFileUrl).toHaveBeenCalledWith("de", "robomap%2F1%2F2");
+      expect(cloud.download).toHaveBeenCalledWith("https://files/map.gz");
+      expect(map.currentRoom).toBe(17);
     });
 
     test("mop washing", async () => {

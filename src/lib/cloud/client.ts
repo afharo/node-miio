@@ -305,6 +305,32 @@ export class XiaomiCloud {
   }
 
   /**
+   * Finds a device of the account (e.g. to know its token or its server).
+   *
+   * @param match The device ID, token or local IP of the device (the first one given that matches)
+   * @param match.did The device ID
+   * @param match.token The device token
+   * @param match.ip The local IP of the device
+   * @param options The options of {@link XiaomiCloud.getDevices}
+   * @param options.servers The servers to check (all of them by default)
+   * @returns The device, if found
+   */
+  async findDevice(
+    match: { did?: string | number; token?: string; ip?: string },
+    options: { servers?: readonly CloudServer[] } = {},
+  ): Promise<CloudDevice | undefined> {
+    const devices = await this.getDevices(options);
+    const token = match.token?.toLowerCase();
+    return (
+      (match.did !== undefined &&
+        devices.find((d) => d.did === String(match.did))) ||
+      (token && devices.find((d) => d.token.toLowerCase() === token)) ||
+      (match.ip && devices.find((d) => d.localip === match.ip)) ||
+      undefined
+    );
+  }
+
+  /**
    * Downloads a file (e.g. a map file from {@link XiaomiCloud.getMapFileUrl}).
    *
    * @param url The URL

@@ -29,6 +29,26 @@ export {
 export { MiotSpecIndex, parseUrn, type MiotSpec } from "./miot/miot_spec";
 export { MiotError } from "./miot/miot_api";
 export * from "./cloud/index";
+export {
+  parseRoborockMap,
+  roomAt,
+  roomOfPixel,
+  MapParseError,
+  MM_PER_PIXEL,
+  PIXEL,
+  type RoborockMap,
+  type MapRoom,
+  type MapPoint,
+  type MapRectangle,
+  type MapArea,
+  type MapImage,
+} from "./maps/roborock_map";
+export {
+  MapWatcher,
+  type MapWatcherDevice,
+  type MapWatcherOptions,
+  type MapWatcherEvents,
+} from "./maps/map_watcher";
 
 export {
   /**

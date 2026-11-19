@@ -26,6 +26,11 @@ export interface Protocol {
     params?: [];
     response: [string, string][];
   };
+  // Roborock: the name of the current map file in the Xiaomi Cloud ("retry" while it's being uploaded)
+  get_map_v1: {
+    params?: [];
+    response: [string];
+  };
   get_timer: {
     params?: [];
     response: GetTimerResponseTimer[];
