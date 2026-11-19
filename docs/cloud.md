@@ -3,7 +3,7 @@
 node-miio controls devices **locally**. The Xiaomi Cloud is only used when you ask for it, to:
 
 - **get the tokens** of the devices in your Xiaomi account (no more token-extraction scripts);
-- (coming next) download the **map** of a vacuum, to know which room it's cleaning.
+- download the **map** of a Roborock vacuum, to know which room it's cleaning (see `MapWatcher`).
 
 ## Command line
 
@@ -18,6 +18,10 @@ npx node-miio cloud login
 npx node-miio cloud devices
 npx node-miio cloud devices --server de --json
 npx node-miio cloud devices --save   # store the tokens for the other node-miio commands
+
+# Download a Roborock vacuum's map: rooms, robot position and the room it's in
+npx node-miio cloud map <device ID or IP>
+npx node-miio cloud map 192.168.1.20 --out map.bin.gz   # also save the raw map (to attach it to a bug report)
 
 # Delete the saved session
 npx node-miio cloud logout
