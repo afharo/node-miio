@@ -76,3 +76,15 @@ async function useVacuum(device: VacuumDevice) {
 
   device.destroy();
 }
+
+// Roborock app accounts (experimental): list the robots
+export async function roborockDevices() {
+  const session = await miio.loadRoborockSession();
+  if (!session) return [];
+  const devices: miio.RoborockDevice[] = await new miio.RoborockWebApi(
+    session,
+  ).getDevices();
+  return devices.map(
+    ({ model, protocolVersion }) => `${model} ${protocolVersion}`,
+  );
+}

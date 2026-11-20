@@ -29,7 +29,7 @@ export function configureLogging(options: { logger?: MiioLogger }) {
 
 /** Keys whose values are never logged */
 const SECRET_KEYS =
-  /"(token|passwd|password|ssecurity|serviceToken)"\s*:\s*"[^"]*"/g;
+  /"(token|passwd|password|ssecurity|serviceToken|localKey)"\s*:\s*"[^"]*"/g;
 
 /**
  * Removes secrets (tokens, passwords) from a log message, so users can share their logs safely.
