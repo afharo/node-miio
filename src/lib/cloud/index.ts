@@ -2,9 +2,12 @@ export {
   XiaomiCloud,
   CLOUD_SERVERS,
   type CloudServer,
+  matchDevice,
   type CloudDevice,
+  type CloudDeviceMatch,
   type XiaomiCloudOptions,
 } from "./client";
+export { CloudDeviceCache } from "./device_cache";
 export {
   loginWithPassword,
   loginWithQrCode,
