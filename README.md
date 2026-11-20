@@ -186,7 +186,7 @@ The easiest way to get the tokens is from your Xiaomi account (opt-in):
 
 Robots paired with the **Roborock app** don't use miIO tokens. Their support is starting (experimental):
 `npx node-miio roborock login` (with a code sent to your email), then `npx node-miio roborock devices` lists
-your robots with their model and protocol version. See [Roborock app accounts](docs/roborock.md).
+your robots with their model and protocol version, and `roborockDevice()` controls them over the local network. See [Roborock app accounts](docs/roborock.md).
 
 ## Discovering devices
 
