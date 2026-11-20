@@ -36,3 +36,8 @@ images/
 
 # Scripts
 scripts/
+
+# Contributor/agent docs and Claude Code config
+.claude/
+AGENTS.md
+CONTRIBUTING.md
