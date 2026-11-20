@@ -62,6 +62,17 @@ const devices = await new XiaomiCloud(session!).getDevices({ servers: ["de"] });
 // [{ did, name, model, token, localip, mac, server, homeId, homeOwner }]
 ```
 
+To share the device list (e.g. between the devices of a Homebridge or Matterbridge platform), use
+`CloudDeviceCache`: it lists the devices once, and finds them by ID, token or IP.
+
+```ts
+import { CloudDeviceCache, MapWatcher } from "node-miio";
+
+const devices = new CloudDeviceCache(cloud);
+const robot = await devices.find({ ip: "192.168.1.20" }); // { token, server, … }
+const watcher = new MapWatcher(vacuum, cloud, { server: robot!.server });
+```
+
 Errors:
 
 - `CloudAuthError`: wrong credentials, captcha or verification code.

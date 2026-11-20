@@ -316,18 +316,10 @@ export class XiaomiCloud {
    * @returns The device, if found
    */
   async findDevice(
-    match: { did?: string | number; token?: string; ip?: string },
+    match: CloudDeviceMatch,
     options: { servers?: readonly CloudServer[] } = {},
   ): Promise<CloudDevice | undefined> {
-    const devices = await this.getDevices(options);
-    const token = match.token?.toLowerCase();
-    return (
-      (match.did !== undefined &&
-        devices.find((d) => d.did === String(match.did))) ||
-      (token && devices.find((d) => d.token.toLowerCase() === token)) ||
-      (match.ip && devices.find((d) => d.localip === match.ip)) ||
-      undefined
-    );
+    return matchDevice(await this.getDevices(options), match);
   }
 
   /**
@@ -395,4 +387,35 @@ export class XiaomiCloud {
  */
 function optionalString(value: unknown) {
   return typeof value === "string" && value ? value : undefined;
+}
+
+/** What identifies a device: the first one given that matches wins */
+export interface CloudDeviceMatch {
+  /** The device ID */
+  did?: string | number;
+  /** The device token (case-insensitive) */
+  token?: string;
+  /** The local IP of the device */
+  ip?: string;
+}
+
+/**
+ * Finds a device in a list of the account's devices.
+ *
+ * @param devices The devices (see {@link XiaomiCloud.getDevices})
+ * @param match The device ID, token or local IP of the device (the first one given that matches)
+ * @returns The device, if found
+ */
+export function matchDevice(
+  devices: readonly CloudDevice[],
+  match: CloudDeviceMatch,
+): CloudDevice | undefined {
+  const token = match.token?.toLowerCase();
+  return (
+    (match.did !== undefined &&
+      devices.find((d) => d.did === String(match.did))) ||
+    (token && devices.find((d) => d.token.toLowerCase() === token)) ||
+    (match.ip && devices.find((d) => d.localip === match.ip)) ||
+    undefined
+  );
 }
