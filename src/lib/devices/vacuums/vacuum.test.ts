@@ -338,6 +338,13 @@ describe("Vacuum (roborock miIO)", () => {
       await expect(withTimers(vacuum.getWaterBoxMode())).resolves.toBe(202);
     });
 
+    test("getWaterBoxMode: newer firmwares respond an object (e.g. Saros 20)", async () => {
+      const { vacuum } = createVacuum({
+        get_water_box_custom_mode: { water_box_mode: 235, distance_off: 0 },
+      });
+      await expect(withTimers(vacuum.getWaterBoxMode())).resolves.toBe(235);
+    });
+
     test("getHistory", async () => {
       const { vacuum } = createVacuum({
         get_clean_summary: [174145, 2410150000, 82, [1488240000, 1488153600]],

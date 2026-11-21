@@ -478,16 +478,20 @@ export class Vacuum extends ATVacuum.with(
   }
 
   /**
-   * Get WaterBoxMode (only working for the model S6)
+   * The current water level (see {@link waterBoxModes}).
    *
-   * @returns The current water box mode
+   * @returns The current water box mode (`undefined` if the robot doesn't report it)
    */
-  async getWaterBoxMode() {
+  async getWaterBoxMode(): Promise<number | undefined> {
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md
     const response = await this.call("get_water_box_custom_mode", [], {
       refresh: ["waterBoxMode"],
     });
-    return response[0];
+    // Older firmwares respond `[203]`, newer ones `{ water_box_mode: 235, distance_off: 0 }`
+    const value = Array.isArray(response)
+      ? response[0]
+      : response?.water_box_mode;
+    return typeof value === "number" ? value : undefined;
   }
 
   setWaterBoxMode(mode) {
