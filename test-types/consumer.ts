@@ -64,7 +64,7 @@ async function useVacuum(device: VacuumDevice) {
     await device.startMopWash();
     await device.startMopDrying();
     const maps: Array<{ id: number; name: string }> = await device.getMaps();
-    const waterBoxMode: number = await device.getWaterBoxMode();
+    const waterBoxMode: number | undefined = await device.getWaterBoxMode();
     console.log(maps, waterBoxMode, device.property<boolean>("waterShortage"));
   }
 
