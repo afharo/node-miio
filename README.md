@@ -2,7 +2,7 @@
 > [!NOTE]
 > **Beta testers wanted**
 >
-> The maintainer no longer owns most of the supported devices, so changes are developed against automated tests and validated by users on beta releases.
+> The maintainer no longer owns any of the supported models, so changes are developed against automated tests and validated by users on beta releases.
 > If you'd like to help, sign up as a beta tester in the plugin you use ([Homebridge](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/1232), [Matterbridge](https://github.com/afharo/matterbridge-xiaomi-roborock/issues/387)) or in [#18](https://github.com/afharo/node-miio/issues/18).
 > See [CONTRIBUTING.md](./CONTRIBUTING.md) for other ways to help. Co-maintainers are welcome too.
 
