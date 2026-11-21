@@ -35,3 +35,12 @@ export {
   type RoborockLocalConnectionOptions,
 } from "./local_connection";
 export { roomNames, type RoborockRoom } from "./rooms";
+export {
+  RoborockMqttSession,
+  RoborockMqttConnection,
+  mqttParams,
+  type MqttClientLike,
+  type MqttConnect,
+  type RoborockMqttSessionOptions,
+  type RoborockMqttConnectionOptions,
+} from "./mqtt";

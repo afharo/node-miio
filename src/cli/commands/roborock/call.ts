@@ -1,16 +1,12 @@
 import type { CommandBuilder } from "yargs";
 
-import {
-  RoborockError,
-  RoborockLocalConnection,
-} from "../../../lib/roborock/index";
 import { log } from "../../log";
 
-import { findRobot, robotOptions } from "./robot";
+import { connectRobot, robotOptions, type ConnectedRobot } from "./robot";
 
 export const command = "call <method> [params]";
 export const description =
-  "Call a method on a robot over the local network (e.g. get_status), and print the result";
+  "Call a method on a robot (e.g. get_status), and print the result";
 export const builder: CommandBuilder = {
   ...robotOptions,
 };
@@ -18,34 +14,27 @@ export const builder: CommandBuilder = {
 export const handler = async (argv: {
   method: string;
   params?: string;
-  ip: string;
+  ip?: string;
   duid?: string;
 }) => {
-  let connection: RoborockLocalConnection | undefined;
+  let connected: ConnectedRobot | undefined;
   try {
     const params = argv.params ? JSON.parse(argv.params) : [];
-    const found = await findRobot(argv.duid);
-    if (!found) {
+    connected = await connectRobot(argv);
+    if (!connected) {
       process.exitCode = 1;
       return;
     }
-    connection = new RoborockLocalConnection({
-      address: argv.ip,
-      localKey: found.robot.localKey,
-    });
-    const result = await connection.call(argv.method, params);
+    const result = await connected.api.call(argv.method as never, params);
+    const { api } = connected;
     log.info(
-      `${found.robot.name} (local protocol ${connection.protocolVersion}):`,
+      `${connected.robot.name} (${api.transport === "local" ? `local, ${api.address}, protocol ${api.localProtocolVersion}` : "MQTT"}):`,
     );
     console.log(JSON.stringify(result, null, 2));
   } catch (err) {
-    log.error(
-      err instanceof RoborockError || err instanceof SyntaxError
-        ? err.message
-        : String(err),
-    );
+    log.error(err instanceof Error ? err.message : String(err));
     process.exitCode = 1;
   } finally {
-    connection?.close();
+    await connected?.close();
   }
 };
