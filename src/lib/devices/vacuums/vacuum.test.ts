@@ -272,7 +272,7 @@ describe("Vacuum (roborock miIO)", () => {
     ])("%s sends %p", async (_name, run, method, params) => {
       const { vacuum, call } = createVacuum({ [method]: ["ok"] });
       await withTimers(run(vacuum));
-      expect(sentCalls(call)[0]).toEqual([method, params]);
+      expect(sentCalls(call)).toContainEqual([method, params]);
     });
 
     test("commands that refresh the state poll the device afterwards", async () => {
@@ -661,5 +661,80 @@ describe("Vacuum (roborock miIO)", () => {
         "Invalid volume",
       );
     });
+  });
+});
+
+describe("Vacuum: leaving a preset (Saros 20, a296)", () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  /**
+   * @param status The robot's status
+   * @returns A Saros 20 on that status
+   */
+  function saros(status: Record<string, number>) {
+    const { handle, call } = createFakeHandle("roborock.vacuum.a296", {
+      get_status: [{ ...getStatus[0], ...status }],
+      get_consumable: getConsumable,
+      "miIO.info": { model: "roborock.vacuum.a296", fw_ver: "02.32.54" },
+      set_custom_mode: ["ok"],
+      set_water_box_custom_mode: ["ok"],
+      set_clean_motor_mode: ["ok"],
+    });
+    return { vacuum: new Vacuum(handle), call };
+  }
+
+  /**
+   * @param promise The promise to resolve while advancing the fake timers
+   * @returns Its result
+   */
+  async function run<T>(promise: Promise<T>) {
+    const result = promise;
+    await jest.advanceTimersByTimeAsync(5000);
+    return result;
+  }
+
+  test("on SmartPlan, a fan speed leaves it with set_clean_motor_mode (middle water, standard route)", async () => {
+    const { vacuum, call } = saros({
+      fan_power: 110,
+      water_box_mode: 209,
+      mop_mode: 306,
+    });
+    await run(vacuum.init());
+    await run(vacuum.changeFanSpeed(104));
+    expect(sentCalls(call)).toContainEqual([
+      "set_clean_motor_mode",
+      [{ fan_power: 104, water_box_mode: 235, mop_mode: 300 }],
+    ]);
+    expect(sentCalls(call).map(([m]) => m)).not.toContain("set_custom_mode");
+  });
+
+  test("on SmartPlan, a water level leaves it with set_clean_motor_mode (balanced fan, standard route)", async () => {
+    const { vacuum, call } = saros({
+      fan_power: 110,
+      water_box_mode: 209,
+      mop_mode: 306,
+    });
+    await run(vacuum.init());
+    await run(vacuum.setWaterBoxMode(221));
+    expect(sentCalls(call)).toContainEqual([
+      "set_clean_motor_mode",
+      [{ fan_power: 102, water_box_mode: 221, mop_mode: 300 }],
+    ]);
+  });
+
+  test("without a preset on, the usual commands", async () => {
+    const { vacuum, call } = saros({
+      fan_power: 102,
+      water_box_mode: 235,
+      mop_mode: 300,
+    });
+    await run(vacuum.init());
+    await run(vacuum.changeFanSpeed(104));
+    await run(vacuum.setWaterBoxMode(221));
+    const methods = sentCalls(call).map(([m]) => m);
+    expect(methods).toContain("set_custom_mode");
+    expect(methods).toContain("set_water_box_custom_mode");
+    expect(methods).not.toContain("set_clean_motor_mode");
   });
 });
