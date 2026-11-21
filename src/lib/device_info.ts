@@ -377,3 +377,20 @@ export class DeviceInfo {
     return id;
   }
 }
+
+/**
+ * What a device needs from its connection: {@link DeviceInfo} (miIO over UDP) or a Roborock connection.
+ */
+export type DeviceApi = Pick<
+  DeviceInfo,
+  | "model"
+  | "address"
+  | "port"
+  | "token"
+  | "autoToken"
+  | "connected"
+  | "logger"
+  | "call"
+> & {
+  id: number | string | undefined;
+};

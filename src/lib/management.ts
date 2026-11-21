@@ -1,10 +1,10 @@
 import { tokens } from "./tokens";
-import type { DeviceInfo } from "./device_info";
+import type { DeviceApi } from "./device_info";
 import type { Protocol } from "./protocol";
 
 export interface DeviceHandle {
   ref: { release: () => void };
-  api: DeviceInfo;
+  api: DeviceApi;
 }
 
 /**
@@ -12,7 +12,7 @@ export interface DeviceHandle {
  * the Wi-Fi settings.
  */
 export class DeviceManagement {
-  private readonly api: DeviceInfo;
+  private readonly api: DeviceApi;
 
   constructor(device: { handle: DeviceHandle }) {
     this.api = device.handle.api;

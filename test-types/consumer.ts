@@ -88,3 +88,25 @@ export async function roborockDevices() {
     ({ model, protocolVersion }) => `${model} ${protocolVersion}`,
   );
 }
+
+// Roborock app robots over the local network (experimental)
+export async function roborockStatus(address: string) {
+  const session = await miio.loadRoborockSession();
+  if (!session) return;
+  const home = await new miio.RoborockWebApi(session).getHomeData();
+  const [robot] = miio.toDevices(home);
+  const device = await miio.roborockDevice({
+    duid: robot.duid,
+    localKey: robot.localKey,
+    model: robot.model ?? "roborock.vacuum.a296",
+    address,
+  });
+  if (device instanceof Vacuum) {
+    const rooms: miio.RoborockRoom[] = miio.roomNames(
+      await device.getRoomMap(),
+      home.rooms,
+    );
+    console.log(await device.batteryLevel(), rooms[0]?.name);
+  }
+  await device.destroy();
+}

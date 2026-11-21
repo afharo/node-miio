@@ -24,3 +24,14 @@ export {
   deleteRoborockSession,
   defaultRoborockSessionFile,
 } from "./session_store";
+export {
+  roborockDevice,
+  RoborockDeviceApi,
+  type RoborockDeviceOptions,
+} from "./device";
+export {
+  RoborockLocalConnection,
+  ROBOROCK_LOCAL_PORT,
+  type RoborockLocalConnectionOptions,
+} from "./local_connection";
+export { roomNames, type RoborockRoom } from "./rooms";
