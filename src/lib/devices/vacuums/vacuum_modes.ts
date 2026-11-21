@@ -66,6 +66,15 @@ export const FAN_SPEEDS = {
     m(108, "Max+"),
     m(106, "Custom"),
   ],
+  // Recent Roborock-app robots: 105 is "Mop only" (no suction), not "Soft". Read from a Saros 20 (a296). Its
+  // "SmartPlan" (110 + water 209 + mop route 306) is a preset of the 3 settings, not a fan speed: not listed.
+  "gen6-mop": [
+    m(105, "Mop"),
+    m(101, "Quiet"),
+    m(102, "Balanced"),
+    m(103, "Turbo"),
+    m(104, "Max"),
+  ],
   viomi: [m(0, "Silent"), m(1, "Standard"), m(2, "Medium"), m(3, "Turbo")],
   dreame: [m(0, "Quiet"), m(1, "Standard"), m(2, "Strong"), m(3, "Turbo")],
   "dreame.vacuum.mc1808": [
@@ -84,6 +93,11 @@ export const WATER_BOX_MODES = {
     m(202, "Medium"),
     m(203, "High"),
     m(204, "Custom"),
+  ],
+  // A slider of 30 levels: level n = 220 + n (221-250); 200 = off ("Vacuum only"). Read from a Saros 20 (a296)
+  "custom-30": [
+    m(200, "Off"),
+    ...Array.from({ length: 30 }, (_, i) => m(221 + i, `Level ${i + 1}`)),
   ],
   dreame: [m(0, "Off"), m(1, "Light"), m(2, "Medium"), m(3, "High")],
 } satisfies Record<string, VacuumMode[]>;
@@ -120,6 +134,7 @@ const MODELS: Record<string, ModelModes[]> = {
   "roborock.vacuum.a11": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a15": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a27": [{ fan: "gen5", water: "gen1+custom" }],
+  "roborock.vacuum.a296": [{ fan: "gen6-mop", water: "custom-30" }], // Saros 20 Neo
   "roborock.vacuum.a51": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a65": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a72": [{ fan: "gen4+custom" }], // Q5 Pro

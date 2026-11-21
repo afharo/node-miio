@@ -6,7 +6,7 @@ MQTT messages. The Roborock account gives the `localKey` of every robot.
 
 Status: node-miio can log in, list the robots and control them with the existing `Vacuum` class: over the local
 network (TCP 58867) when possible, else through Roborock's cloud (MQTT), which also finds the robot's IP and sends its
-status pushes. Next: maps
+status pushes. Maps come over MQTT and are parsed by `parseRoborockMap`, like the Xiaomi Cloud ones.
 ([homebridge-xiaomi-roborock-vacuum#104](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum/issues/104)).
 
 ## Command line
@@ -16,6 +16,7 @@ npx node-miio roborock login     # asks for your email, then for the code Roboro
 npx node-miio roborock devices   # name, model, protocol version, firmware, duid and (masked) local key
 npx node-miio roborock rooms                 # the map's rooms, named as in the Roborock app
 npx node-miio roborock call get_status       # any method, e.g. get_consumable, get_room_mapping
+npx node-miio roborock map                   # rooms, robot and charger positions, current room (--out: save the file)
 npx node-miio roborock logout
 ```
 
@@ -43,6 +44,7 @@ Roborock limits logins and code requests: avoid running `login` repeatedly.
 ```ts
 import {
   RoborockLogin,
+  roborockApiOf,
   RoborockMqttSession,
   RoborockWebApi,
   roborockDevice,
@@ -68,11 +70,14 @@ const vacuum = await roborockDevice({
   ...robot,
   model: robot.model,
   mqtt,
-  localProtocolVersion: savedVersion, // optional: what `vacuum.handle.api.localProtocolVersion` was last time
+  localProtocolVersion: savedVersion, // optional: what `roborockApiOf(vacuum).localProtocolVersion` was last time
 });
 console.log(await vacuum.batteryLevel(), vacuum.property("state"));
 const rooms = roomNames(await vacuum.getRoomMap(), home.rooms); // [{ segmentId: 1, roomId, name: "Kitchen" }, …]
 await vacuum.cleanRooms([rooms[0].segmentId]);
+
+// The map (over MQTT): the same `RoborockMap` as `parseRoborockMap` (rooms, robot position, current room…)
+const map = await roborockApiOf(vacuum)?.getMap();
 await vacuum.destroy();
 await mqtt.close();
 ```
@@ -82,5 +87,5 @@ without waiting for the next poll.
 
 ## Credits
 
-The account endpoints, the message format (`1.0` and `L01`) and the MQTT topics follow [python-roborock](https://github.com/Python-roborock/python-roborock) (Apache-2.0),
+The account endpoints, the message format (`1.0` and `L01`), the MQTT topics and the map responses follow [python-roborock](https://github.com/Python-roborock/python-roborock) (Apache-2.0),
 which documents Roborock's API. No code is copied from it.

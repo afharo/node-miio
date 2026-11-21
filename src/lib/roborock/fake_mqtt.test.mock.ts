@@ -1,3 +1,6 @@
+import crypto from "node:crypto";
+import { gzipSync } from "node:zlib";
+
 import {
   decodeMessage,
   encodeMessage,
@@ -29,13 +32,64 @@ export function fakeMqtt(localKey: string, responses: Responses) {
   }[] = [];
   const listeners: ((topic: string, payload: Buffer) => void)[] = [];
   const subscriptions = new Set<string>();
-  const options = { silent: false, connections: 0, failConnect: false };
+  const options: {
+    silent: boolean;
+    connections: number;
+    failConnect: boolean;
+    /** The map file sent for get_map_v1 */
+    map?: Buffer;
+    /** In how many messages the map is sent */
+    mapParts: number;
+    /** Send the parts in reverse order */
+    reverseParts: boolean;
+  } = {
+    silent: false,
+    connections: 0,
+    failConnect: false,
+    mapParts: 1,
+    reverseParts: false,
+  };
   let robotSeq = 500;
 
   const deliver = (topic: string, message: RoborockMessage) => {
     if (!subscriptions.has(topic)) return;
     const payload = encodeMessage(message, localKey);
     setImmediate(() => listeners.forEach((l) => l(topic, payload)));
+  };
+
+  const sendMap = (
+    topic: string,
+    request: { id: number; security?: { endpoint: string; nonce: string } },
+    message: RoborockMessage,
+  ) => {
+    const security = request.security as { endpoint: string; nonce: string };
+    const header = Buffer.alloc(24);
+    header.write(security.endpoint, 0, "latin1");
+    header.writeUInt16LE(request.id, 16);
+    const cipher = crypto.createCipheriv(
+      "aes-128-cbc",
+      Buffer.from(security.nonce, "hex"),
+      Buffer.alloc(16),
+    );
+    const body = Buffer.concat([
+      header,
+      cipher.update(gzipSync(options.map as Buffer)),
+      cipher.final(),
+    ]);
+    const size = Math.ceil(body.length / options.mapParts);
+    const parts = Array.from({ length: options.mapParts }, (_, i) => ({
+      version: "1.0",
+      seq: 1 + i,
+      random: 777,
+      timestamp: message.timestamp,
+      protocol:
+        i === options.mapParts - 1
+          ? RoborockProtocol.MAP_RESPONSE
+          : RoborockProtocol.MAP_RESPONSE_PART,
+      payload: body.subarray(i * size, (i + 1) * size),
+    }));
+    if (options.reverseParts) parts.reverse();
+    for (const part of parts) deliver(topic, part);
   };
 
   const client: MqttClientLike = {
@@ -58,6 +112,9 @@ export function fakeMqtt(localKey: string, responses: Responses) {
       );
       requests.push({ topic, message, request });
       if (options.silent) return;
+      if (request.method === "get_map_v1" && options.map) {
+        sendMap(topic.replace("rr/m/i/", "rr/m/o/"), request, message);
+      }
       const response = responses[request.method];
       const body =
         response === undefined

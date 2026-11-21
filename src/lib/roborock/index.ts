@@ -26,6 +26,7 @@ export {
 } from "./session_store";
 export {
   roborockDevice,
+  roborockApiOf,
   RoborockDeviceApi,
   type RoborockDeviceOptions,
 } from "./device";
@@ -44,3 +45,4 @@ export {
   type RoborockMqttSessionOptions,
   type RoborockMqttConnectionOptions,
 } from "./mqtt";
+export { MapResponseAssembler, type MapResponse } from "./map_response";
