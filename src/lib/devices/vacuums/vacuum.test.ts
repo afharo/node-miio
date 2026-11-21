@@ -504,6 +504,34 @@ describe("Vacuum (roborock miIO)", () => {
       expect(sentCalls(call)[1]).toEqual(["set_mop_mode", [301]]);
     });
 
+    test("setCleanMotorMode sets the 3 settings at once (e.g. SmartPlan)", async () => {
+      const { vacuum, call } = createVacuum({ set_clean_motor_mode: ["ok"] });
+      await withTimers(
+        vacuum.setCleanMotorMode({
+          fanSpeed: 110,
+          waterBoxMode: 209,
+          mopRoute: 306,
+        }),
+      );
+      expect(sentCalls(call)).toContainEqual([
+        "set_clean_motor_mode",
+        [{ fan_power: 110, water_box_mode: 209, mop_mode: 306 }],
+      ]);
+    });
+
+    test("mopRoute: the mop_mode of the status", () => {
+      const { vacuum } = createVacuum();
+      vacuum.setRawProperty("mop_mode", 306);
+      expect(vacuum.property("mopRoute")).toBe(MOP_ROUTES.smartPlan);
+    });
+
+    test("cleanPresets: none for models without presets", async () => {
+      const { vacuum } = createVacuum({
+        "miIO.info": { model: MODEL, fw_ver: "1" },
+      });
+      await expect(vacuum.cleanPresets()).resolves.toStrictEqual([]);
+    });
+
     test("multi-floor maps", async () => {
       const { vacuum, call } = createVacuum({
         get_multi_maps_list: [

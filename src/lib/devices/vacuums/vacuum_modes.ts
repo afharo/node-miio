@@ -16,6 +16,16 @@ export interface VacuumMode {
 export interface VacuumModes {
   fanSpeeds: VacuumMode[];
   waterBoxModes: VacuumMode[];
+  /** Presets of the fan speed, water level and mop route (e.g. SmartPlan), set with `setCleanMotorMode` */
+  presets: CleanPreset[];
+}
+
+/** A preset of the three cleaning settings, as the Roborock app offers it (e.g. "SmartPlan") */
+export interface CleanPreset {
+  name: string;
+  fanSpeed: number;
+  waterBoxMode: number;
+  mopRoute: number;
 }
 
 const m = (value: number, name: string): VacuumMode => ({ value, name });
@@ -107,7 +117,16 @@ interface ModelModes {
   water?: keyof typeof WATER_BOX_MODES;
   /** Only applies when the firmware is at least this version (`major.minor.patch`) */
   minFirmware?: string;
+  presets?: CleanPreset[];
 }
+
+// SmartPlan: the robot picks the settings per room. Read from a Saros 20 (a296) and set with `set_clean_motor_mode`
+const SMART_PLAN: CleanPreset = {
+  name: "SmartPlan",
+  fanSpeed: 110,
+  waterBoxMode: 209,
+  mopRoute: 306,
+};
 
 const GEN4_CUSTOM_WITH_WATER: ModelModes = {
   fan: "gen4+custom",
@@ -134,7 +153,9 @@ const MODELS: Record<string, ModelModes[]> = {
   "roborock.vacuum.a11": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a15": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a27": [{ fan: "gen5", water: "gen1+custom" }],
-  "roborock.vacuum.a296": [{ fan: "gen6-mop", water: "custom-30" }], // Saros 20 Neo
+  "roborock.vacuum.a296": [
+    { fan: "gen6-mop", water: "custom-30", presets: [SMART_PLAN] },
+  ], // Saros 20 Neo
   "roborock.vacuum.a51": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a65": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a72": [{ fan: "gen4+custom" }], // Q5 Pro
@@ -208,5 +229,6 @@ export function resolveVacuumModes(
     waterBoxModes: selected.water
       ? WATER_BOX_MODES[selected.water].map((mode) => ({ ...mode }))
       : [],
+    presets: (selected.presets ?? []).map((preset) => ({ ...preset })),
   };
 }

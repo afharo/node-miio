@@ -65,6 +65,8 @@ async function useVacuum(device: VacuumDevice) {
     await device.startMopDrying();
     const maps: Array<{ id: number; name: string }> = await device.getMaps();
     const waterBoxMode: number | undefined = await device.getWaterBoxMode();
+    const presets: miio.CleanPreset[] = await device.cleanPresets();
+    if (presets[0]) await device.setCleanMotorMode(presets[0]);
     console.log(maps, waterBoxMode, device.property<boolean>("waterShortage"));
   }
 

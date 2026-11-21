@@ -111,3 +111,12 @@ describe("roborock.vacuum.a296 (Saros 20), as read from the robot", () => {
     });
   });
 });
+
+describe("presets", () => {
+  test("a296 has SmartPlan (110 / 209 / 306); other models have none", () => {
+    expect(resolveVacuumModes("roborock.vacuum.a296").presets).toStrictEqual([
+      { name: "SmartPlan", fanSpeed: 110, waterBoxMode: 209, mopRoute: 306 },
+    ]);
+    expect(resolveVacuumModes("roborock.vacuum.s5").presets).toStrictEqual([]);
+  });
+});

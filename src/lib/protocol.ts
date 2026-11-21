@@ -124,6 +124,11 @@ export interface Protocol {
     params: [RoborockCarpetMode];
     response: unknown;
   };
+  // Roborock: fan speed, water level and mop route at once (newer robots, e.g. SmartPlan)
+  set_clean_motor_mode: {
+    params: [{ fan_power: number; water_box_mode: number; mop_mode: number }];
+    response: unknown;
+  };
   // Roborock: mop route (S7 and newer)
   get_mop_mode: {
     params: [];
