@@ -31,6 +31,11 @@ export interface RoborockDeviceOptions {
   /** The model (from the account's home data), e.g. `roborock.vacuum.a296` */
   model: string;
   /**
+   * The firmware version (from the account's home data: `firmwareVersion`). The robots don't answer `miIO.info`
+   * over these connections: it's answered with the model and this version.
+   */
+  firmwareVersion?: string;
+  /**
    * The robot's IP address. Optional with `mqtt`: it's asked to the robot (`get_network_info`).
    */
   address?: string;
@@ -201,6 +206,12 @@ export class RoborockDeviceApi extends EventEmitter implements DeviceApi {
   }
 
   private async callOnce(method: string, params: unknown) {
+    if (method === "miIO.info" && this.options.firmwareVersion) {
+      return {
+        model: this.options.model,
+        fw_ver: this.options.firmwareVersion,
+      };
+    }
     const local = await this.localConnection();
     if (local) {
       try {
