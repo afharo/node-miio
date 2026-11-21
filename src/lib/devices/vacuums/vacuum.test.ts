@@ -81,6 +81,24 @@ describe("Vacuum (roborock miIO)", () => {
       });
     });
 
+    test("currentSegment: the segment being cleaned (cleaning_info), undefined when none", async () => {
+      const { vacuum } = createVacuum();
+      const events: unknown[] = [];
+      vacuum.on("stateChanged", (change) => events.push(change));
+      vacuum.setRawProperty("cleaning_info", {
+        target_segment_id: -1,
+        segment_id: 10,
+        fan_power: 102,
+      });
+      expect(vacuum.property("currentSegment")).toBe(10);
+      await jest.advanceTimersByTimeAsync(100);
+      expect(events).toContainEqual({ key: "currentSegment", value: 10 });
+      vacuum.setRawProperty("cleaning_info", { segment_id: -1 });
+      expect(vacuum.property("currentSegment")).toBeUndefined();
+      vacuum.setRawProperty("cleaning_info", undefined);
+      expect(vacuum.property("currentSegment")).toBeUndefined();
+    });
+
     test.each([
       ["water_box_mode", "waterBoxMode", 235],
       ["mop_mode", "mopRoute", 306],

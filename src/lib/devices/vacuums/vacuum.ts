@@ -50,6 +50,7 @@ const STATE_PROPERTIES = [
   // So the plugins follow the water level and mop route (e.g. a preset such as SmartPlan) when they change in the app
   "waterBoxMode",
   "mopRoute",
+  "currentSegment",
 ];
 
 /**
@@ -265,6 +266,14 @@ export class Vacuum extends ATVacuum.with(
     });
 
     this.defineProperty("in_returning");
+    // The room (map segment) the robot is cleaning: `cleaning_info.segment_id` of newer robots (-1: none)
+    this.defineProperty("cleaning_info", {
+      name: "currentSegment",
+      mapper: (info: { segment_id?: unknown } | undefined) =>
+        typeof info?.segment_id === "number" && info.segment_id >= 0
+          ? info.segment_id
+          : undefined,
+    });
 
     // Consumable status - times for brushes and filters
     this.defineProperty("main_brush_work_time", {
