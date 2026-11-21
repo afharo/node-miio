@@ -110,6 +110,11 @@ export async function roborockStatus(address: string) {
       home.rooms,
     );
     console.log(await device.batteryLevel(), rooms[0]?.name);
+    const map = await miio.roborockApiOf(device)?.getMap();
+    console.log(
+      map?.currentRoom,
+      miio.roborockApiOf(device)?.localProtocolVersion,
+    );
   }
   await device.destroy();
   await mqtt.close();
