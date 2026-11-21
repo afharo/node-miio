@@ -141,6 +141,9 @@ describe("Vacuum (roborock miIO)", () => {
       [17, "zone-cleaning"],
       [18, "room-cleaning"],
       [22, "dust-collection"],
+      [23, "washing-mop"],
+      [25, "washing-mop"],
+      [26, "returning-to-wash-mop"],
       [100, "fully-charged"],
       [42, "unknown-42"],
     ])("maps state %p to %p", (code, state) => {

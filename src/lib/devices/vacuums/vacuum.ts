@@ -209,6 +209,12 @@ export class Vacuum extends ATVacuum.with(
           return "room-cleaning";
         case 22:
           return "dust-collection";
+        // Docks that wash the mop (e.g. S7 MaxV Ultra, Saros 20): codes from the Roborock app
+        case 23:
+        case 25:
+          return "washing-mop";
+        case 26:
+          return "returning-to-wash-mop";
         case 100:
           return "fully-charged";
       }
