@@ -86,3 +86,30 @@ describe("roomNames", () => {
     expect(roomNames(undefined, [])).toStrictEqual([]);
   });
 });
+
+describe("miIO.info", () => {
+  test("is answered from the home data (the robots don't know it)", async () => {
+    const robot = await fakeRobot({
+      get_status: [{ state: 8 }],
+      get_consumable: [{}],
+    });
+    const device = (await roborockDevice({
+      duid: "d",
+      localKey: LOCAL_KEY,
+      model: "roborock.vacuum.a296",
+      firmwareVersion: "02.32.54",
+      address: "127.0.0.1",
+      port: robot.port,
+    })) as unknown as Vacuum;
+    try {
+      await expect(device.getDeviceInfo()).resolves.toStrictEqual({
+        model: "roborock.vacuum.a296",
+        fw_ver: "02.32.54",
+      });
+      expect(robot.calls.map((c) => c.method)).not.toContain("miIO.info");
+    } finally {
+      await device.destroy();
+      await robot.close();
+    }
+  });
+});
