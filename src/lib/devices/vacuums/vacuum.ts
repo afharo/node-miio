@@ -43,7 +43,14 @@ const CONSUMABLE_PROPERTIES = {
 export type RoborockConsumable = keyof typeof CONSUMABLE_PROPERTIES;
 
 /** Properties that are also exposed in `state()` and the `stateChanged` events */
-const STATE_PROPERTIES = ["waterBoxAttached", "waterShortage", "mopDrying"];
+const STATE_PROPERTIES = [
+  "waterBoxAttached",
+  "waterShortage",
+  "mopDrying",
+  // So the plugins follow the water level and mop route (e.g. a preset such as SmartPlan) when they change in the app
+  "waterBoxMode",
+  "mopRoute",
+];
 
 /**
  * Maps a 0/1 flag to a boolean. Missing values stay `undefined`, so models that don't report them don't get the property.
