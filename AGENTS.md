@@ -7,7 +7,7 @@ Guidance for AI coding agents (and humans) working on `node-miio`.
 - `node-miio` is the miIO/MIoT protocol library used by
   [homebridge-xiaomi-roborock-vacuum](https://github.com/homebridge-xiaomi-roborock-vacuum/homebridge-xiaomi-roborock-vacuum)
   and [matterbridge-xiaomi-roborock](https://github.com/afharo/matterbridge-xiaomi-roborock).
-- **The maintainer doesn't own any of the supported models** (see [#18](https://github.com/afharo/node-miio/issues/18)).
+- **The maintainer no longer owns any of the supported models** (see [#18](https://github.com/afharo/node-miio/issues/18)).
   Every behavioural change must be covered by unit tests that replay device responses, and be released as a beta for users to validate.
 - Changes are delivered as PRs from feature branches into `main`. Do not push to `main` directly.
 - **Label every PR** when creating it, so `.github/release.yml` can group the release notes:
