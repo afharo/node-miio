@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping! The maintainer **doesn't own most of the supported devices**: changes are developed against
+Thank you for helping! The maintainer **only owns one of the supported devices**: changes are developed against
 automated tests that replay what real devices answered, and they're validated by users on beta releases. So the most
 valuable contributions don't need any code:
 
