@@ -81,3 +81,33 @@ describe("resolveVacuumModes", () => {
     expect(names("roborock.vacuum.s6")[0]).toBe("Soft");
   });
 });
+
+describe("roborock.vacuum.a296 (Saros 20), as read from the robot", () => {
+  const modes = resolveVacuumModes("roborock.vacuum.a296");
+
+  test("fan speeds: 105 is mop only", () => {
+    expect(modes.fanSpeeds).toStrictEqual([
+      { value: 105, name: "Mop" },
+      { value: 101, name: "Quiet" },
+      { value: 102, name: "Balanced" },
+      { value: 103, name: "Turbo" },
+      { value: 104, name: "Max" },
+    ]);
+  });
+
+  test("water: off, then 30 levels (221-250)", () => {
+    expect(modes.waterBoxModes).toHaveLength(31);
+    expect(modes.waterBoxModes[0]).toStrictEqual({ value: 200, name: "Off" });
+    expect(modes.waterBoxModes[1]).toStrictEqual({
+      value: 221,
+      name: "Level 1",
+    });
+    expect(modes.waterBoxModes.find((m) => m.value === 235)?.name).toBe(
+      "Level 15",
+    );
+    expect(modes.waterBoxModes[30]).toStrictEqual({
+      value: 250,
+      name: "Level 30",
+    });
+  });
+});
