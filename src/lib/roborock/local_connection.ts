@@ -4,7 +4,7 @@ import net from "node:net";
 
 import { createDebug, type MiioLogger } from "../logger";
 
-import { RoborockApiError, RoborockError } from "./errors";
+import { RoborockError } from "./errors";
 import {
   decodeMessage,
   encodeMessage,
@@ -12,6 +12,7 @@ import {
   RoborockProtocol,
   rpcPayload,
   rpcResponse,
+  rpcResult,
   withLengthPrefix,
   type L01Nonces,
   type RoborockMessage,
@@ -298,21 +299,7 @@ export class RoborockLocalConnection extends EventEmitter {
       ReturnType<typeof rpcResponse>
     >;
     this.debug(`<- ${method} (${id})`, JSON.stringify(rpc.result ?? rpc.error));
-    if (rpc.error !== undefined) {
-      const error =
-        typeof rpc.error === "string" ? { message: rpc.error } : rpc.error;
-      throw new RoborockApiError(
-        `${method} failed: ${error.message ?? JSON.stringify(error)}`,
-        error.code,
-      );
-    }
-    if (rpc.result === "unknown_method") {
-      throw new RoborockApiError(
-        `${method} is not supported by this robot`,
-        "unknown_method",
-      );
-    }
-    return rpc.result as T;
+    return rpcResult<T>(method, rpc);
   }
 
   /** Closes the connection */

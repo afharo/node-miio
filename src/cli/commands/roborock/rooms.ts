@@ -1,13 +1,9 @@
 import type { CommandBuilder } from "yargs";
 
-import {
-  RoborockError,
-  RoborockLocalConnection,
-  roomNames,
-} from "../../../lib/roborock/index";
+import { roomNames } from "../../../lib/roborock/index";
 import { log } from "../../log";
 
-import { findRobot, robotOptions } from "./robot";
+import { connectRobot, robotOptions, type ConnectedRobot } from "./robot";
 
 export const command = "rooms";
 export const description =
@@ -18,39 +14,35 @@ export const builder: CommandBuilder = {
 };
 
 export const handler = async (argv: {
-  ip: string;
+  ip?: string;
   duid?: string;
   json?: boolean;
 }) => {
-  let connection: RoborockLocalConnection | undefined;
+  let connected: ConnectedRobot | undefined;
   try {
-    const found = await findRobot(argv.duid);
-    if (!found) {
+    connected = await connectRobot(argv);
+    if (!connected) {
       process.exitCode = 1;
       return;
     }
-    connection = new RoborockLocalConnection({
-      address: argv.ip,
-      localKey: found.robot.localKey,
-    });
     const rooms = roomNames(
-      await connection.call("get_room_mapping"),
-      found.home.rooms,
+      await connected.api.call("get_room_mapping", []),
+      connected.home.rooms,
     );
     if (argv.json) {
       console.log(JSON.stringify(rooms, null, 2));
       return;
     }
-    log.info(`${found.robot.name}: ${rooms.length} rooms`);
+    log.info(`${connected.robot.name}: ${rooms.length} rooms`);
     for (const room of rooms) {
       log.plain(
         `  ${String(room.segmentId).padStart(3)}  ${room.name ?? "(no name)"}`,
       );
     }
   } catch (err) {
-    log.error(err instanceof RoborockError ? err.message : String(err));
+    log.error(err instanceof Error ? err.message : String(err));
     process.exitCode = 1;
   } finally {
-    connection?.close();
+    await connected?.close();
   }
 };

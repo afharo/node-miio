@@ -13,7 +13,7 @@
 import crypto from "node:crypto";
 import zlib from "node:zlib";
 
-import { RoborockError } from "./errors";
+import { RoborockApiError, RoborockError } from "./errors";
 
 const SALT = "TXdfu$jyZ#TZHsg4";
 const HEADER_LENGTH = 3 + 4 + 4 + 4 + 2;
@@ -371,4 +371,28 @@ export function rpcResponse(
   } catch {
     return undefined;
   }
+}
+
+/**
+ * @param method The method that was called
+ * @param rpc Its response
+ * @returns The result
+ * @throws {RoborockApiError} If the robot returned an error, or doesn't know the method
+ */
+export function rpcResult<T>(method: string, rpc: RoborockRpcResponse): T {
+  if (rpc.error !== undefined) {
+    const error =
+      typeof rpc.error === "string" ? { message: rpc.error } : rpc.error;
+    throw new RoborockApiError(
+      `${method} failed: ${error.message ?? JSON.stringify(error)}`,
+      error.code,
+    );
+  }
+  if (rpc.result === "unknown_method") {
+    throw new RoborockApiError(
+      `${method} is not supported by this robot`,
+      "unknown_method",
+    );
+  }
+  return rpc.result as T;
 }
