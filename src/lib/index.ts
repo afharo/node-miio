@@ -15,6 +15,7 @@ export {
 } from "./devices/vacuums/vacuum";
 export {
   resolveVacuumModes,
+  type CleanPreset,
   type VacuumMode,
   type VacuumModes,
 } from "./devices/vacuums/vacuum_modes";

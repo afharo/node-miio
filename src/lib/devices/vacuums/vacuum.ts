@@ -17,6 +17,7 @@ import { parseRoborockMap, type RoborockMap } from "../../maps/roborock_map";
 import {
   resolveVacuumModes,
   type VacuumMode,
+  type CleanPreset,
   type VacuumModes,
 } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
@@ -26,6 +27,9 @@ export const MOP_ROUTES = {
   standard: 300,
   deep: 301,
   deepPlus: 303,
+  // Saros 20 (a296): "Fast", and the route of its SmartPlan
+  fast: 304,
+  smartPlan: 306,
 } as const;
 
 /** Consumables that can be reset with {@link Vacuum.resetConsumable}, and the property they map to */
@@ -269,6 +273,10 @@ export class Vacuum extends ATVacuum.with(
       name: "sensorDirtyTime",
     });
 
+    // The mop route (S7 and newer), see MOP_ROUTES
+    this.defineProperty("mop_mode", {
+      name: "mopRoute",
+    });
     this.defineProperty("water_box_mode", {
       name: "waterBoxMode",
     });
@@ -633,6 +641,43 @@ export class Vacuum extends ATVacuum.with(
    */
   async setMopRoute(route: number) {
     await this.call("set_mop_mode", [route]).then(checkResult);
+  }
+
+  /**
+   * The presets of this model (fan speed, water level and mop route together, e.g. "SmartPlan"), to be used with
+   * {@link setCleanMotorMode}. Empty if there are none.
+   *
+   * @returns The presets
+   */
+  async cleanPresets(): Promise<CleanPreset[]> {
+    return (await this.modes()).presets;
+  }
+
+  /**
+   * Set the fan speed, water level and mop route at once (newer Roborock robots), e.g. a preset of
+   * {@link cleanPresets}.
+   *
+   * @param settings The settings
+   * @param settings.fanSpeed The fan speed (see {@link fanSpeeds})
+   * @param settings.waterBoxMode The water level (see {@link waterBoxModes})
+   * @param settings.mopRoute The mop route (see {@link MOP_ROUTES})
+   */
+  async setCleanMotorMode(settings: {
+    fanSpeed: number;
+    waterBoxMode: number;
+    mopRoute: number;
+  }) {
+    await this.call(
+      "set_clean_motor_mode",
+      [
+        {
+          fan_power: settings.fanSpeed,
+          water_box_mode: settings.waterBoxMode,
+          mop_mode: settings.mopRoute,
+        },
+      ],
+      { refresh: ["fanSpeed", "waterBoxMode", "mopRoute"], refreshDelay: 1000 },
+    ).then(checkResult);
   }
 
   /**
