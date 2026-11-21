@@ -6,6 +6,7 @@ import { Vacuum } from "../devices/vacuums/vacuum";
 import { createDebug, type MiioLogger } from "../logger";
 import { MiioError } from "../miio_error";
 import { models } from "../models";
+import { parseRoborockMap, type RoborockMap } from "../maps/roborock_map";
 
 import { RoborockApiError, RoborockError } from "./errors";
 import { RoborockLocalConnection } from "./local_connection";
@@ -253,6 +254,28 @@ export class RoborockDeviceApi extends EventEmitter implements DeviceApi {
     }
   }) as DeviceApi["call"];
 
+  /**
+   * Downloads the current map (over MQTT: the robots only send it there).
+   *
+   * @returns The map file (`rr` format, decompressed)
+   */
+  async getMapData(): Promise<Buffer> {
+    if (!this.remote) {
+      throw new RoborockError(
+        "The map is only available with the account's MQTT session",
+      );
+    }
+    return this.remote.getMapData();
+  }
+
+  /**
+   * @returns The current map: rooms (segment IDs, see {@link roomNames} for their names), robot and charger
+   * positions, current room…
+   */
+  async getMap(): Promise<RoborockMap> {
+    return parseRoborockMap(await this.getMapData());
+  }
+
   close() {
     this.closed = true;
     this.local?.close();
@@ -300,4 +323,14 @@ export async function roborockDevice(
     refresh.unref?.();
   });
   return device;
+}
+
+/**
+ * @param device A device (e.g. from {@link roborockDevice})
+ * @returns Its Roborock connection (map, transport, local protocol…), or `undefined` for miIO devices
+ */
+export function roborockApiOf(device: unknown): RoborockDeviceApi | undefined {
+  const api = (device as { handle?: { api?: unknown } } | undefined)?.handle
+    ?.api;
+  return api instanceof RoborockDeviceApi ? api : undefined;
 }

@@ -102,7 +102,7 @@ describe("RoborockMqttConnection", () => {
       );
       broker.options.silent = true;
       await expect(connection.call("get_status")).rejects.toThrow(
-        "No response over MQTT after 100 ms",
+        "No response to get_status over MQTT after 100 ms",
       );
     } finally {
       await connection.close();

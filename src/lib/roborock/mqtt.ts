@@ -16,6 +16,7 @@ import { createDebug, type MiioLogger } from "../logger";
 
 import { RoborockError } from "./errors";
 import type { RoborockRriot } from "./hawk";
+import { MapResponseAssembler } from "./map_response";
 import {
   decodeMessage,
   encodeMessage,
@@ -260,13 +261,20 @@ export class RoborockMqttConnection extends EventEmitter {
   }
 
   /**
-   * Calls a method on the robot (the same methods as miIO: `get_status`, `app_start`…).
+   * Sends an RPC request and waits for the first received message for which `accept` returns a value.
    *
    * @param method The method
    * @param params The params
-   * @returns The result
+   * @param accept Given the request ID, returns the function that extracts the response from the received messages
+   * @param timeoutMs How long to wait
+   * @returns The response
    */
-  async call<T = unknown>(method: string, params: unknown = []): Promise<T> {
+  private async request<R>(
+    method: string,
+    params: unknown,
+    accept: (id: number) => (message: RoborockMessage) => R | undefined,
+    timeoutMs = this.timeoutMs,
+  ): Promise<R> {
     await this.subscribed();
     const id = crypto.randomInt(10000, 32767);
     const timestamp = now();
@@ -294,19 +302,30 @@ export class RoborockMqttConnection extends EventEmitter {
       this.options.localKey,
     );
     this.debug(`-> ${method} (${id})`, JSON.stringify(params));
-    const response = await new Promise<RoborockMessage>((resolve, reject) => {
+    const extract = accept(id);
+    return new Promise<R>((resolve, reject) => {
       const matcher = (received: RoborockMessage) => {
-        if (rpcResponse(received)?.id !== id) return false;
+        let value: R | undefined;
+        try {
+          value = extract(received);
+        } catch (err) {
+          clearTimeout(timer);
+          reject(err);
+          return true;
+        }
+        if (value === undefined) return false;
         clearTimeout(timer);
-        resolve(received);
+        resolve(value);
         return true;
       };
       const timer = setTimeout(() => {
         this.waiting.delete(matcher);
         reject(
-          new RoborockError(`No response over MQTT after ${this.timeoutMs} ms`),
+          new RoborockError(
+            `No response to ${method} over MQTT after ${timeoutMs} ms`,
+          ),
         );
-      }, this.timeoutMs);
+      }, timeoutMs);
       this.waiting.add(matcher);
       this.session.publish(this.options.duid, message).catch((err) => {
         clearTimeout(timer);
@@ -314,13 +333,53 @@ export class RoborockMqttConnection extends EventEmitter {
         reject(err);
       });
     });
-    const rpc = rpcResponse(response) as NonNullable<
-      ReturnType<typeof rpcResponse>
-    >;
-    this.debug(`<- ${method} (${id})`, JSON.stringify(rpc.result ?? rpc.error));
+  }
+
+  /**
+   * Calls a method on the robot (the same methods as miIO: `get_status`, `app_start`…).
+   *
+   * @param method The method
+   * @param params The params
+   * @returns The result
+   */
+  async call<T = unknown>(method: string, params: unknown = []): Promise<T> {
+    const rpc = await this.request(method, params, (id) => (received) => {
+      const response = rpcResponse(received);
+      return response?.id === id ? response : undefined;
+    });
+    this.debug(`<- ${method}`, JSON.stringify(rpc.result ?? rpc.error));
     return rpcResult<T>(method, rpc);
   }
 
+  /**
+   * Downloads the current map (`get_map_v1`). The robot sends it in protocol 300/301 messages, encrypted with this
+   * connection's {@link nonce}.
+   *
+   * @param timeoutMs How long to wait for the map (default 30s)
+   * @returns The map file (`rr` format: parse it with `parseRoborockMap`)
+   */
+  async getMapData(timeoutMs = 30_000): Promise<Buffer> {
+    const assembler = new MapResponseAssembler(
+      this.session.endpoint,
+      this.nonce,
+    );
+    const map = await this.request(
+      "get_map_v1",
+      [],
+      (id) => (received) => {
+        // The robot may answer the RPC with an error (e.g. no map yet)
+        const rpc = rpcResponse(received);
+        if (rpc?.id === id && rpc.error !== undefined) {
+          rpcResult("get_map_v1", rpc);
+        }
+        const response = assembler.push(received);
+        return response?.requestId === id ? response.data : undefined;
+      },
+      timeoutMs,
+    );
+    this.debug(`<- get_map_v1: ${map.length} bytes`);
+    return map;
+  }
   /** Stops listening to the robot (the account's session stays open) */
   async close() {
     for (const matcher of this.waiting) this.waiting.delete(matcher);
