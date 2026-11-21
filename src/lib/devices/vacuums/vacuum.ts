@@ -482,14 +482,40 @@ export class Vacuum extends ATVacuum.with(
   }
 
   /**
-   * Set the power of the fan. Usually 38, 60 or 77.
+   * Set the power of the fan (see {@link fanSpeeds}).
    *
-   * @param speed
+   * While a preset is on (e.g. SmartPlan), the robot refuses to change only the fan speed: the preset is left with
+   * {@link setCleanMotorMode} (a middle water level and the standard mop route).
+   *
+   * @param speed The fan speed
    */
-  changeFanSpeed(speed) {
+  async changeFanSpeed(speed: number) {
+    if (await this.activePreset()) {
+      const water = middle(
+        (await this.waterBoxModes()).filter(({ value }) => value !== 200),
+        /^(medium|moderate|level 15)$/i,
+      );
+      return this.setCleanMotorMode({
+        fanSpeed: speed,
+        waterBoxMode: water?.value ?? 200,
+        mopRoute: MOP_ROUTES.standard,
+      });
+    }
     return this.call("set_custom_mode", [speed], {
       refresh: ["fanSpeed"],
     }).then(checkResult);
+  }
+
+  /**
+   * @returns The preset the robot is on (matched by its fan speed or mop route), if any
+   */
+  private async activePreset(): Promise<CleanPreset | undefined> {
+    const presets = await this.cleanPresets().catch(() => []);
+    const fan = this.property<number>("fanSpeed");
+    const route = this.property<number>("mopRoute");
+    return presets.find(
+      ({ fanSpeed, mopRoute }) => fanSpeed === fan || mopRoute === route,
+    );
   }
 
   /**
@@ -509,7 +535,28 @@ export class Vacuum extends ATVacuum.with(
     return typeof value === "number" ? value : undefined;
   }
 
-  setWaterBoxMode(mode) {
+  /**
+   * Set the water level (see {@link waterBoxModes}).
+   *
+   * While a preset is on (e.g. SmartPlan), the preset is left with {@link setCleanMotorMode} (a middle fan speed and
+   * the standard mop route), like {@link changeFanSpeed}.
+   *
+   * @param mode The water level
+   */
+  async setWaterBoxMode(mode: number) {
+    if (await this.activePreset()) {
+      const fan = middle(
+        (await this.fanSpeeds()).filter(
+          ({ name }) => !/^(mop|off)$/i.test(name),
+        ),
+        /^(balanced|standard)$/i,
+      );
+      return this.setCleanMotorMode({
+        fanSpeed: fan?.value ?? 102,
+        waterBoxMode: mode,
+        mopRoute: MOP_ROUTES.standard,
+      });
+    }
     // From https://github.com/marcelrv/XiaomiRobotVacuumProtocol/blob/master/water_box_custom_mode.md
     return this.call("set_water_box_custom_mode", [mode], {
       refresh: ["waterBoxMode"],
@@ -920,4 +967,16 @@ function unwrapSingleItemArray(response: unknown): Record<string, unknown> {
   return value && typeof value === "object"
     ? (value as Record<string, unknown>)
     : {};
+}
+
+/**
+ * @param modes The modes
+ * @param preferred The name of the mode to pick, if there's one
+ * @returns The mode with the preferred name, else the one in the middle
+ */
+function middle(modes: VacuumMode[], preferred: RegExp) {
+  return (
+    modes.find(({ name }) => preferred.test(name)) ??
+    modes[Math.floor((modes.length - 1) / 2)]
+  );
 }
