@@ -184,6 +184,10 @@ The easiest way to get the tokens is from your Xiaomi account (opt-in):
 `npx node-miio cloud login --qr` (scan the QR code with the Mi Home app), then
 `npx node-miio cloud devices`. See [Xiaomi Cloud](docs/cloud.md).
 
+Robots paired with the **Roborock app** don't use miIO tokens. Their support is starting (experimental):
+`npx node-miio roborock login` (with a code sent to your email), then `npx node-miio roborock devices` lists
+your robots with their model and protocol version. See [Roborock app accounts](docs/roborock.md).
+
 ## Discovering devices
 
 Use `miio.devices()` to look for and connect to devices on the local network.
