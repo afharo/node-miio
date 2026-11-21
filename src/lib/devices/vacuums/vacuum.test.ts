@@ -82,6 +82,19 @@ describe("Vacuum (roborock miIO)", () => {
     });
 
     test.each([
+      ["water_box_mode", "waterBoxMode", 235],
+      ["mop_mode", "mopRoute", 306],
+    ])("emits stateChanged for %p (as %p)", async (raw, name, value) => {
+      const { vacuum } = createVacuum();
+      const events: unknown[] = [];
+      vacuum.on("stateChanged", (change) => events.push(change));
+      vacuum.setRawProperty(raw, value);
+      expect(vacuum.property(name)).toBe(value);
+      await jest.advanceTimersByTimeAsync(100);
+      expect(events).toContainEqual({ key: name, value });
+    });
+
+    test.each([
       ["water_box_status", "waterBoxAttached"],
       ["water_shortage_status", "waterShortage"],
       ["dry_status", "mopDrying"],
