@@ -12,6 +12,16 @@
   "bugs": {
     "url": "https://github.com/afharo/node-miio/issues"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/afharo"
+    },
+    {
+      "type": "ko-fi",
+      "url": "https://ko-fi.com/afharo"
+    }
+  ],
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "keywords": [

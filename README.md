@@ -9,6 +9,8 @@
 # miIO Device Library
 
 [![npm version](https://badge.fury.io/js/node-miio.svg)](https://badge.fury.io/js/node-miio)
+[![Sponsor on GitHub](https://img.shields.io/badge/sponsor-30363D?logo=githubsponsors&logoColor=EA4AAA)](https://github.com/sponsors/afharo)
+[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/afharo)
 
 > The intention of this library is to update the [miio](https://github.com/aholstenson/miio). Since the original repo is no longer maintained, nor reviewing the existing PRs, I decided to create a new one.
 
@@ -299,3 +301,8 @@ The messages are prefixed with their namespace, e.g. `[thing:miio:1234] <- Messa
 This library is based on the documentation provided by OpenMiHome. See https://github.com/OpenMiHome/mihome-binary-protocol for details. For details
 about how to figure out the commands for new devices look at the
 [documentation for protocol and commands](docs/protocol.md).
+
+## Support
+
+I maintain this in my spare time, with help from [Claude](https://claude.ai). Sponsorships go towards the subscription,
+so I can take on more feature requests and devices. ❤️ [GitHub Sponsors](https://github.com/sponsors/afharo) · [Ko-fi](https://ko-fi.com/afharo)
