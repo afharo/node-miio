@@ -178,6 +178,21 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     await expect(vacuum.fanSpeed()).resolves.toBe(1);
   });
 
+  test("ignores values out of the spec's range, keeping the last known one", async () => {
+    const values: Record<string, unknown> = { "2.1": 6, "3.1": 87 };
+    const { vacuum } = createMiotVacuum(MODEL, d110ch, values);
+    await vacuum.poll();
+    expect(vacuum.property("batteryLevel")).toBe(87);
+
+    // e.g. xiaomi.vacuum.d101 answers `code: 0` with `-1`
+    values["3.1"] = -1;
+    values["2.1"] = 1;
+    await vacuum.poll();
+    expect(vacuum.property("batteryLevel")).toBe(87);
+    // The rest is still updated
+    expect(vacuum.property("state")).toBe("cleaning");
+  });
+
   test("maps the cleaning state", async () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch, { "2.1": 1 });
     await vacuum.poll();

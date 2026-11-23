@@ -166,3 +166,22 @@ export function isReadable(property: MiotProperty): boolean {
 export function isWritable(property: MiotProperty): boolean {
   return property.access.includes("write");
 }
+
+/**
+ * Whether a value read from the device is valid for the property: within its `value-range`, and not negative for
+ * unsigned formats. Some devices answer `code: 0` with a sentinel (e.g. `-1` for the battery level of
+ * `xiaomi.vacuum.d101`) when the value is not available.
+ * The `value-list` is not checked, so unknown values (e.g. a new status) can still be reported.
+ *
+ * @param property The property definition
+ * @param value The value read from the device
+ * @returns `true` if the value can be used
+ */
+export function isValidValue(property: MiotProperty, value: unknown): boolean {
+  if (typeof value !== "number") return true;
+  if (Number.isNaN(value)) return false;
+  if (property.format.startsWith("uint") && value < 0) return false;
+  const range = property["value-range"];
+  if (range && (value < range[0] || value > range[1])) return false;
+  return true;
+}

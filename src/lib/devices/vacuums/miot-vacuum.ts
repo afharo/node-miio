@@ -17,6 +17,7 @@ import {
 } from "../../miot/miot_api";
 import {
   isReadable,
+  isValidValue,
   isWritable,
   type MiotSpec,
   MiotSpecIndex,
@@ -179,6 +180,8 @@ export class MiotVacuum extends ATVacuum.with(
   private readonly waterModes?: MiotMode[];
   private readonly cleaningTypeProperty?: ResolvedProperty;
   private readonly cleaningTypeModes?: MiotMode[];
+  /** The spec of every defined property, by internal name (e.g. `battery_level`) */
+  private readonly miotProperties: Record<string, ResolvedProperty> = {};
 
   constructor(handle: DeviceHandle, spec: MiotSpec) {
     super(handle);
@@ -321,6 +324,7 @@ export class MiotVacuum extends ATVacuum.with(
     def: { name: string; mapper?: (value: never) => unknown },
   ) {
     if (!resolved || !isReadable(resolved.property)) return;
+    this.miotProperties[did] = resolved;
     this.defineProperty(did, {
       ...def,
       siid: resolved.siid,
@@ -568,9 +572,16 @@ export class MiotVacuum extends ATVacuum.with(
     const results = await getProperties(this.caller, requests);
     const mapped = {};
     for (const result of results) {
-      if (result.code === 0) {
-        this._pushProperty(mapped, result.did, result.value);
+      if (result.code !== 0) continue;
+      const property = this.miotProperties[result.did]?.property;
+      if (property && !isValidValue(property, result.value)) {
+        // Keep the last known value instead
+        this.debug(
+          `Ignoring invalid value ${JSON.stringify(result.value)} for ${result.did}`,
+        );
+        continue;
       }
+      this._pushProperty(mapped, result.did, result.value);
     }
     return mapped;
   }
