@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    # Normal runs take ~2 min: fail fast on hung runners (retried by retry-flaky-ci.yml)
+    timeout-minutes: 10
 
     strategy:
       fail-fast: false
@@ -39,6 +41,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 5
 
       - name: Lint
         run: npm run lint
