@@ -15,10 +15,15 @@ export {
 } from "./devices/vacuums/vacuum";
 export {
   resolveVacuumModes,
+  vacuumModels,
   type CleanPreset,
   type VacuumMode,
   type VacuumModes,
 } from "./devices/vacuums/vacuum_modes";
+export {
+  CLEANING_STATES,
+  isCleaningState,
+} from "./devices/vacuums/vacuum_states";
 export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 export { isVacuum, type VacuumDevice } from "./devices/vacuums/vacuum_device";
 export { ViomiVacuum } from "./devices/vacuums/viomivacuum";

@@ -95,6 +95,30 @@ const waterLevels = await device.waterBoxModes(); // [] if not supported
 if (waterLevels.length) await device.setWaterBoxMode(waterLevels[1].value);
 ```
 
+On the S7 and newer, `105` is `"Mop"`: it turns the suction off (mop only, with the mop attached).
+
+Without a device, `resolveVacuumModes(model, firmware)` gives the same lists for the legacy miIO models, and
+`vacuumModels()` lists the models that have their own (the others get their brand's defaults):
+
+```javascript
+const { resolveVacuumModes, vacuumModels } = require("node-miio");
+
+resolveVacuumModes("roborock.vacuum.s5", "3.5.8_002034").fanSpeeds;
+vacuumModels(); // ["rockrobo.vacuum.v1", "roborock.vacuum.c1", ...]
+```
+
+### Cleaning states
+
+`isCleaningState(state)` tells whether the `state` property means the robot is cleaning (`cleaning`, `spot-cleaning`,
+`zone-cleaning`, `room-cleaning` or Viomi's `cleaning-and-mopping`). Unlike `cleaning()`, which keeps its value while
+the robot is paused, it's `false` for `paused`:
+
+```javascript
+const { isCleaningState } = require("node-miio");
+
+isCleaningState(device.property("state"));
+```
+
 ### Cleaning type (MIoT vacuums)
 
 MIoT vacuums that let you choose between vacuuming, mopping or both expose the options from their spec:

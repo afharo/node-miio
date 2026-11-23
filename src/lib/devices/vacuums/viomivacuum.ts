@@ -112,6 +112,7 @@ export class ViomiVacuum extends Vacuum.with(
         case "spot-cleaning":
         case "zone-cleaning":
         case "room-cleaning":
+        case "cleaning-and-mopping":
           // The vacuum is cleaning
           this.updateCleaning(true);
           break;

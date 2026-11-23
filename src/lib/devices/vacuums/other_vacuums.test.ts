@@ -85,6 +85,20 @@ describe("ViomiVacuum", () => {
     });
   });
 
+  test.each([
+    [3, true], // cleaning
+    [6, true], // cleaning-and-mopping
+    [4, false], // returning
+  ])("run_state %p: cleaning() is %p", async (runState, cleaning) => {
+    const { handle } = createFakeHandle(MODEL, {
+      get_prop: (props: string[]) =>
+        props.map((p) => (p === "run_state" ? runState : 0)),
+    });
+    const vacuum = new ViomiVacuum(handle);
+    await vacuum.poll();
+    await expect(vacuum.cleaning()).resolves.toBe(cleaning);
+  });
+
   test.each<[string, (v: ViomiVacuum) => Promise<unknown>, string, unknown]>([
     [
       "activateCleaning",
@@ -136,10 +150,10 @@ describe("fan speeds of the other legacy classes", () => {
     const { handle } = createFakeHandle("dreame.vacuum.mc1808", {});
     const vacuum = new DreameVacuum(handle);
     expect((await vacuum.fanSpeeds()).map((m) => m.name)).toEqual([
-      "Quiet",
-      "Default",
+      "Silent",
+      "Standard",
       "Medium",
-      "Strong",
+      "Turbo",
     ]);
     await expect(vacuum.waterBoxModes()).resolves.toEqual([]);
   });

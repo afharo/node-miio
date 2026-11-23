@@ -68,7 +68,19 @@ export const FAN_SPEEDS = {
     m(104, "Max"),
     m(106, "Custom"),
   ],
+  // S7 and newer (S7, S8, S7 Max Ultra, Q8 Max, Q Revo…): like gen4+custom, but 105 turns the suction off (mop only,
+  // with the mop attached)
+  "gen4+custom+mop": [
+    m(105, "Mop"),
+    m(101, "Quiet"),
+    m(102, "Balanced"),
+    m(103, "Turbo"),
+    m(104, "Max"),
+    m(106, "Custom"),
+  ],
+  // S7 MaxV: 105 is mop only, like gen4+custom+mop
   gen5: [
+    m(105, "Mop"),
     m(101, "Quiet"),
     m(102, "Balanced"),
     m(103, "Turbo"),
@@ -88,10 +100,10 @@ export const FAN_SPEEDS = {
   viomi: [m(0, "Silent"), m(1, "Standard"), m(2, "Medium"), m(3, "Turbo")],
   dreame: [m(0, "Quiet"), m(1, "Standard"), m(2, "Strong"), m(3, "Turbo")],
   "dreame.vacuum.mc1808": [
-    m(0, "Quiet"),
-    m(1, "Default"),
+    m(0, "Silent"),
+    m(1, "Standard"),
     m(2, "Medium"),
-    m(3, "Strong"),
+    m(3, "Turbo"),
   ],
 } satisfies Record<string, VacuumMode[]>;
 
@@ -133,6 +145,11 @@ const GEN4_CUSTOM_WITH_WATER: ModelModes = {
   water: "gen1+custom",
 };
 
+const GEN4_CUSTOM_MOP_WITH_WATER: ModelModes = {
+  fan: "gen4+custom+mop",
+  water: "gen1+custom",
+};
+
 /** Per-model modes. When several entries apply, the last one wins. */
 const MODELS: Record<string, ModelModes[]> = {
   "rockrobo.vacuum.v1": [{ fan: "gen2-no_mop" }],
@@ -151,20 +168,31 @@ const MODELS: Record<string, ModelModes[]> = {
   "roborock.vacuum.a09": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a10": [GEN4_CUSTOM_WITH_WATER],
   "roborock.vacuum.a11": [GEN4_CUSTOM_WITH_WATER],
-  "roborock.vacuum.a15": [GEN4_CUSTOM_WITH_WATER],
+  "roborock.vacuum.a15": [GEN4_CUSTOM_MOP_WITH_WATER],
   "roborock.vacuum.a27": [{ fan: "gen5", water: "gen1+custom" }],
   "roborock.vacuum.a296": [
     { fan: "gen6-mop", water: "custom-30", presets: [SMART_PLAN] },
   ], // Saros 20 Neo
-  "roborock.vacuum.a51": [GEN4_CUSTOM_WITH_WATER],
-  "roborock.vacuum.a65": [GEN4_CUSTOM_WITH_WATER],
+  "roborock.vacuum.a51": [GEN4_CUSTOM_MOP_WITH_WATER],
+  "roborock.vacuum.a62": [GEN4_CUSTOM_MOP_WITH_WATER], // S7 Pro Ultra
+  "roborock.vacuum.a65": [GEN4_CUSTOM_MOP_WITH_WATER],
   "roborock.vacuum.a72": [{ fan: "gen4+custom" }], // Q5 Pro
-  "roborock.vacuum.a73": [GEN4_CUSTOM_WITH_WATER],
-  "roborock.vacuum.a75": [GEN4_CUSTOM_WITH_WATER],
+  "roborock.vacuum.a73": [GEN4_CUSTOM_MOP_WITH_WATER],
+  "roborock.vacuum.a75": [GEN4_CUSTOM_MOP_WITH_WATER],
   "dreame.vacuum.mc1808": [{ fan: "dreame.vacuum.mc1808" }],
   "viomi.vacuum.v7": [{ fan: "viomi" }],
   "viomi.vacuum.v8": [{ fan: "viomi" }],
 };
+
+/**
+ * The models with their own fan speeds or water levels in {@link resolveVacuumModes} (the others get their brand's
+ * defaults).
+ *
+ * @returns The model IDs (e.g. `roborock.vacuum.s5`)
+ */
+export function vacuumModels(): string[] {
+  return Object.keys(MODELS);
+}
 
 /**
  * Defaults by brand, used when the model is not listed in {@link MODELS}.

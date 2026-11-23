@@ -1,4 +1,8 @@
-import { firmwareAtLeast, resolveVacuumModes } from "./vacuum_modes";
+import {
+  firmwareAtLeast,
+  resolveVacuumModes,
+  vacuumModels,
+} from "./vacuum_modes";
 
 const names = (model: string, firmware?: string) =>
   resolveVacuumModes(model, firmware).fanSpeeds.map((m) => m.name);
@@ -41,16 +45,42 @@ describe("resolveVacuumModes", () => {
     ["roborock.vacuum.e2", ["Gentle", "Silent", "Balanced", "Turbo", "Max"]],
     [
       "roborock.vacuum.a27",
-      ["Quiet", "Balanced", "Turbo", "Max", "Max+", "Custom"],
+      ["Mop", "Quiet", "Balanced", "Turbo", "Max", "Max+", "Custom"],
     ],
     [
       "roborock.vacuum.a72",
       ["Soft", "Quiet", "Balanced", "Turbo", "Max", "Custom"],
     ],
-    ["dreame.vacuum.mc1808", ["Quiet", "Default", "Medium", "Strong"]],
+    ["dreame.vacuum.mc1808", ["Silent", "Standard", "Medium", "Turbo"]],
     ["viomi.vacuum.v8", ["Silent", "Standard", "Medium", "Turbo"]],
   ])("%s", (model, expected) => {
     expect(names(model)).toEqual(expected);
+  });
+
+  test.each([
+    "roborock.vacuum.a15",
+    "roborock.vacuum.a51",
+    "roborock.vacuum.a62",
+    "roborock.vacuum.a65",
+    "roborock.vacuum.a73",
+    "roborock.vacuum.a75",
+  ])("%s (S7 and newer): 105 is mop only, with water levels", (model) => {
+    const modes = resolveVacuumModes(model);
+    expect(modes.fanSpeeds.map((m) => `${m.value}:${m.name}`)).toEqual([
+      "105:Mop",
+      "101:Quiet",
+      "102:Balanced",
+      "103:Turbo",
+      "104:Max",
+      "106:Custom",
+    ]);
+    expect(modes.waterBoxModes.map((m) => m.value)).toEqual([
+      200, 201, 202, 203, 204,
+    ]);
+  });
+
+  test("roborock.vacuum.a09 (S6 MaxV) keeps 105 as Soft", () => {
+    expect(names("roborock.vacuum.a09")[0]).toBe("Soft");
   });
 
   test("water box modes", () => {
@@ -79,6 +109,21 @@ describe("resolveVacuumModes", () => {
   test("returns copies", () => {
     resolveVacuumModes("roborock.vacuum.s6").fanSpeeds[0].name = "changed";
     expect(names("roborock.vacuum.s6")[0]).toBe("Soft");
+  });
+});
+
+describe("vacuumModels", () => {
+  test("lists the models with their own modes", () => {
+    const models = vacuumModels();
+    expect(models).toContain("roborock.vacuum.s5");
+    expect(models).toContain("roborock.vacuum.a62");
+    expect(models).not.toContain("roborock.vacuum.unknown");
+  });
+
+  test("every listed model resolves to its own modes", () => {
+    for (const model of vacuumModels()) {
+      expect(resolveVacuumModes(model).fanSpeeds.length).toBeGreaterThan(0);
+    }
   });
 });
 
