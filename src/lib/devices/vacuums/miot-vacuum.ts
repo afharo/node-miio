@@ -27,6 +27,7 @@ import {
   type ResolvedProperty,
 } from "../../miot/miot_spec";
 
+import { isCleaningState } from "./vacuum_states";
 import type { VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
 
@@ -104,7 +105,6 @@ const STATE_MAP: Record<string, string> = {
   shutdown: "shutting-down",
 };
 
-const CLEANING_STATES = new Set(["cleaning", "zone-cleaning", "room-cleaning"]);
 const CHARGING_STATES = new Set(["charging", "fully-charged"]);
 
 /**
@@ -362,7 +362,7 @@ export class MiotVacuum extends ATVacuum.with(
     if (key === "state") {
       clearErrorOnRecovery(this, value);
       const state = value as unknown as string;
-      this.updateCleaning(CLEANING_STATES.has(state));
+      this.updateCleaning(isCleaningState(state));
       if (state === "error") {
         this.updateError(this.property("error"));
       }
