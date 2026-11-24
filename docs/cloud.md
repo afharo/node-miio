@@ -29,8 +29,7 @@ npx node-miio cloud logout
 
 The tokens saved with `--save` (or `tokens update`) are used by the commands that connect to a device (`control`,
 `protocol call`, `inspect`…) when you don't pass `--token`. They're saved to `tokens.json` in node-miio's config
-directory (next to the session, see below), readable only by you. Tokens saved by older versions (in
-`.node-persist/storage` under the directory the command ran from) are moved there the first time they're used.
+directory (next to the session, see below), readable only by you.
 
 Your password is never stored, and it's never sent in plain text: only its MD5 hash is sent, like the Mi Home app
 does. The **session** is saved to `cloud-session.json` in node-miio's config directory, readable only by you:
