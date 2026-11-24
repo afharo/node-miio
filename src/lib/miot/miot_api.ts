@@ -42,9 +42,33 @@ export async function getProperties(
   for (let i = 0; i < properties.length; i += GET_PROPERTIES_BATCH_SIZE) {
     const batch = properties.slice(i, i + GET_PROPERTIES_BATCH_SIZE);
     const response = await device.call("get_properties", batch);
-    results.push(...(Array.isArray(response) ? response : []));
+    results.push(
+      ...(Array.isArray(response) ? response : []).map((result) =>
+        withRequestedDid(batch, result),
+      ),
+    );
   }
   return results;
+}
+
+/**
+ * Some devices (e.g. `xiaomi.vacuum.d101`) answer with their device ID in `did` instead of echoing the requested
+ * one, so results are matched back to their request by `siid`/`piid`.
+ *
+ * @param requests The requests of the batch
+ * @param result A result of that batch
+ * @returns The result, with the `did` of the request it answers
+ */
+function withRequestedDid(
+  requests: MiotPropertyRequest[],
+  result: MiotPropertyResult,
+): MiotPropertyResult {
+  const request = requests.find(
+    (r) => r.siid === result.siid && r.piid === result.piid,
+  );
+  return request && request.did !== result.did
+    ? { ...result, did: request.did }
+    : result;
 }
 
 /**

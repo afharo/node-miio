@@ -7,6 +7,7 @@ import {
 } from "abstract-things/climate";
 
 import { MiioApi } from "../../device";
+import { getProperties } from "../../miot/miot_api";
 import { BatteryLevel } from "../capabilities/battery-level";
 
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
@@ -345,7 +346,7 @@ export class DreameVacuum extends Vacuum.with(
       })
       .filter(Boolean);
 
-    return this.call("get_properties", properties).then((result) => {
+    return getProperties(this, properties).then((result) => {
       const mapped = {};
       result.forEach((prop) => {
         if (prop.code === 0) {

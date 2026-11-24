@@ -193,6 +193,26 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     expect(vacuum.property("state")).toBe("cleaning");
   });
 
+  test("matches the results by siid/piid when the device answers with its own ID in did", async () => {
+    const values: Record<string, unknown> = { "2.1": 6, "3.1": 87, "18.1": 60 };
+    // e.g. xiaomi.vacuum.d101 answers `did: "<device id>"` instead of echoing the requested one
+    const { vacuum } = createMiotVacuum(MODEL, d110ch, values, {
+      get_properties: (props: PropertyRequest[]) =>
+        props.map((p) => {
+          const key = `${p.siid}.${p.piid}`;
+          return key in values
+            ? { ...p, did: "1153862737", code: 0, value: values[key] }
+            : { ...p, did: "1153862737", code: -4001 };
+        }),
+    });
+    await vacuum.poll();
+    expect(vacuum.properties).toEqual({
+      state: "charging",
+      batteryLevel: 87,
+      mopLifeLevel: 60,
+    });
+  });
+
   test("maps the cleaning state", async () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch, { "2.1": 1 });
     await vacuum.poll();
