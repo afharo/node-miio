@@ -18,8 +18,10 @@ exports.handler = function (argv) {
 
   let foundDevice = false;
   let pending = 0;
+  // Connect with the new token: robots that hide theirs can't be reached without it
   const browser = deviceFinder({
     filter: target,
+    token: argv.token,
   });
   browser.on("available", async (device) => {
     pending++;

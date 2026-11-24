@@ -11,6 +11,12 @@ const deviceFinder = require("../device-finder") as jest.Mock;
 const call = require("./protocol/call");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const control = require("./control");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const inspect = require("./inspect");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const configure = require("./configure");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const tokensUpdate = require("./tokens/update");
 
 /** Runs a command against a fake device, and waits for it to exit */
 async function run(
@@ -77,5 +83,26 @@ describe("CLI commands", () => {
       token: "abc",
     });
     expect(cleanRooms).toHaveBeenCalledWith([16, 17]);
+  });
+
+  test.each([
+    ["inspect", inspect, {}],
+    ["configure", configure, { ssid: "wifi", passwd: "secret" }],
+    ["tokens update", tokensUpdate, {}],
+  ])("%s connects with the token", (_name, command, extra) => {
+    deviceFinder.mockReturnValue(new EventEmitter());
+    command.handler({ idOrIp: "192.168.1.2", token: "abc", ...extra });
+    expect(deviceFinder).toHaveBeenCalledWith(
+      expect.objectContaining({ filter: "192.168.1.2", token: "abc" }),
+    );
+  });
+
+  test.each([
+    ["inspect", inspect],
+    ["configure", configure],
+  ])("%s has a --token option", (_name, command) => {
+    expect(command.builder.token).toEqual(
+      expect.objectContaining({ type: "string" }),
+    );
   });
 });
