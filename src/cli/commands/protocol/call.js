@@ -2,6 +2,7 @@
 
 const { log } = require("../../log");
 const deviceFinder = require("../../device-finder");
+const { parseCallParams } = require("../../params");
 
 exports.command = "call <idOrIp> <method> [params...]";
 exports.description = "Call a raw method on a device";
@@ -29,12 +30,8 @@ exports.handler = function (argv) {
     log.info("Device found, making call");
     log.plain();
 
-    const parsedArgs = argv.params
-      ? Array.isArray(argv.params)
-        ? argv.params
-        : JSON.parse(argv.params)
-      : [];
-    log.plain(parsedArgs);
+    const parsedArgs = parseCallParams(argv.params);
+    log.plain(JSON.stringify(parsedArgs));
     try {
       const result = await device.miioCall(argv.method, parsedArgs);
       log.info("Got result:");

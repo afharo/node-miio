@@ -65,13 +65,27 @@ the Mi Home app calls and how the replies look.
 
 ## Testing commands
 
-The `miio` command line app can be used to control devices and test things
-when you are implementing or debugging your device.
+The `node-miio` command line app can be used to control devices and test things
+when you are implementing or debugging your device. Run it with `npx node-miio`,
+and pass `--token tokenAsHex` when the device doesn't share its token.
 
-Use the `--control` flag to issue a command:
+To call a raw method on the device:
 
-`miio protocol call id-or-address nameOfMethod paramsAsJSON`
+`npx node-miio protocol call id-or-address nameOfMethod [params...] --token tokenAsHex`
 
-For example to get a property from the device:
+Each parameter is sent as JSON when it is JSON (objects, arrays, numbers), as text
+otherwise. A single JSON array is the whole list of parameters. For example, to get
+a property from a miIO device:
 
-`miio protocol call id-or-address get_prop '["temperature","use_time"]'`
+`npx node-miio protocol call id-or-address get_prop '["temperature","use_time"]'`
+
+Or the serial number (`siid` 1, `piid` 3) of a MIoT device, with one object per property:
+
+`npx node-miio protocol call id-or-address get_properties '{"did":"serial","siid":1,"piid":3}' --token tokenAsHex`
+
+To call a method of node-miio's device class instead (the same code the plugins run):
+
+`npx node-miio control id-or-address changeFanSpeed 3 --token tokenAsHex`
+
+Its arguments are parsed the same way, but an array stays one argument
+(e.g. `cleanRooms '[16,17]'`).
