@@ -11,22 +11,6 @@ const IP =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
- * The token saved for a device (by `tokens update` or `cloud devices --save`), as a Buffer.
- *
- * @param {string} id The device id
- * @returns {Promise<Buffer|undefined>} The token, if one was saved
- */
-async function savedToken(id) {
-  const saved = await tokens.get(id).catch(() => undefined);
-  if (!saved) return undefined;
-  if (Buffer.isBuffer(saved)) return saved;
-  // node-persist keeps Buffers as JSON: { type: "Buffer", data: [...] }
-  if (Array.isArray(saved.data)) return Buffer.from(saved.data);
-  if (typeof saved === "string") return Buffer.from(saved, "hex");
-  return undefined;
-}
-
-/**
  * Connects again with the saved token when the device couldn't be reached without one (it hides its token).
  *
  * @param {object} device The device, or a placeholder
@@ -36,7 +20,7 @@ async function savedToken(id) {
 async function withSavedToken(device, token) {
   if (token || !(device instanceof Placeholder)) return device;
   const id = String(device.id).replace(/^miio:/, "");
-  const saved = await savedToken(id);
+  const saved = await tokens.get(id).catch(() => undefined);
   if (!saved) return device;
   try {
     return await connectToDevice({

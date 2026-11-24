@@ -46,13 +46,9 @@ describe("withSavedToken", () => {
     expect(get).not.toHaveBeenCalled();
   });
 
-  test.each([
-    ["a Buffer", TOKEN],
-    ["a Buffer saved as JSON", JSON.parse(JSON.stringify(TOKEN))],
-    ["a hex string", TOKEN.toString("hex")],
-  ])("connects again with the saved token (%s)", async (_name, saved) => {
+  test("connects again with the saved token", async () => {
     const connected = { id: "miio:123", model: "xiaomi.vacuum.d101" };
-    get.mockResolvedValue(saved);
+    get.mockResolvedValue(TOKEN);
     connect.mockResolvedValue(connected);
     expect(await withSavedToken(placeholder())).toBe(connected);
     expect(get).toHaveBeenCalledWith("123");
@@ -63,12 +59,9 @@ describe("withSavedToken", () => {
     });
   });
 
-  test.each([
-    ["nothing saved", undefined],
-    ["something that isn't a token", { foo: 1 }],
-  ])("keeps the placeholder with %s", async (_name, saved) => {
+  test("keeps the placeholder when nothing is saved", async () => {
     const device = placeholder();
-    get.mockResolvedValue(saved);
+    get.mockResolvedValue(undefined);
     expect(await withSavedToken(device)).toBe(device);
     expect(connect).not.toHaveBeenCalled();
   });
