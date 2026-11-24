@@ -4,9 +4,34 @@ const { EventEmitter } = require("node:events");
 
 const { Devices } = require("../lib/discovery");
 const { connectToDevice } = require("../lib/connect_to_device");
+const { Placeholder } = require("../lib/placeholder");
+const { tokens } = require("../lib/tokens");
 
 const IP =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+/**
+ * Connects again with the saved token when the device couldn't be reached without one (it hides its token).
+ *
+ * @param {object} device The device, or a placeholder
+ * @param {string|Buffer} [token] The token given on the command line: it wins over the saved one
+ * @returns {Promise<object>} The connected device, or the same one
+ */
+async function withSavedToken(device, token) {
+  if (token || !(device instanceof Placeholder)) return device;
+  const id = String(device.id).replace(/^miio:/, "");
+  const saved = await tokens.get(id).catch(() => undefined);
+  if (!saved) return device;
+  try {
+    return await connectToDevice({
+      address: device.management.address,
+      port: device.management.port,
+      token: saved,
+    });
+  } catch {
+    return device;
+  }
+}
 
 /**
  * Converts a device id, IP or model into a filter function.
@@ -48,7 +73,7 @@ function asToplevelFilter(filter) {
   return (reg) => reg.type === "gateway" || filter(reg);
 }
 
-module.exports = function (options = {}) {
+module.exports = function deviceFinder(options = {}) {
   const result = new EventEmitter();
 
   if (typeof options.filter === "string" && options.filter.match(IP)) {
@@ -58,6 +83,7 @@ module.exports = function (options = {}) {
       withPlaceholder: true,
       token: options.token,
     })
+      .then((device) => withSavedToken(device, options.token))
       .then((device) => result.emit("available", device))
       .catch(() => result.emit("done"));
   } else {
@@ -69,12 +95,14 @@ module.exports = function (options = {}) {
       token: options.token,
     });
 
-    browser.onAvailable((device) => {
+    browser.onAvailable(async (device) => {
       if (filter(device)) {
-        result.emit("available", device);
+        result.emit("available", await withSavedToken(device, options.token));
       }
     });
     browser.onUnavailable((device) => result.emit("unavailable", device));
   }
   return result;
 };
+
+module.exports.withSavedToken = withSavedToken;

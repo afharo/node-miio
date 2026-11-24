@@ -106,4 +106,5 @@ If you want to update the token of a device use the `tokens update` command:
 This is mostly used when you configured the device on another computer but want
 to use another computer to have access to the device. Make sure to run the
 `miio` command as the correct user as tokens are stored tied to the current
-user.
+user: in `tokens.json`, in node-miio's config directory (see [Xiaomi Cloud](cloud.md)).
+The commands that connect to a device use the saved token when you don't pass `--token`.
