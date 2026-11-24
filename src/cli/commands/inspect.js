@@ -31,7 +31,12 @@ const GROUPS = [
 
 exports.command = "inspect <idOrIp>";
 exports.description = "Inspect a device";
-exports.builder = {};
+exports.builder = {
+  token: {
+    type: "string",
+    description: "The known token of the device to communicate with",
+  },
+};
 
 exports.handler = function (argv) {
   let target = argv.idOrIp;
@@ -42,6 +47,7 @@ exports.handler = function (argv) {
   const browser = deviceFinder({
     instances: true,
     filter: target,
+    token: argv.token,
   });
   browser.on("available", async (device) => {
     pending++;

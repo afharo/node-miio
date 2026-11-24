@@ -7,6 +7,11 @@ const { tokens } = require("../../lib/tokens");
 exports.command = "configure <idOrIp>";
 exports.description = "Control a device by invoking the given method";
 exports.builder = {
+  token: {
+    type: "string",
+    description: "The known token of the device to communicate with",
+  },
+
   ssid: {
     required: true,
     description: "SSID of the WiFi network",
@@ -28,6 +33,7 @@ exports.handler = function (argv) {
   let pending = 0;
   const browser = deviceFinder({
     filter: target,
+    token: argv.token,
   });
   browser.on("available", async (device) => {
     pending++;
