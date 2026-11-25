@@ -35,6 +35,23 @@ describe("Tokens", () => {
     expect(process.platform === "win32" || mode === 0o600).toBe(true);
   });
 
+  test("ids are the same with or without the miio: prefix of device.id", async () => {
+    // `discover --sync` and `configure` save by `device.id` ("miio:123"); the lookups use the bare id
+    const tokens = new Tokens(file);
+    await tokens.update("miio:123", TOKEN);
+    expect(await tokens.get("123")).toEqual(TOKEN);
+    expect(await tokens.get("miio:123")).toEqual(TOKEN);
+    expect(JSON.parse(await fs.readFile(file, "utf8"))).toEqual({
+      "123": TOKEN.toString("hex"),
+    });
+  });
+
+  test("numeric ids", async () => {
+    const tokens = new Tokens(file);
+    await tokens.update(123, TOKEN);
+    expect(await tokens.get("123")).toEqual(TOKEN);
+  });
+
   test("takes hex strings", async () => {
     const tokens = new Tokens(file);
     await tokens.update("123", TOKEN.toString("hex"));

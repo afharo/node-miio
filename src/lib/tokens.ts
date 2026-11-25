@@ -12,6 +12,14 @@ export function defaultTokensFile() {
 }
 
 /**
+ * @param deviceId A device id, with or without the `miio:` prefix of `device.id`
+ * @returns The id the tokens are saved under (without the prefix)
+ */
+function key(deviceId: string | number) {
+  return `${deviceId}`.replace(/^miio:/, "");
+}
+
+/**
  * Shared storage of the devices' tokens, by device id: a JSON file readable only by the current user (tokens are
  * secrets).
  */
@@ -38,12 +46,12 @@ export class Tokens {
   }
 
   /**
-   * @param deviceId The device id (without the `miio:` prefix)
+   * @param deviceId The device id (with or without the `miio:` prefix)
    * @returns The saved token, or `undefined` if there's none
    */
-  async get(deviceId: string): Promise<Buffer | undefined> {
+  async get(deviceId: string | number): Promise<Buffer | undefined> {
     await this.queue;
-    const saved = (await this.readAll())[deviceId];
+    const saved = (await this.readAll())[key(deviceId)];
     return typeof saved === "string" && /^[0-9a-f]+$/i.test(saved)
       ? Buffer.from(saved, "hex")
       : undefined;
@@ -63,12 +71,12 @@ export class Tokens {
   /**
    * Saves the token of a device.
    *
-   * @param deviceId The device id (without the `miio:` prefix)
+   * @param deviceId The device id (with or without the `miio:` prefix)
    * @param token The token
    */
-  update(deviceId: string, token: Buffer | string) {
+  update(deviceId: string | number, token: Buffer | string) {
     const hex = Buffer.isBuffer(token) ? token.toString("hex") : token;
-    const write = this.queue.then(() => this.write(deviceId, hex));
+    const write = this.queue.then(() => this.write(key(deviceId), hex));
     this.queue = write.catch(() => undefined);
     return write;
   }
