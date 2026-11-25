@@ -29,14 +29,17 @@ describe("stopGracefully", () => {
     },
   );
 
-  test("a second signal quits right away", () => {
+  test.each([
+    ["SIGINT", 130],
+    ["SIGTERM", 143],
+  ])("a second %s quits right away (exit code %p)", (signal, code) => {
     const proc = fakeProcess();
     const stop = jest.fn(() => new Promise<void>(() => {}));
     stopGracefully(stop, undefined, proc);
     proc.emit("SIGINT");
-    proc.emit("SIGINT");
+    proc.emit(signal);
     expect(stop).toHaveBeenCalledTimes(1);
-    expect(proc.exit).toHaveBeenCalledWith(130);
+    expect(proc.exit).toHaveBeenCalledWith(code);
   });
 
   test("exits even when stopping fails", async () => {

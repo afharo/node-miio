@@ -27,6 +27,12 @@ describe("doneMessage", () => {
   test("failed", () => {
     expect(doneMessage(1, 2100)).toBe(chalk.red("Done (failed after 2.1s)"));
   });
+
+  test.each([130, 143])("cancelled (exit code %p)", (code) => {
+    expect(doneMessage(code, 2100)).toBe(
+      chalk.yellow("Done (cancelled after 2.1s)"),
+    );
+  });
 });
 
 describe("reportWhenDone", () => {

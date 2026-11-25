@@ -2,6 +2,8 @@ import { performance } from "node:perf_hooks";
 
 import chalk from "chalk";
 
+import { CANCELLED_EXIT_CODES } from "./stop";
+
 /**
  * @param ms A duration in milliseconds
  * @returns The duration for people: `127ms`, `2.1s`, `1m 5s`
@@ -16,12 +18,16 @@ export function formatDuration(ms: number): string {
 /**
  * @param exitCode The process' exit code
  * @param ms How long the command took
- * @returns The last line of a command: whether it succeeded, and how long it took
+ * @returns The last line of a command: whether it succeeded, failed or was cancelled (forced quit), and how long it
+ *   took
  */
 export function doneMessage(exitCode: number, ms: number): string {
-  return exitCode === 0
-    ? chalk.green(`Done (succeeded in ${formatDuration(ms)})`)
-    : chalk.red(`Done (failed after ${formatDuration(ms)})`);
+  const duration = formatDuration(ms);
+  if (exitCode === 0) return chalk.green(`Done (succeeded in ${duration})`);
+  if ((Object.values(CANCELLED_EXIT_CODES) as number[]).includes(exitCode)) {
+    return chalk.yellow(`Done (cancelled after ${duration})`);
+  }
+  return chalk.red(`Done (failed after ${duration})`);
 }
 
 /** The parts of `process` that {@link reportWhenDone} uses */
