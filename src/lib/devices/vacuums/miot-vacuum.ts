@@ -429,16 +429,26 @@ export class MiotVacuum extends ATVacuum.with(
     return this.call("miIO.info", []);
   }
 
+  /**
+   * The serial number, from `device-information:serial-number`. Some models (e.g. `xiaomi.vacuum.d101`) leave it empty
+   * and report it as `device-information:serial-no`.
+   *
+   * @returns The serial number, or `"unknown"`
+   */
   async getSerialNumber(): Promise<string> {
-    const serial = this.specIndex.property(
-      "device-information",
-      "serial-number",
-    );
-    if (!serial) return "unknown";
-    const [result] = await getProperties(this.caller, [
-      { did: "serial_number", siid: serial.siid, piid: serial.piid },
-    ]);
-    return result?.code === 0 && result.value ? `${result.value}` : "unknown";
+    const requests = ["serial-number", "serial-no"].flatMap((name) => {
+      const property = this.specIndex.property("device-information", name);
+      return property
+        ? [{ did: name, siid: property.siid, piid: property.piid }]
+        : [];
+    });
+    if (requests.length === 0) return "unknown";
+    const results = await getProperties(this.caller, requests);
+    for (const { did } of requests) {
+      const result = results.find((r) => r.did === did);
+      if (result?.code === 0 && result.value) return `${result.value}`;
+    }
+    return "unknown";
   }
 
   // Not available via the standard MIoT services (yet)
