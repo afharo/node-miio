@@ -25,6 +25,7 @@ exports.handler = function (argv) {
   });
   browser.on("available", async (device) => {
     pending++;
+    foundDevice = true;
 
     log.plain();
     log.info("Connected to", device.id, " - trying to change token");
@@ -36,12 +37,14 @@ exports.handler = function (argv) {
         log.plain("Token has been updated");
       } else {
         log.error("Could not update token, double-check the given token");
+        process.exitCode = 1;
       }
     } catch (err) {
+      process.exitCode = 1;
       log.error("Could update token. Error was:", err.message);
     } finally {
       pending--;
-      process.exit(0); // eslint-disable-line n/no-process-exit
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   });
 
@@ -49,8 +52,9 @@ exports.handler = function (argv) {
     if (pending === 0) {
       if (!foundDevice) {
         log.warn("Could not find device");
+        process.exitCode = 1;
       }
-      process.exit(0); // eslint-disable-line
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   };
   setTimeout(doneHandler, 5000);

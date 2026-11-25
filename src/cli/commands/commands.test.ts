@@ -1,5 +1,7 @@
 import { EventEmitter } from "node:events";
 
+import { log } from "../log";
+
 jest.mock("../device-finder", () => jest.fn());
 jest.mock("../log", () => ({
   log: { info: jest.fn(), plain: jest.fn(), error: jest.fn(), warn: jest.fn() },
@@ -7,6 +9,7 @@ jest.mock("../log", () => ({
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const deviceFinder = require("../device-finder") as jest.Mock;
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const call = require("./protocol/call");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -43,6 +46,7 @@ describe("CLI commands", () => {
   afterEach(() => {
     jest.useRealTimers();
     jest.restoreAllMocks();
+    process.exitCode = undefined;
   });
 
   test("protocol call sends JSON parameters as objects, with the token", async () => {
@@ -104,5 +108,92 @@ describe("CLI commands", () => {
     expect(command.builder.token).toEqual(
       expect.objectContaining({ type: "string" }),
     );
+  });
+
+  describe("exit code", () => {
+    test("control succeeds, and prints nothing for a method without a result", async () => {
+      await run(
+        control,
+        { idOrIp: "192.168.1.2", method: "changeFanSpeed", params: [3] },
+        { changeFanSpeed: jest.fn().mockResolvedValue(undefined) },
+      );
+      expect(process.exitCode).toBeUndefined();
+      expect(log.plain).not.toHaveBeenCalledWith(undefined);
+    });
+
+    test.each([
+      [
+        "control: the method fails",
+        control,
+        { method: "changeFanSpeed", params: [3] },
+        {
+          changeFanSpeed: jest.fn().mockRejectedValue(new Error("code -4005")),
+        },
+      ],
+      ["control: unknown method", control, { method: "nope", params: [] }, {}],
+      [
+        "protocol call: the call fails",
+        call,
+        { method: "get_properties", params: [] },
+        { miioCall: jest.fn().mockRejectedValue(new Error("timeout")) },
+      ],
+      [
+        "inspect: the device can't be read",
+        inspect,
+        {},
+        {
+          management: { info: jest.fn().mockRejectedValue(new Error("x")) },
+        },
+      ],
+      [
+        "configure: the WiFi can't be set",
+        configure,
+        { ssid: "wifi", passwd: "secret" },
+        {
+          management: {
+            updateWireless: jest.fn().mockRejectedValue(new Error("x")),
+          },
+        },
+      ],
+      [
+        "tokens update: the token doesn't work",
+        tokensUpdate,
+        { token: "abc" },
+        { management: { updateToken: jest.fn().mockResolvedValue(false) } },
+      ],
+      [
+        "tokens update: the update fails",
+        tokensUpdate,
+        { token: "abc" },
+        {
+          management: {
+            updateToken: jest.fn().mockRejectedValue(new Error("x")),
+          },
+        },
+      ],
+    ])("%s fails", async (_name, command, argv, device) => {
+      await run(command, { idOrIp: "192.168.1.2", ...argv }, device);
+      expect(process.exitCode).toBe(1);
+    });
+
+    test.each([
+      ["control", control, { method: "find", params: [] }],
+      ["protocol call", call, { method: "miIO.info", params: [] }],
+      ["inspect", inspect, {}],
+      ["configure", configure, { ssid: "wifi", passwd: "secret" }],
+      ["tokens update", tokensUpdate, { token: "abc" }],
+    ])("%s fails when the device isn't found", async (_name, command, argv) => {
+      const browser = new EventEmitter();
+      deviceFinder.mockReturnValue(browser);
+      const exited = new Promise<void>((resolve) => {
+        jest.spyOn(process, "exit").mockImplementation((() => {
+          resolve();
+        }) as never);
+      });
+      command.handler({ idOrIp: "192.168.1.2", ...argv });
+      browser.emit("done");
+      await exited;
+      expect(process.exitCode).toBe(1);
+    });
   });
 });

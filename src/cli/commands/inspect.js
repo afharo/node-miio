@@ -51,6 +51,7 @@ exports.handler = function (argv) {
   });
   browser.on("available", async (device) => {
     pending++;
+    foundDevice = true;
 
     // TODO: Error handling
     const mgmt = device.management;
@@ -173,10 +174,11 @@ exports.handler = function (argv) {
         }
       });
     } catch (err) {
+      process.exitCode = 1;
       log.error("Could inspect device. Error was:", err.message);
     } finally {
       pending--;
-      process.exit(0); // eslint-disable-line n/no-process-exit
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   });
 
@@ -184,8 +186,9 @@ exports.handler = function (argv) {
     if (pending === 0) {
       if (!foundDevice) {
         log.warn("Could not find device");
+        process.exitCode = 1;
       }
-      process.exit(0); // eslint-disable-line
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   };
   setTimeout(doneHandler, 5000);

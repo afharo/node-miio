@@ -4,6 +4,7 @@
 import yargs, { type CommandModule } from "yargs";
 import { hideBin } from "yargs/helpers";
 
+import { reportWhenDone } from "./done";
 import * as cloud from "./commands/cloud";
 import * as configure from "./commands/configure";
 import * as control from "./commands/control";
@@ -18,6 +19,7 @@ import * as tokens from "./commands/tokens";
 // `commandDir` is not supported when yargs is loaded as an ES module.
 void yargs(hideBin(process.argv))
   .scriptName("node-miio")
+  .middleware(reportWhenDone())
   .command(cloud as unknown as CommandModule)
   .command(configure as unknown as CommandModule)
   .command(control as unknown as CommandModule)

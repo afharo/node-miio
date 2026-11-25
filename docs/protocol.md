@@ -89,3 +89,8 @@ To call a method of node-miio's device class instead (the same code the plugins 
 
 Its arguments are parsed the same way, but an array stays one argument
 (e.g. `cleanRooms '[16,17]'`).
+
+Every command ends with `Done (succeeded in 127ms)` or `Done (failed after 2.1s)`
+(on stderr, so JSON output can still be piped), and exits with code 1 when it failed.
+Add `DEBUG='thing:miio*'` in front of a command to see the messages exchanged with the
+device.
