@@ -26,11 +26,17 @@
   "types": "dist/lib/index.d.ts",
   "keywords": [
     "xiaomi",
-    "mi",
     "miio",
+    "mi-home",
+    "mijia",
+    "roborock",
+    "vacuum",
+    "robot-vacuum",
     "aqara",
     "yeelight",
-    "mijia"
+    "air-purifier",
+    "smart-home",
+    "iot"
   ],
   "bin": {
     "node-miio": "dist/cli/index.js"
