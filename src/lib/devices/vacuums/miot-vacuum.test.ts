@@ -1,3 +1,4 @@
+import d101 from "../../__fixtures__/miot/xiaomi.vacuum.d101.json";
 import d110ch from "../../__fixtures__/miot/xiaomi.vacuum.d110ch.json";
 import ijaiV3 from "../../__fixtures__/miot/ijai.vacuum.v3.json";
 import mijiaV2 from "../../__fixtures__/miot/mijia.vacuum.v2.json";
@@ -324,6 +325,19 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     await expect(vacuum.getSerialNumber()).resolves.toBe("ABC123");
   });
 
+  test("getSerialNumber is unknown when the device doesn't report it", async () => {
+    const { vacuum } = createMiotVacuum(MODEL, d110ch, { "1.3": "" });
+    await expect(vacuum.getSerialNumber()).resolves.toBe("unknown");
+  });
+
+  test("getSerialNumber is unknown without device-information", async () => {
+    const spec = structuredClone(d110ch) as MiotSpec;
+    spec.services = spec.services.filter((s) => s.iid !== 1);
+    const { vacuum, call } = createMiotVacuum(MODEL, spec);
+    await expect(vacuum.getSerialNumber()).resolves.toBe("unknown");
+    expect(call).not.toHaveBeenCalled();
+  });
+
   test("room cleaning is not supported yet", async () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch);
     await expect(vacuum.getRoomMap()).resolves.toEqual([]);
@@ -333,6 +347,31 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
 });
 
 describe("MiotVacuum (other models)", () => {
+  test("xiaomi.vacuum.d101 reports its serial number as serial-no", async () => {
+    // Real answer (#1314): serial-number (1.3) is empty, and every result carries the device ID as `did`
+    const { handle, call } = createFakeHandle("xiaomi.vacuum.d101", {
+      get_properties: (props: PropertyRequest[]) =>
+        props.map((p) => ({
+          did: "1153862737",
+          siid: p.siid,
+          piid: p.piid,
+          code: 0,
+          value: p.piid === 5 ? "59064/ABCDEF123456" : "",
+        })),
+    });
+    const vacuum = new MiotVacuum(handle, d101 as unknown as MiotSpec);
+    await expect(vacuum.getSerialNumber()).resolves.toBe("59064/ABCDEF123456");
+    expect(sentCalls(call)).toEqual([
+      [
+        "get_properties",
+        [
+          { did: "serial-number", siid: 1, piid: 3 },
+          { did: "serial-no", siid: 1, piid: 5 },
+        ],
+      ],
+    ]);
+  });
+
   test("dreame.vacuum.p2008 uses the standard vacuum service", async () => {
     const { vacuum, call } = createMiotVacuum("dreame.vacuum.p2008", p2008);
     await withTimers(vacuum.activateCleaning());
