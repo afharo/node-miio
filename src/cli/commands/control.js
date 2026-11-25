@@ -26,24 +26,30 @@ exports.handler = function (argv) {
   browser.on("available", async (device) => {
     if (!device[argv.method]) {
       log.error("The method " + argv.method + " is not available");
-      process.exit(0); // eslint-disable-line
+      process.exitCode = 1;
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
 
     pending++;
+    foundDevice = true;
 
     try {
       const result = await Promise.resolve(
         device[argv.method](...parseArgs(argv.params)),
       );
-      log.plain(JSON.stringify(result, null, "  "));
+      // Methods that change something return nothing: the "Done" line says it worked
+      if (result !== undefined) {
+        log.plain(JSON.stringify(result, null, "  "));
+      }
     } catch (err) {
+      process.exitCode = 1;
       log.error("Encountered an error while controlling device");
       log.plain();
       log.plain("Error was:");
       log.plain(err.message);
     } finally {
       pending--;
-      process.exit(0); // eslint-disable-line n/no-process-exit
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   });
 
@@ -51,8 +57,9 @@ exports.handler = function (argv) {
     if (pending === 0) {
       if (!foundDevice) {
         log.warn("Could not find device");
+        process.exitCode = 1;
       }
-      process.exit(0); // eslint-disable-line
+      process.exit(); // eslint-disable-line n/no-process-exit
     }
   };
   setTimeout(doneHandler, 5000);

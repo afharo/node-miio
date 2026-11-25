@@ -75,6 +75,7 @@ function asToplevelFilter(filter) {
 
 module.exports = function deviceFinder(options = {}) {
   const result = new EventEmitter();
+  result.destroy = async () => {};
 
   if (typeof options.filter === "string" && options.filter.match(IP)) {
     // IP-address specified
@@ -101,6 +102,8 @@ module.exports = function deviceFinder(options = {}) {
       }
     });
     browser.onUnavailable((device) => result.emit("unavailable", device));
+    // Stops the discovery and closes the network socket
+    result.destroy = () => browser.destroy();
   }
   return result;
 };
