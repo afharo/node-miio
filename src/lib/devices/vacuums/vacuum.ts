@@ -324,6 +324,8 @@ export class Vacuum extends ATVacuum.with(
       clearErrorOnRecovery(this, value);
       // Update charging state
       this.updateCharging(value === "charging");
+      // Exposed in `state()` and the `stateChanged` events
+      this.updateState("state", value);
 
       switch (value) {
         case "cleaning":

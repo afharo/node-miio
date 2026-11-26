@@ -61,7 +61,7 @@ export class DreameVacuum extends Vacuum.with(
         // https://python-miio.readthedocs.io/en/latest/api/miio.integrations.dreame.vacuum.dreamevacuum_miot.html#miio.integrations.dreame.vacuum.dreamevacuum_miot.DeviceStatus
         switch (s) {
           case 1:
-            return "sweeping";
+            return "cleaning";
           case 2:
             return "idle";
           case 3:
@@ -75,15 +75,15 @@ export class DreameVacuum extends Vacuum.with(
           case 7:
             return "mopping";
           case 8:
-            return "drying";
+            return "drying-mop";
           case 9:
-            return "washing";
+            return "washing-mop";
           case 10:
-            return "returning-washing";
+            return "returning-to-wash-mop";
           case 11:
-            return "building";
+            return "mapping";
           case 12:
-            return "sweeping-and-mopping";
+            return "cleaning-and-mopping";
           case 13:
             return "fully-charged";
           case 14:
@@ -163,11 +163,16 @@ export class DreameVacuum extends Vacuum.with(
       // Update charging state
       this.updateCharging(value === "charging");
 
+      // Exposed in `state()` and the `stateChanged` events
+      this.updateState("state", value);
+
       switch (value) {
         case "cleaning":
         case "spot-cleaning":
         case "zone-cleaning":
         case "room-cleaning":
+        case "mopping":
+        case "cleaning-and-mopping":
           // The vacuum is cleaning
           this.updateCleaning(true);
           break;
