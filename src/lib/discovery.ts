@@ -7,7 +7,6 @@ import {
   type ServiceDiscovery,
   type Service,
 } from "tinkerhub-discovery";
-import { Children } from "abstract-things";
 
 import { network } from "./network";
 import { infoFromHostname } from "./info_from_hostname";
@@ -159,7 +158,8 @@ export class Devices extends BasicServiceDiscovery<IDevice & { id: string }> {
     this._browser.onAvailable((s) => {
       this.updateService(s);
 
-      if (s instanceof Children) {
+      // Capabilities are composed (not inherited): check the capability, not the class
+      if (s.matches("cap:children")) {
         this._bindSubDevices(s);
       }
     });

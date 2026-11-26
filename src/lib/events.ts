@@ -9,7 +9,7 @@ export interface StateChangedEvent {
 /**
  * Payload of the `errorChanged` event (`device.on("errorChanged", ...)`): the error, or `null` when it's cleared.
  *
- * abstract-things converts the errors set by the devices (`{ code, message }`) into this shape.
+ * The errors set by the devices (`{ code, message }`) are converted into this shape (see `code()` in `things/values`).
  */
 export type ErrorChangedEvent = {
   /** The error code, e.g. `10` (Roborock) or `"charging-error"` */

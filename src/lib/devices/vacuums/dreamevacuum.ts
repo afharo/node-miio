@@ -1,15 +1,8 @@
-import { ChargingState, AutonomousCharging } from "abstract-things";
-import {
-  Vacuum,
-  AdjustableFanSpeed,
-  AutonomousCleaning,
-  SpotCleaning,
-} from "abstract-things/climate";
-
-import { MiioApi } from "../../device";
+import { compose } from "../../things/compose";
+import { SpotCleaning } from "../../things/capabilities/climate";
 import { getProperties } from "../../miot/miot_api";
-import { BatteryLevel } from "../capabilities/battery-level";
 
+import { VacuumThing } from "./vacuum_thing";
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
 
@@ -17,15 +10,7 @@ import { clearErrorOnRecovery } from "./vacuum_errors";
  * Implementation of the interface used by the Dreame Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_properties.
  */
-export class DreameVacuum extends Vacuum.with(
-  MiioApi,
-  BatteryLevel,
-  AutonomousCharging,
-  AutonomousCleaning,
-  SpotCleaning,
-  AdjustableFanSpeed,
-  ChargingState,
-) {
+export class DreameVacuum extends compose(VacuumThing, SpotCleaning) {
   static get type() {
     return "miio:vacuum";
   }
@@ -203,7 +188,7 @@ export class DreameVacuum extends Vacuum.with(
           break;
       }
     } else if (key === "fanSpeed") {
-      this.updateFanSpeed(value);
+      this.updateFanSpeed(value as number);
     }
 
     super.propertyUpdated(key, value, oldValue);

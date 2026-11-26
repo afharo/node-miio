@@ -1,7 +1,46 @@
 /**
  * List of commands with their expected parameters
  */
-export interface Protocol {
+/** An RPC of the legacy (untested) devices: lights, plugs, air purifiers, the gateway… */
+interface LegacyCommand {
+  params?: unknown[];
+  response: unknown;
+}
+
+/** RPCs of the legacy devices, loosely typed */
+type LegacyProtocol = Record<
+  | "enable_amb"
+  | "get_device_prop"
+  | "get_device_prop_exp"
+  | "get_lumi_dpf_aes_key"
+  | "remove_device"
+  | "set_amb_bright"
+  | "set_bright"
+  | "set_buzzer"
+  | "set_cct"
+  | "set_ct_abx"
+  | "set_default"
+  | "set_eyecare"
+  | "set_hsv"
+  | "set_led"
+  | "set_led_b"
+  | "set_level_favorite"
+  | "set_limit_hum"
+  | "set_lumi_dpf_aes_key"
+  | "set_name"
+  | "set_power"
+  | "set_power_mode"
+  | "set_rgb"
+  | "set_usb_off"
+  | "set_usb_on"
+  | "set_user_scene"
+  | "start_zigbee_join"
+  | "toggle_ctrl_neutral"
+  | "toggle_plug",
+  LegacyCommand
+>;
+
+export interface Protocol extends LegacyProtocol {
   "miIO.info": {
     params?: [];
     response: MiioDeviceInfo;
@@ -197,8 +236,9 @@ export interface Protocol {
     params?: [];
     response: GetTimerResponseTimer[]; // TODO: Confirm that this is the response
   };
+  // Vacuums (numbers) and legacy air purifiers/humidifiers (`["auto"]`)
   set_mode: {
-    params: number[];
+    params: (number | string)[];
     response: unknown;
   };
   set_charge: {

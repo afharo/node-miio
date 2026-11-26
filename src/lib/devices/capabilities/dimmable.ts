@@ -1,15 +1,10 @@
-import { Thing } from "abstract-things";
-import { Dimmable as ATDimmable } from "abstract-things/lights";
+import { Dimmable as BaseDimmable } from "../../things/capabilities/lights";
 
-export const Dimmable = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(ATDimmable) {
-      propertyUpdated(key, value) {
-        if (key === "brightness") {
-          this.updateBrightness(value);
-        }
-
-        super.propertyUpdated(key, value);
-      }
-    },
-);
+/** Dimmable light, following the `brightness` property */
+export class Dimmable extends BaseDimmable {
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "brightness") {
+      this.updateBrightness(value as number);
+    }
+  }
+}

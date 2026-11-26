@@ -1,14 +1,10 @@
-import { Thing, SwitchableMode } from "abstract-things";
+import { SwitchableMode } from "../../things/capabilities/common";
 
-export const Mode = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(SwitchableMode) {
-      propertyUpdated(key, value) {
-        if (key === "mode") {
-          this.updateMode(value);
-        }
-
-        super.propertyUpdated(key, value);
-      }
-    },
-);
+/** Switchable mode, following the `mode` property */
+export class Mode extends SwitchableMode {
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "mode") {
+      this.updateMode(value as string);
+    }
+  }
+}

@@ -3,19 +3,19 @@
  */
 import { AirMonitor } from "./devices/air-monitor";
 import { AirPurifier } from "./devices/air-purifier";
-import Gateway from "./devices/gateway";
+import { GatewayBasic, GatewayWithLightAndSensor } from "./devices/gateway";
 import { Vacuum } from "./devices/vacuums/vacuum";
 import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
-import PowerPlug from "./devices/power-plug";
-import PowerPlugChuangmiV1 from "./devices/chuangmi.plug.v1";
-import PowerStrip from "./devices/power-strip";
-import Humidifier from "./devices/humidifier";
-import YeelightColor from "./devices/yeelight.color";
-import YeelightMono from "./devices/yeelight.mono";
-import EyecareLamp2 from "./devices/eyecare-lamp2";
-import PhilipsLightBulb from "./devices/philips-light-bulb";
+import { PowerPlug } from "./devices/power-plug";
+import { PowerPlugChuangmiV1 } from "./devices/chuangmi.plug.v1";
+import { PowerStrip } from "./devices/power-strip";
+import { Humidifier } from "./devices/humidifier";
+import { YeelightColor } from "./devices/yeelight.color";
+import { YeelightMono } from "./devices/yeelight.mono";
+import { EyecareLamp2 } from "./devices/eyecare-lamp2";
+import { PhilipsLightBulb } from "./devices/philips-light-bulb";
 
 export const models = {
   "zhimi.airmonitor.v1": AirMonitor,
@@ -57,11 +57,11 @@ export const models = {
   // Hand-mapped MIoT vacuum (other `dreame.vacuum.*` models are resolved from their MIoT spec)
   "dreame.vacuum.mc1808": DreameVacuum,
 
-  "lumi.gateway.v2": Gateway.WithLightAndSensor,
-  "lumi.gateway.v3": Gateway.WithLightAndSensor,
-  "lumi.acpartner.v1": Gateway.Basic,
-  "lumi.acpartner.v2": Gateway.Basic,
-  "lumi.acpartner.v3": Gateway.Basic,
+  "lumi.gateway.v2": GatewayWithLightAndSensor,
+  "lumi.gateway.v3": GatewayWithLightAndSensor,
+  "lumi.acpartner.v1": GatewayBasic,
+  "lumi.acpartner.v2": GatewayBasic,
+  "lumi.acpartner.v3": GatewayBasic,
 
   "qmi.powerstrip.v1": PowerStrip,
   "zimi.powerstrip.v2": PowerStrip,

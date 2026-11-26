@@ -1,14 +1,10 @@
-import { Thing, SwitchablePower } from "abstract-things";
+import { SwitchablePower } from "../../things/capabilities/common";
 
-export const Power = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(SwitchablePower) {
-      propertyUpdated<T>(key: string, value: T) {
-        if (key === "power" && value !== undefined) {
-          this.updatePower(value);
-        }
-
-        super.propertyUpdated(key, value);
-      }
-    },
-);
+/** Switchable power, following the `power` property */
+export class Power extends SwitchablePower {
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "power" && value !== undefined) {
+      this.updatePower(value as boolean);
+    }
+  }
+}

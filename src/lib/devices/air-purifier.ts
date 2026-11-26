@@ -1,6 +1,5 @@
-import { AirPurifier as ATAirPurifier } from "abstract-things/climate";
-
 import { MiioApi } from "../device";
+import { compose } from "../things/compose";
 
 import { Power } from "./capabilities/power";
 import { Mode } from "./capabilities/mode";
@@ -16,7 +15,7 @@ import { Temperature, Humidity, AQI } from "./capabilities/sensor";
  * to `idle` will power off the device, all other modes will power on the
  * device.
  */
-export class AirPurifier extends ATAirPurifier.with(
+export class AirPurifier extends compose(
   MiioApi,
   Power,
   Mode,
@@ -27,6 +26,10 @@ export class AirPurifier extends ATAirPurifier.with(
   LEDBrightness,
   Buzzer,
 ) {
+  static get types() {
+    return ["air-purifier"];
+  }
+
   static get type() {
     return "miio:air-purifier";
   }
@@ -44,7 +47,7 @@ export class AirPurifier extends ATAirPurifier.with(
     // Sensor value for Temperature capability
     this.defineProperty("temp_dec", {
       name: "temperature",
-      mapper: (v) => v / 10.0,
+      mapper: (v: number) => v / 10.0,
     });
 
     // Sensor value for RelativeHumidity capability
@@ -71,7 +74,8 @@ export class AirPurifier extends ATAirPurifier.with(
 
     // State for SwitchableLED capability
     this.defineProperty("led", {
-      mapper: (v) => v === "on",
+      name: "led",
+      mapper: (v: string) => v === "on",
     });
 
     this.defineProperty("led_b", {
@@ -92,7 +96,8 @@ export class AirPurifier extends ATAirPurifier.with(
 
     // Buzzer and beeping
     this.defineProperty("buzzer", {
-      mapper: (v) => v === "on",
+      name: "buzzer",
+      mapper: (v: string) => v === "on",
     });
   }
 

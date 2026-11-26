@@ -1,13 +1,5 @@
-import { ChargingState, AutonomousCharging } from "abstract-things";
-import {
-  Vacuum as ATVacuum,
-  AdjustableFanSpeed,
-  AutonomousCleaning,
-  SpotCleaning,
-} from "abstract-things/climate";
-
-import { MiioApi } from "../../device";
-import { BatteryLevel } from "../capabilities/battery-level";
+import { compose } from "../../things/compose";
+import { SpotCleaning } from "../../things/capabilities/climate";
 import { checkResult } from "../../check_result";
 import type { DeviceHandle } from "../../management";
 import type { Protocol } from "../../protocol";
@@ -21,6 +13,7 @@ import {
   type VacuumModes,
 } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
+import { VacuumThing } from "./vacuum_thing";
 
 /** Mop routes (`get_mop_mode`/`set_mop_mode`) of the S7 and newer */
 export const MOP_ROUTES = {
@@ -65,15 +58,7 @@ const isOne = (value: unknown) => (value == null ? undefined : value === 1);
  * Implementation of the interface used by the Mi Robot Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_status.
  */
-export class Vacuum extends ATVacuum.with(
-  MiioApi,
-  BatteryLevel,
-  AutonomousCharging,
-  AutonomousCleaning,
-  SpotCleaning,
-  AdjustableFanSpeed,
-  ChargingState,
-) {
+export class Vacuum extends compose(VacuumThing, SpotCleaning) {
   static get type() {
     return "miio:vacuum";
   }
@@ -355,7 +340,7 @@ export class Vacuum extends ATVacuum.with(
           break;
       }
     } else if (key === "fanSpeed") {
-      this.updateFanSpeed(value);
+      this.updateFanSpeed(value as number);
     } else if (STATE_PROPERTIES.includes(key)) {
       // Exposed in `state()` and the `stateChanged` events
       this.updateState(key, value);

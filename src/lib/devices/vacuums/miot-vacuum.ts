@@ -1,12 +1,3 @@
-import { ChargingState, AutonomousCharging } from "abstract-things";
-import {
-  Vacuum as ATVacuum,
-  AdjustableFanSpeed,
-  AutonomousCleaning,
-} from "abstract-things/climate";
-
-import { MiioApi } from "../../device";
-import { BatteryLevel } from "../capabilities/battery-level";
 import type { DeviceHandle } from "../../management";
 import {
   callAction,
@@ -28,6 +19,7 @@ import {
   type ResolvedProperty,
 } from "../../miot/miot_spec";
 
+import { VacuumThing } from "./vacuum_thing";
 import { isCleaningState, type VacuumState } from "./vacuum_states";
 import type { VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
@@ -413,14 +405,7 @@ function describe(list: MiotValueListItem[] | undefined, value: unknown) {
  * A vacuum whose properties and actions are resolved from its MIoT spec, using only the standard
  * (`miot-spec-v2`) services: `vacuum`, `battery`, `identify`, `brush-cleaner`, `filter`, `mop`, `device-information`.
  */
-export class MiotVacuum extends ATVacuum.with(
-  MiioApi,
-  BatteryLevel,
-  AutonomousCharging,
-  AutonomousCleaning,
-  AdjustableFanSpeed,
-  ChargingState,
-) {
+export class MiotVacuum extends VacuumThing {
   static get type() {
     return "miio:vacuum";
   }
@@ -584,9 +569,9 @@ export class MiotVacuum extends ATVacuum.with(
     } as never);
   }
 
-  /** `this`, typed for the MIoT helpers (the abstract-things mixins are not typed) */
+  /** `this`, as the caller of the MIoT helpers */
   private get caller(): MiotCaller {
-    return this as unknown as MiotCaller;
+    return this;
   }
 
   private request(did: string): MiotPropertyRequest | undefined {
@@ -630,7 +615,7 @@ export class MiotVacuum extends ATVacuum.with(
     } else if (key === "chargingState") {
       this.updateCharging(CHARGING_STATES.has(value as unknown as string));
     } else if (key === "fanSpeed") {
-      this.updateFanSpeed(value);
+      this.updateFanSpeed(value as number);
     }
 
     super.propertyUpdated(key, value, oldValue);

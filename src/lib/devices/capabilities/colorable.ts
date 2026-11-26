@@ -1,15 +1,11 @@
-import { Thing } from "abstract-things";
-import { Colorable as ATColorable } from "abstract-things/lights";
+import { Colorable as BaseColorable } from "../../things/capabilities/lights";
+import type { Color } from "../../things/color";
 
-export const Colorable = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(ATColorable) {
-      propertyUpdated(key, value) {
-        if (key === "color") {
-          this.updateColor(value);
-        }
-
-        super.propertyUpdated(key, value);
-      }
-    },
-);
+/** Colorable light, following the `color` property */
+export class Colorable extends BaseColorable {
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "color") {
+      this.updateColor(value as Color);
+    }
+  }
+}

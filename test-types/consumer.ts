@@ -44,7 +44,19 @@ async function useVacuum(device: VacuumDevice) {
   await device.poll();
   const state: string | undefined = device.property<string>("state");
   const props: Record<string, unknown> = device.properties;
-  console.log(state, props, device.matches("type:vaccuum"));
+  console.log(state, props, device.matches("type:vacuum"));
+
+  // Capabilities
+  const battery: number = await device.batteryLevel();
+  const charging: boolean = await device.charging;
+  const cleaning: boolean = await device.cleaning();
+  const fanSpeed: number | null = await device.fanSpeed();
+  const fullState: Record<string, unknown> = await device.state();
+  const error = await device.error;
+  console.log(battery, charging, cleaning, fanSpeed, fullState, error?.id);
+  await device.charge();
+  await device.clean();
+  device.on("batteryLevelChanged", (level: number) => console.log(level));
 
   // States
   const activity: VacuumActivity | undefined = vacuumActivity(state);

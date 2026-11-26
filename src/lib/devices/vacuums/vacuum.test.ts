@@ -49,8 +49,8 @@ describe("Vacuum (roborock miIO)", () => {
 
   test("is identified as a vacuum", () => {
     const { vacuum } = createVacuum();
-    // Note: abstract-things spells the type as "vaccuum" (sic). Consumers rely on it.
-    expect(vacuum.matches("type:vaccuum")).toBe(true);
+    expect(vacuum.matches("type:vacuum")).toBe(true);
+    expect(vacuum.matches("type:miio:vacuum")).toBe(true);
     expect(vacuum.matches("type:miio:vacuum")).toBe(true);
     expect(vacuum.miioModel).toBe(MODEL);
   });
@@ -124,7 +124,7 @@ describe("Vacuum (roborock miIO)", () => {
       vacuum.setRawProperty(raw, 1);
       expect(vacuum.property(name)).toBe(true);
       await expect(vacuum.state()).resolves.toMatchObject({ [name]: true });
-      // abstract-things emits the events asynchronously
+      // The events are emitted asynchronously
       await jest.advanceTimersByTimeAsync(100);
       expect(events).toContainEqual({ key: name, value: true });
 

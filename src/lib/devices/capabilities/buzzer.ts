@@ -1,84 +1,53 @@
-"use strict";
-
-import { Thing, State } from "abstract-things";
-import { boolean } from "abstract-things/values";
-
+import { boolean } from "../../things/values";
 import { MiioApi } from "../../device";
 
-export const Buzzer = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(State) {
-      static get capability() {
-        return "miio:buzzer";
-      }
+import { DeviceCapability } from "./device_capability";
 
-      static availableAPI(builder) {
-        builder
-          .event("buzzerChanged")
-          .type("boolean")
-          .description("Buzzer state has changed")
-          .done();
+/** The buzzer of the device can be switched on and off (`set_buzzer`). Emits `buzzerChanged`. */
+export class Buzzer extends DeviceCapability {
+  static capability = "miio:buzzer";
 
-        builder
-          .action("buzzer")
-          .description("Get or set if the buzzer is active")
-          .argument("boolean", true, "If the device should beep")
-          .returns("boolean", "If the buzzer is on")
-          .done();
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "buzzer" && this.updateState("buzzer", value)) {
+      this.emitEvent("buzzerChanged", value);
+    }
+  }
 
-        builder
-          .action("setBuzzer")
-          .description("Set if the buzzer is active")
-          .argument("boolean", false, "If the device should beep")
-          .returns("boolean", "If the buzzer is on")
-          .done();
+  /**
+   * Gets or sets whether the buzzer is active.
+   *
+   * @param active The buzzer state to set
+   * @returns Whether the buzzer is active (a promise when setting it)
+   */
+  buzzer(active?: boolean | string): boolean | Promise<boolean> {
+    if (active === undefined) return this.getBuzzer();
+    return this.setBuzzer(active);
+  }
 
-        builder
-          .action("getBuzzer")
-          .description("Get if the buzzer is active")
-          .returns("boolean", "If the buzzer is on")
-          .done();
-      }
+  getBuzzer(): boolean {
+    return this.getState<boolean>("buzzer");
+  }
 
-      propertyUpdated(key, value) {
-        if (key === "buzzer") {
-          if (this.updateState("buzzer", value)) {
-            this.emitEvent("buzzerChanged", value);
-          }
-        }
+  /**
+   * Activates or deactivates the buzzer.
+   *
+   * @param active Whether it should beep
+   * @returns Whether the buzzer is active
+   */
+  async setBuzzer(active: boolean | string): Promise<boolean> {
+    await this.changeBuzzer(boolean(active));
+    return this.getBuzzer();
+  }
 
-        super.propertyUpdated(key, value);
-      }
-
-      /**
-       * Get or set if the buzzer is active.
-       *
-       * @param active
-       *   Optional boolean to switch buzzer to.
-       */
-      buzzer(active) {
-        if (typeof active === "undefined") {
-          return this.getBuzzer();
-        }
-
-        return this.setBuzzer(active);
-      }
-
-      getBuzzer() {
-        return this.getState("buzzer");
-      }
-
-      setBuzzer(active) {
-        active = boolean(active);
-
-        return this.changeBuzzer(active).then(() => this.getBuzzer());
-      }
-
-      changeBuzzer(active) {
-        // @ts-expect-error MiioApi is supposed to be injected
-        return this.call("set_buzzer", [active ? "on" : "off"], {
-          refresh: ["buzzer"],
-        }).then(MiioApi.checkOk);
-      }
-    },
-);
+  /**
+   * Activates or deactivates the buzzer of the device.
+   *
+   * @param active Whether it should beep
+   */
+  async changeBuzzer(active: boolean) {
+    const result = await this.call("set_buzzer", [active ? "on" : "off"], {
+      refresh: ["buzzer"],
+    });
+    return MiioApi.checkOk(result);
+  }
+}
