@@ -2,8 +2,9 @@ import { MiioApi } from "../device";
 import { compose } from "../things/compose";
 import { MiioThing } from "../things/thing";
 import { Children } from "../things/capabilities/children";
-import { SwitchablePower } from "../things/capabilities/common";
-import { Light, Dimmable } from "../things/capabilities/lights";
+import { SwitchablePower } from "../things/capabilities/power";
+import { Light } from "../things/capabilities/lights/light";
+import { Dimmable } from "../things/capabilities/lights/brightness";
 import { percentage } from "../things/values";
 
 import { Dimmable as MiioDimmable } from "./capabilities/dimmable";

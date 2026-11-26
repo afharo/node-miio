@@ -1,4 +1,4 @@
-import { BatteryLevel as BaseBatteryLevel } from "../../things/capabilities/common";
+import { BatteryLevel as BaseBatteryLevel } from "../../things/capabilities/battery-level";
 
 /** Battery level, following the `batteryLevel` property */
 export class BatteryLevel extends BaseBatteryLevel {

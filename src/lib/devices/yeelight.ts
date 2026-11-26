@@ -1,11 +1,11 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
-import { Nameable } from "../things/capabilities/common";
+import { Nameable } from "../things/capabilities/nameable";
 import {
   Light,
-  Fading,
   type BrightnessChangeOptions,
-} from "../things/capabilities/lights";
+} from "../things/capabilities/lights/light";
+import { Fading } from "../things/capabilities/lights/fading";
 import type { Duration } from "../things/values";
 
 import { Power } from "./capabilities/power";

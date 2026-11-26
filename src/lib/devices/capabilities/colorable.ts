@@ -1,4 +1,4 @@
-import { Colorable as BaseColorable } from "../../things/capabilities/lights";
+import { Colorable as BaseColorable } from "../../things/capabilities/lights/colorable";
 import type { Color } from "../../things/color";
 
 /** Colorable light, following the `color` property */

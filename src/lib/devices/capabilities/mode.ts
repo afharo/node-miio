@@ -1,4 +1,4 @@
-import { SwitchableMode } from "../../things/capabilities/common";
+import { SwitchableMode } from "../../things/capabilities/mode";
 
 /** Switchable mode, following the `mode` property */
 export class Mode extends SwitchableMode {

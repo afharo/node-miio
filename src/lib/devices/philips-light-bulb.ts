@@ -1,6 +1,7 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
-import { LightBulb, ColorTemperature } from "../things/capabilities/lights";
+import { LightBulb } from "../things/capabilities/lights/light";
+import { ColorTemperature } from "../things/capabilities/lights/color-temperature";
 import { color, type Color } from "../things/color";
 
 import { Power } from "./capabilities/power";

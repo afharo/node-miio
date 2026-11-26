@@ -1,6 +1,6 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
-import { ChargingState } from "../things/capabilities/common";
+import { ChargingState } from "../things/capabilities/charging";
 
 import { Power } from "./capabilities/power";
 import { BatteryLevel } from "./capabilities/battery-level";

@@ -1,4 +1,4 @@
-import { SwitchablePower } from "../../things/capabilities/common";
+import { SwitchablePower } from "../../things/capabilities/power";
 
 /** Switchable power, following the `power` property */
 export class Power extends SwitchablePower {

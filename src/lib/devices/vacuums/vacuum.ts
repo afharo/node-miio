@@ -1,5 +1,5 @@
 import { compose } from "../../things/compose";
-import { SpotCleaning } from "../../things/capabilities/climate";
+import { SpotCleaning } from "../../things/capabilities/cleaning";
 import { checkResult } from "../../check_result";
 import type { DeviceHandle } from "../../management";
 import type { Protocol } from "../../protocol";

@@ -1,4 +1,4 @@
-import { Dimmable as BaseDimmable } from "../../things/capabilities/lights";
+import { Dimmable as BaseDimmable } from "../../things/capabilities/lights/brightness";
 
 /** Dimmable light, following the `brightness` property */
 export class Dimmable extends BaseDimmable {

@@ -1,5 +1,5 @@
 import { compose } from "../../things/compose";
-import { Actions } from "../../things/capabilities/common";
+import { Actions } from "../../things/capabilities/actions";
 
 import {
   SubDevice,

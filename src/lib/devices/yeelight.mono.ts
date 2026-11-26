@@ -1,9 +1,7 @@
 import { compose } from "../things/compose";
-import {
-  Colorable,
-  ColorTemperature,
-  type LightChangeOptions,
-} from "../things/capabilities/lights";
+import { Colorable } from "../things/capabilities/lights/colorable";
+import { ColorTemperature } from "../things/capabilities/lights/color-temperature";
+import { type LightChangeOptions } from "../things/capabilities/lights/light";
 import { color, type Color } from "../things/color";
 import { MiioApi } from "../device";
 

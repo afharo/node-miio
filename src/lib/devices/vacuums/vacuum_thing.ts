@@ -1,10 +1,8 @@
 import { MiioApi } from "../../device";
 import { compose } from "../../things/compose";
-import { AutonomousCharging } from "../../things/capabilities/common";
-import {
-  AdjustableFanSpeed,
-  AutonomousCleaning,
-} from "../../things/capabilities/climate";
+import { AutonomousCharging } from "../../things/capabilities/charging";
+import { AdjustableFanSpeed } from "../../things/capabilities/fan-speed";
+import { AutonomousCleaning } from "../../things/capabilities/cleaning";
 import { BatteryLevel } from "../capabilities/battery-level";
 
 /**

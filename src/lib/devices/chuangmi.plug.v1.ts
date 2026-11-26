@@ -1,7 +1,7 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
 import { MiioThing } from "../things/thing";
-import { SwitchablePower } from "../things/capabilities/common";
+import { SwitchablePower } from "../things/capabilities/power";
 import { Children } from "../things/capabilities/children";
 
 import { Power as MiioPower } from "./capabilities/power";

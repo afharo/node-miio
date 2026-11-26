@@ -1,7 +1,7 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
-import { SwitchableMode } from "../things/capabilities/common";
-import { AdjustableTargetHumidity } from "../things/capabilities/climate";
+import { SwitchableMode } from "../things/capabilities/mode";
+import { AdjustableTargetHumidity } from "../things/capabilities/target-humidity";
 
 import { Power } from "./capabilities/power";
 import { Buzzer } from "./capabilities/buzzer";

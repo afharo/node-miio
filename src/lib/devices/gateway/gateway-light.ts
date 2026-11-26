@@ -1,7 +1,9 @@
 import { compose } from "../../things/compose";
 import { MiioThing } from "../../things/thing";
-import { SwitchablePower } from "../../things/capabilities/common";
-import { Colorable, Dimmable, Light } from "../../things/capabilities/lights";
+import { SwitchablePower } from "../../things/capabilities/power";
+import { Colorable } from "../../things/capabilities/lights/colorable";
+import { Dimmable } from "../../things/capabilities/lights/brightness";
+import { Light } from "../../things/capabilities/lights/light";
 import { color, type Color } from "../../things/color";
 import type { GatewayBasic } from "../gateway";
 

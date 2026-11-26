@@ -1,5 +1,5 @@
 import { compose } from "../../things/compose";
-import { SpotCleaning } from "../../things/capabilities/climate";
+import { SpotCleaning } from "../../things/capabilities/cleaning";
 import { getProperties } from "../../miot/miot_api";
 
 import { VacuumThing } from "./vacuum_thing";
