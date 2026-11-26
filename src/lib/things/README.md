@@ -57,7 +57,10 @@ await robot.charge(); // calls activateCharging()
 robot.matches("type:robot", "cap:battery-level", "cap:autonomous-charging"); // true
 ```
 
-The devices compose `MiioApi` (`src/lib/device.ts`), which adds the miIO properties, calls and polling.
+The devices compose `MiioApi` (`src/lib/device.ts`), which adds the miIO properties, calls and polling. For example,
+the vacuums share
+[`VacuumThing`](../devices/vacuums/vacuum_thing.ts):
+`compose(MiioApi, BatteryLevel, AutonomousCharging, AutonomousCleaning, AdjustableFanSpeed)`.
 
 How it works:
 
@@ -94,7 +97,7 @@ export class Brightness extends Capability {
   }
 
   // Left to the device. Throwing is the convention for "not implemented".
-  changeBrightness(_brightness: number): Promise<unknown> | unknown {
+  changeBrightness(_brightness: number): Promise<unknown> {
     throw new Error("changeBrightness not implemented");
   }
 
@@ -106,6 +109,9 @@ export class Brightness extends Capability {
 ```
 
 - `this` is typed as a `MiioThing`: `this.updateState`, `this.emitEvent`, `this.metadata`… are available.
+  To call the device (`this.call(…)`, `this.property(…)`), extend `DeviceCapability`
+  ([`devices/capabilities/device_capability.ts`](../devices/capabilities/device_capability.ts)) instead: it's the same
+  base, typed as a miIO device.
 - Other per-instance data goes under a symbol, created lazily (see `Children` or `Motion`).
 - `super` works between capabilities (`SwitchablePower` → `Power`), not into the class the capability is composed into.
   To take part in its lifecycle, implement a hook:

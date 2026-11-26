@@ -1,27 +1,12 @@
-import { ChargingState, AutonomousCharging } from "abstract-things";
-import {
-  Vacuum,
-  AdjustableFanSpeed,
-  AutonomousCleaning,
-  SpotCleaning,
-} from "abstract-things/climate";
-
-import { MiioApi } from "../../device";
-import { BatteryLevel } from "../capabilities/battery-level";
+import { compose } from "../../things/compose";
+import { SpotCleaning } from "../../things/capabilities/cleaning";
 import { checkResult } from "../../check_result";
 
+import { VacuumThing } from "./vacuum_thing";
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
 
-export class ViomiVacuum extends Vacuum.with(
-  MiioApi,
-  BatteryLevel,
-  AutonomousCharging,
-  AutonomousCleaning,
-  SpotCleaning,
-  AdjustableFanSpeed,
-  ChargingState,
-) {
+export class ViomiVacuum extends compose(VacuumThing, SpotCleaning) {
   static get type() {
     return "miio:vacuum";
   }
@@ -145,7 +130,7 @@ export class ViomiVacuum extends Vacuum.with(
           break;
       }
     } else if (key === "fanSpeed") {
-      this.updateFanSpeed(value);
+      this.updateFanSpeed(value as number);
     }
 
     super.propertyUpdated(key, value, oldValue);

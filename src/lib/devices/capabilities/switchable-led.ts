@@ -1,60 +1,37 @@
-"use strict";
+import { boolean } from "../../things/values";
 
-import { Thing, State } from "abstract-things";
-import { boolean } from "abstract-things/values";
+import { DeviceCapability } from "./device_capability";
 
-export const SwitchableLED = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(State) {
-      static get capability() {
-        return "miio:switchable-led";
-      }
+/** The LED of the device can be switched on and off (`set_led`), following the `led` property */
+export class SwitchableLED extends DeviceCapability {
+  static capability = "miio:switchable-led";
 
-      static availableAPI(builder) {
-        builder
-          .action("led")
-          .description("Get or set if the LED should be used")
-          .argument(
-            "boolean",
-            true,
-            "If provided, set the LED power to this value",
-          )
-          .returns("boolean", "If the LED is on")
-          .done();
-      }
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "led") {
+      this.updateState("led", value);
+    }
+  }
 
-      propertyUpdated(key, value) {
-        if (key === "led") {
-          this.updateState("led", value);
-        }
+  /**
+   * Gets or sets whether the LED is on.
+   *
+   * @param power The LED state to set
+   * @returns Whether the LED is on (a promise when setting it)
+   */
+  led(power?: boolean | string): boolean | Promise<boolean> {
+    if (power === undefined) return this.getState<boolean>("led");
+    return this.changeLED(boolean(power)).then(() =>
+      this.getState<boolean>("led"),
+    );
+  }
 
-        super.propertyUpdated(key, value);
-      }
-
-      /**
-       * Get or set if the LED should be on.
-       *
-       * @param power Optional power to set LED to
-       */
-      led(power) {
-        if (typeof power === "undefined") {
-          return this.getState("led");
-        }
-
-        power = boolean(power);
-        return this.changeLED(power).then(() => this.getState("led"));
-      }
-
-      /**
-       * Set if the LED should be on when the device is running.
-       *
-       * @param power
-       */
-      changeLED(power) {
-        // @ts-expect-error MiioApi is supposed to be injected
-        return this.call("set_led", [power ? "on" : "off"], {
-          refresh: ["led"],
-        }).then(() => null);
-      }
-    },
-);
+  /**
+   * Switches the LED on or off.
+   *
+   * @param power Whether to switch it on
+   */
+  async changeLED(power: boolean): Promise<null> {
+    await this.call("set_led", [power ? "on" : "off"], { refresh: ["led"] });
+    return null;
+  }
+}

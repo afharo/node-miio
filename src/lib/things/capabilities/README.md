@@ -83,6 +83,13 @@ All extend `Sensor` (type `sensor`): `value(key)`, `values()` (every sensor of t
 
 Transitions default to 400 ms (`DEFAULT_LIGHT_DURATION`).
 
+## miIO capabilities
+
+[`src/lib/devices/capabilities/`](../../devices/capabilities/) extends some of these for the miIO devices. They follow a
+device property with the `capabilityPropertyUpdated` hook (e.g. `Power` follows `power`, `BatteryLevel` follows
+`batteryLevel`, `AQI` follows `aqi`). They also add miIO-only capabilities that call the device: `SwitchableLED`
+(`set_led`), `Buzzer` (`set_buzzer`) and `LEDBrightness`.
+
 ## Adding one
 
 Follow the rules in [`../capability.ts`](../capability.ts) ([summary](../README.md#writing-a-capability)), export it

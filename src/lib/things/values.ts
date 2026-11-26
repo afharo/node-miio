@@ -197,7 +197,7 @@ const DURATION_UNITS: Record<string, number> = {
   d: 86_400_000,
 };
 
-const DURATION = /^\s*(-?[0-9.]+)\s*(ms|s|m|h|d)?\s*$/;
+const DURATION = /^(-?[0-9.]+)\s*(ms|s|m|h|d)?$/;
 
 /** A duration, e.g. a light's transition time */
 export class Duration {
@@ -226,7 +226,7 @@ export function duration(value: unknown): Duration {
   if (value instanceof Duration) return value;
   if (typeof value === "number") return new Duration(value);
   if (typeof value === "string") {
-    const parsed = DURATION.exec(value);
+    const parsed = DURATION.exec(value.trim());
     if (parsed) {
       return new Duration(
         Number(parsed[1]) * DURATION_UNITS[parsed[2] ?? "ms"],

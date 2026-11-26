@@ -229,7 +229,7 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
 
   test("is identified as a vacuum", () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch);
-    expect(vacuum.matches("type:vaccuum")).toBe(true);
+    expect(vacuum.matches("type:vacuum")).toBe(true);
     expect(vacuum.matches("cap:autonomous-cleaning")).toBe(true);
     expect(vacuum.matches("cap:adjustable-fan-speed")).toBe(true);
   });

@@ -1,3 +1,4 @@
+import type { MiioThing } from "../../things/thing";
 import { createFakeHandle } from "../../test_utils.test.mock";
 
 import { Vacuum } from "./vacuum";
@@ -16,7 +17,7 @@ function createVacuum() {
 }
 
 /**
- * Lets abstract-things emit its (asynchronous) events.
+ * Lets the device emit its (asynchronous) events.
  */
 const flush = () => jest.advanceTimersByTimeAsync(100);
 
@@ -85,7 +86,7 @@ describe("clearErrorOnRecovery", () => {
     "does nothing in the %p state",
     (state) => {
       const vacuum = { updateState: jest.fn(), emitEvent: jest.fn() };
-      clearErrorOnRecovery(vacuum, state);
+      clearErrorOnRecovery(vacuum as unknown as MiioThing, state);
       expect(vacuum.updateState).not.toHaveBeenCalled();
     },
   );
@@ -95,7 +96,7 @@ describe("clearErrorOnRecovery", () => {
       updateState: jest.fn().mockReturnValue(true),
       emitEvent: jest.fn(),
     };
-    clearErrorOnRecovery(vacuum, "charging");
+    clearErrorOnRecovery(vacuum as unknown as MiioThing, "charging");
     expect(vacuum.updateState).toHaveBeenCalledWith("error", null);
     expect(vacuum.emitEvent.mock.calls).toEqual([
       ["errorChanged", null],

@@ -63,12 +63,12 @@ export class AutonomousCleaning extends CleaningState {
   }
 
   /** Starts cleaning. Implemented by the devices. */
-  activateCleaning(): Promise<unknown> | unknown {
+  activateCleaning(): Promise<unknown> {
     throw new Error("activateCleaning not implemented");
   }
 
   /** Stops cleaning. Implemented by the devices. */
-  deactivateCleaning(): Promise<unknown> | unknown {
+  deactivateCleaning(): Promise<unknown> {
     throw new Error("deactivateCleaning not implemented");
   }
 }
@@ -83,7 +83,7 @@ export class SpotCleaning extends CleaningState {
   }
 
   /** Starts cleaning a spot. Implemented by the devices. */
-  activateSpotClean(): Promise<unknown> | unknown {
+  activateSpotClean(): Promise<unknown> {
     throw new Error("activateSpotClean not implemented");
   }
 }

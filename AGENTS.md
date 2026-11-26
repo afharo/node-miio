@@ -20,7 +20,7 @@ Guidance for AI coding agents (and humans) working on `node-miio`.
 npm ci
 npm run lint    # eslint --max-warnings=0: warnings fail CI too
 npm test        # jest (babel-jest: tests are NOT type-checked, `npm run build` is)
-npm run build   # tsc -> dist/ (JS + .d.ts), then scripts/copy-types.mjs ships src/types/ (abstract-things)
+npm run build   # tsc -> dist/ (JS + .d.ts)
 npm run test:types   # after build: type-checks test-types/consumer.ts against the published types, like a plugin
 node dist/cli/index.js --help   # smoke-test the CLI after building
 ```
@@ -37,10 +37,10 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
   and loaded by `loadProperties` (default: `get_prop`; vacuums override it).
 - `src/lib/device_info.ts`: low-level transport (handshake, encryption, retries).
 - `src/lib/protocol.ts`: typed map of RPC methods → params/response.
-- `src/lib/things/**`: the thing model replacing abstract-things (being migrated): `MiioThing` (events, state, lifecycle,
+- `src/lib/things/**`: the thing model (it replaced abstract-things, keeping its API): `MiioThing` (events, state, lifecycle,
   `matches`), `compose(Base, ...capabilities)` and the capabilities (plain classes extending `Capability`, see the rules in
   `capability.ts`), the values (`percentage`, `code`, `duration`…) and `Color`. See its README.md.
-- `src/lib/devices/**`: device implementations. The TypeScript conversion is in progress; some files are still `.js`.
+- `src/lib/devices/**`: device implementations (all TypeScript, except `gateway/developer-api.js`).
 - `src/cli/**`: the `node-miio` CLI (yargs). Commands are registered explicitly in `src/cli/index.ts`
   (`commandDir` doesn't work with the ESM-only yargs 18).
 
@@ -57,29 +57,31 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 
 - The package ships declarations (`"types": "dist/lib/index.d.ts"`), so the plugins don't need hand-written ones.
   `test-types/consumer.ts` uses the API the way the plugins do: when you add or change public API, use it there too.
-- The class-mixin pattern (`Thing.type(...)`, `.with(...)`) can't publish private/protected members (TS4094): mark them
-  `/** @internal */` (removed from the declarations with `stripInternal`). Computed methods (e.g. `[util.inspect.custom]`)
-  can't be named either: `Device` defines that one in its constructor.
-- The mixin typings live in `src/types/abstract-things/` (the package has none) and are published with the library.
-  `Proto<T>` (the instance type of a class or mixin) keeps the composed classes typed: `T["prototype"]` was `any`.
+- Devices are composed with `compose(Base, ...capabilities)` (`src/lib/things/compose.ts`): its type is `Base` plus the
+  capabilities, so the declarations need no hand-written typings. Capabilities are named classes extending `Capability`
+  (or `DeviceCapability`, to call the device): follow the rules in `src/lib/things/capability.ts`.
+- Computed methods (e.g. `[util.inspect.custom]`) can't be named in the declarations: `Device` defines that one in its constructor.
 - `VacuumDevice` is the union of the vacuum classes: only their shared API is available without narrowing
   (`instanceof Vacuum`…). Keep that shared API consistent across the classes (e.g. `cleanRooms` rejects when unsupported).
 
 ## Linting
 
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
-  In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required.
+  In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required (prefer converting a `.js` file to TypeScript when you change it).
 - `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
   (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
   `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
 
 ## Gotchas learned the hard way
 
-- **abstract-things mixins**: capabilities built with `Thing.mixin(...)` must be exported as values
-  (`export const X = Thing.mixin(...)`), never as `class X extends Thing.mixin(...) {}`, which throws at load time.
+- **Capabilities are copied, not inherited**: `device instanceof Children` is always `false`. Check `device.matches("cap:children")`.
+  Their constructors never run: use `static initialState`, and the `capabilityPropertyUpdated` hook (not `propertyUpdated` + `super`).
+- **Things use `#private` fields**: a fake made with `Object.create(Class.prototype)` can't use their accessors (e.g. the
+  `id` setter). Define the properties directly (`Object.create(proto, { id: { value } })`).
 - **Circular imports**: `device` → `management` → `connect_to_device` → `placeholder` → `device`. `management.ts` lazy-loads
   `connect_to_device` for that reason. Keep it that way.
-- **The vacuum type is spelled `vaccuum`** by abstract-things (`device.matches("type:vaccuum")`). It's not a typo in the consumers. Don't "fix" it.
+- Vacuums extend `VacuumThing` (`type:vacuum`, also `type:miio:vacuum`); `isVacuum()` is `instanceof VacuumThing`.
+  (abstract-things spelled it `vaccuum`: it was fixed in 0.15.0.)
 - Roborock `get_status` / `get_consumable` respond with a single-item array (`[{...}]`).
 - Properties whose mapped value is `undefined`/`null` are not stored on first load (`deep-equal` treats them as equal).
 - Legacy Roborock models (`roborock.vacuum.*`, `rockrobo.vacuum.*`) speak the **legacy miIO** command set (`get_status`, `app_start`, …).

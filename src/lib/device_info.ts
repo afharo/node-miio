@@ -279,7 +279,7 @@ export class DeviceInfo {
   >(
     method: Method,
     params: Params = [] as unknown as Params,
-    options: { sid?: number; retries?: number } = {},
+    options: { sid?: number | string; retries?: number } = {},
   ): Promise<Response> {
     const { retries = 5 } = options;
     return await this._retryOnTimeout(retries, async (retriesLeft) => {

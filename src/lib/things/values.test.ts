@@ -78,6 +78,16 @@ describe("values", () => {
     expect(() => duration("soon")).toThrow("into a duration");
   });
 
+  test("duration accepts surrounding whitespace and stays fast on long input", () => {
+    expect(duration("  30 s  ").ms).toBe(30_000);
+    expect(duration(" 500 ").ms).toBe(500);
+    const start = performance.now();
+    expect(() => duration(`.${" ".repeat(50_000)}x`)).toThrow(
+      "into a duration",
+    );
+    expect(performance.now() - start).toBeLessThan(100);
+  });
+
   test("quantities keep their value and unit", () => {
     const t = temperature("21.5");
     expect(t.value).toBe(21.5);

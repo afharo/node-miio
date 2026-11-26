@@ -1,13 +1,12 @@
-import { ChargingState } from "abstract-things";
-import { AirMonitor as ATAirMonitor } from "abstract-things/climate";
-
 import { MiioApi } from "../device";
+import { compose } from "../things/compose";
+import { ChargingState } from "../things/capabilities/charging";
 
 import { Power } from "./capabilities/power";
 import { BatteryLevel } from "./capabilities/battery-level";
 import { AQI } from "./capabilities/sensor";
 
-export class AirMonitor extends ATAirMonitor.with(
+export class AirMonitor extends compose(
   MiioApi,
   Power,
   AQI,
@@ -16,6 +15,10 @@ export class AirMonitor extends ATAirMonitor.with(
 ) {
   static get type() {
     return "miio:air-monitor";
+  }
+
+  static get types() {
+    return ["air-monitor"];
   }
 
   constructor(options) {
@@ -33,13 +36,13 @@ export class AirMonitor extends ATAirMonitor.with(
 
     this.defineProperty("usb_state", {
       name: "charging",
-      mapper: (v) => v === "on",
+      mapper: (v: string) => v === "on",
     });
   }
 
   propertyUpdated(key, value, oldValue) {
     if (key === "charging") {
-      this.updateCharging(value);
+      this.updateCharging(value as boolean);
     }
 
     super.propertyUpdated(key, value, oldValue);

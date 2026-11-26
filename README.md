@@ -20,10 +20,9 @@ part of what Xiaomi calls the Mi Ecosystem which is branded as MiJia.
 
 `node-miio` is [MIT-licensed](LICENSE.md) and requires at least Node 22.12.0.
 
-**Note:** Since 0.15.0 this library has been rewritten to use [abstract-things](https://github.com/tinkerhub/abstract-things)
-as its base. The API of devices will have changed, and some bugs are to be
-expected. Testing and feedback on the new API is welcome, please open issues
-as needed.
+**Note:** The devices are built on node-miio's own typed thing model (`src/lib/things/`). It replaced
+[abstract-things](https://github.com/tinkerhub/abstract-things) and keeps its API: the same types, capabilities,
+methods and events. Testing and feedback are welcome, please open issues as needed.
 
 ## Devices types
 
@@ -230,8 +229,8 @@ See [Advanced API](docs/advanced-api.md) for details about `miio.browse()`.
 ## Device API
 
 Check [documentation for devices](docs/devices/README.md) for details about
-the API for supported devices. Detailed documentation of the core API is
-available in the section [Using things in the abstract-things documentation](http://abstract-things.readthedocs.io/en/latest/using-things.html).
+the API for supported devices. The core API (`matches`, `state()`, `on(event)`, the capabilities) follows the one of
+abstract-things, described in [Using things](http://abstract-things.readthedocs.io/en/latest/using-things.html).
 
 ## Library versioning and API stability
 

@@ -1,56 +1,35 @@
-import { Thing, State } from "abstract-things";
-import { string } from "abstract-things/values";
+import { Capability } from "../../things/capability";
+import { string } from "../../things/values";
 
-export const LEDBrightness = Thing.mixin(
-  (Parent) =>
-    class extends Parent.with(State) {
-      static get capability() {
-        return "miio:led-brightness";
-      }
+/** The brightness of the LED of the device can be changed. Implement `changeLEDBrightness(brightness)`. */
+export class LEDBrightness extends Capability {
+  static capability = "miio:led-brightness";
 
-      static availableAPI(builder) {
-        builder
-          .action("ledBrightness")
-          .description("Get or set the LED brightness")
-          .argument(
-            "string",
-            true,
-            "If provided, set the LED brightness to this value",
-          )
-          .returns("string", "The LED brightness")
-          .done();
-      }
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "ledBrightness") {
+      this.updateState("ledBrightness", value);
+    }
+  }
 
-      propertyUpdated(key, value) {
-        if (key === "ledBrightness") {
-          this.updateState("ledBrightness", value);
-        }
+  /**
+   * Gets or sets the LED brightness.
+   *
+   * @param brightness The LED brightness to set
+   * @returns The LED brightness
+   */
+  async ledBrightness(brightness?: unknown): Promise<string> {
+    if (brightness !== undefined) {
+      await this.changeLEDBrightness(string(brightness));
+    }
+    return this.getState<string>("ledBrightness");
+  }
 
-        super.propertyUpdated(key, value);
-      }
-
-      /**
-       * Get or set if the LED brightness.
-       *
-       * @param brightness The LED brightness
-       */
-      async ledBrightness(brightness?: string | unknown) {
-        if (typeof brightness === "undefined") {
-          return this.getState("ledBrightness");
-        }
-
-        return this.changeLEDBrightness(string(brightness)).then(() =>
-          this.getState("ledBrightness"),
-        );
-      }
-
-      /**
-       * Set the LED brightness.
-       *
-       * @param _brightness
-       */
-      async changeLEDBrightness(_brightness: string) {
-        throw new Error("changeLEDBrightness not implemented");
-      }
-    },
-);
+  /**
+   * Changes the LED brightness of the device. Implemented by the devices.
+   *
+   * @param _brightness The LED brightness
+   */
+  async changeLEDBrightness(_brightness: string): Promise<unknown> {
+    throw new Error("changeLEDBrightness not implemented");
+  }
+}

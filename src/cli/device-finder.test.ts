@@ -18,12 +18,11 @@ const get = tokens.get as jest.Mock;
 
 /** A placeholder: the device was found, but it hides its token */
 function placeholder() {
-  const device = Object.create(Placeholder.prototype);
-  Object.assign(device, {
-    id: "miio:123",
-    management: { address: "192.168.1.2", port: 54321 },
+  // Not constructed: `id` is defined directly (its setter needs a constructed thing)
+  return Object.create(Placeholder.prototype, {
+    id: { value: "miio:123" },
+    management: { value: { address: "192.168.1.2", port: 54321 } },
   });
-  return device;
 }
 
 const TOKEN = Buffer.from("00112233445566778899aabbccddeeff", "hex");

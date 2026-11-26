@@ -1,17 +1,10 @@
-import {
-  Thing,
-  BatteryLevel as AbstractThingsBatteryLevel,
-} from "abstract-things";
+import { BatteryLevel as BaseBatteryLevel } from "../../things/capabilities/battery-level";
 
-export const BatteryLevel = Thing.mixin(
-  (Parent) =>
-    class BatteryLevel extends Parent.with(AbstractThingsBatteryLevel) {
-      propertyUpdated(key, value) {
-        if (key === "batteryLevel") {
-          this.updateBatteryLevel(value);
-        }
-
-        super.propertyUpdated(key, value);
-      }
-    },
-);
+/** Battery level, following the `batteryLevel` property */
+export class BatteryLevel extends BaseBatteryLevel {
+  capabilityPropertyUpdated(key: string, value: unknown) {
+    if (key === "batteryLevel") {
+      this.updateBatteryLevel(value as number);
+    }
+  }
+}

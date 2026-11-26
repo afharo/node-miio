@@ -14,8 +14,7 @@ the cleaning state and more.
 ### Check if device is a vacuum
 
 ```javascript
-// Note: abstract-things spells the type as "vaccuum"
-if(device.matches('type:vaccuum')) {
+if(device.matches('type:vacuum')) {
   /*
    * This device is a vacuum.
    */

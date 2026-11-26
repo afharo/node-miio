@@ -38,7 +38,7 @@ describe("util.inspect", () => {
       "MiioDevice[roborock.vacuum.s5]",
     );
     expect(util.inspect(vacuum)).toMatch(
-      /^MiioDevice \{\n {2}model=roborock\.vacuum\.s5,\n {2}types=.*vaccuum/,
+      /^MiioDevice \{\n {2}model=roborock\.vacuum\.s5,\n {2}types=.*vacuum/,
     );
   });
 });
