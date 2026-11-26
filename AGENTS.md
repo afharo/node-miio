@@ -39,7 +39,7 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 - `src/lib/protocol.ts`: typed map of RPC methods → params/response.
 - `src/lib/things/**`: the thing model replacing abstract-things (being migrated): `MiioThing` (events, state, lifecycle,
   `matches`), `compose(Base, ...capabilities)` and the capabilities (plain classes extending `Capability`, see the rules in
-  `capability.ts`), the values (`percentage`, `code`, `duration`…) and `Color`.
+  `capability.ts`), the values (`percentage`, `code`, `duration`…) and `Color`. See its README.md.
 - `src/lib/devices/**`: device implementations. The TypeScript conversion is in progress; some files are still `.js`.
 - `src/cli/**`: the `node-miio` CLI (yargs). Commands are registered explicitly in `src/cli/index.ts`
   (`commandDir` doesn't work with the ESM-only yargs 18).
