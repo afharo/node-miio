@@ -39,7 +39,7 @@ TypeScript classes can only extend one class, so capabilities are added with `co
 ```ts
 import { compose } from "./compose";
 import { MiioThing } from "./thing";
-import { BatteryLevel, AutonomousCharging } from "./capabilities/common";
+import { BatteryLevel, AutonomousCharging } from "./capabilities";
 
 class Robot extends compose(MiioThing, BatteryLevel, AutonomousCharging) {
   static type = "robot";
