@@ -73,7 +73,7 @@ export class DreameVacuum extends Vacuum.with(
           case 6:
             return "charging";
           case 7:
-            return "cleaning";
+            return "mopping";
           case 8:
             return "drying-mop";
           case 9:
@@ -83,7 +83,7 @@ export class DreameVacuum extends Vacuum.with(
           case 11:
             return "mapping";
           case 12:
-            return "cleaning";
+            return "cleaning-and-mopping";
           case 13:
             return "fully-charged";
           case 14:
@@ -163,11 +163,16 @@ export class DreameVacuum extends Vacuum.with(
       // Update charging state
       this.updateCharging(value === "charging");
 
+      // Exposed in `state()` and the `stateChanged` events
+      this.updateState("state", value);
+
       switch (value) {
         case "cleaning":
         case "spot-cleaning":
         case "zone-cleaning":
         case "room-cleaning":
+        case "mopping":
+        case "cleaning-and-mopping":
           // The vacuum is cleaning
           this.updateCleaning(true);
           break;

@@ -73,7 +73,8 @@ afterEach(() => jest.useRealTimers());
 describe("normalizeState", () => {
   test.each([
     ["Sweeping", "cleaning"],
-    ["Sweeping and Mopping", "cleaning"],
+    ["Sweeping and Mopping", "cleaning-and-mopping"],
+    ["Mopping", "mopping"],
     ["Busy", "cleaning"],
     ["Idle", "idle"],
     ["Paused", "paused"],
@@ -135,8 +136,8 @@ describe("toVacuumState", () => {
     [13, "returning"], // 多任务回充中
     [14, "station-working"], // 基站工作中
     [15, "error"], // 异常
-    [16, "cleaning"], // 扫拖中
-    [17, "cleaning"], // 拖地中
+    [16, "cleaning-and-mopping"], // 扫拖中
+    [17, "mopping"], // 拖地中
     [18, "paused"], // 建图暂停中
     [19, "returning"], // 断点回充中
     [20, "returning-to-wash-mop"], // 中途返回基站
@@ -314,6 +315,8 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     await vacuum.poll();
     expect(vacuum.property("state")).toBe("cleaning");
     await expect(vacuum.cleaning()).resolves.toBe(true);
+    // Exposed in state(), so the plugins get it on every poll (not only when it changes)
+    expect((await vacuum.state()).state).toBe("cleaning");
   });
 
   test("maps faults", () => {

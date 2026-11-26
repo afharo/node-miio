@@ -30,7 +30,9 @@ export const VACUUM_STATES = {
   "spot-cleaning": "running",
   "zone-cleaning": "running",
   "room-cleaning": "running",
-  // Viomi
+  /** Mopping only */
+  mopping: "running",
+  /** Vacuuming and mopping (at once, or one after the other) */
   "cleaning-and-mopping": "running",
   "remote-control": "running",
   "manual-mode": "running",
@@ -80,7 +82,7 @@ export const CLEANING_STATES: readonly VacuumState[] = [
   "spot-cleaning",
   "zone-cleaning",
   "room-cleaning",
-  // Viomi
+  "mopping",
   "cleaning-and-mopping",
 ];
 

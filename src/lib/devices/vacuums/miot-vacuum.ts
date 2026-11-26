@@ -106,12 +106,12 @@ const STATE_MAP: Record<string, VacuumState> = {
   sweep: "cleaning",
   auto: "cleaning",
   autocleaning: "cleaning",
-  mopping: "cleaning",
-  sweepingandmopping: "cleaning",
-  sweepingmopping: "cleaning",
+  mopping: "mopping",
+  sweepingandmopping: "cleaning-and-mopping",
+  sweepingmopping: "cleaning-and-mopping",
   sweepingalternative: "cleaning", // 清扫中（备选）
-  mopaftersweep: "cleaning", // 先扫后拖: sweeps, then mops
-  dragscan: "cleaning", // 先扫后拖中
+  mopaftersweep: "cleaning-and-mopping", // 先扫后拖: sweeps, then mops
+  dragscan: "cleaning-and-mopping", // 先扫后拖中
   twocleaning: "cleaning", // 二次清扫中: second pass
   customsweep: "cleaning", // 定制清扫: custom cleaning
   sshaped: "cleaning", // 规划: planned route
@@ -618,6 +618,8 @@ export class MiotVacuum extends ATVacuum.with(
     if (key === "state") {
       clearErrorOnRecovery(this, value);
       const state = value as unknown as string;
+      // Exposed in `state()` and the `stateChanged` events
+      this.updateState("state", state);
       this.updateCleaning(isCleaningState(state));
       if (state === "error") {
         this.updateError(this.property("error"));

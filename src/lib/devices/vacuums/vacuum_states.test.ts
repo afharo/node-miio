@@ -93,6 +93,44 @@ describe("every vacuum class reports a known state", () => {
     expect(translated.length).toBeGreaterThan(5);
   });
 
+  test.each([
+    [
+      "Vacuum",
+      () => new Vacuum(createFakeHandle("roborock.vacuum.s5", {}).handle),
+      "state",
+      8,
+      "charging",
+    ],
+    [
+      "ViomiVacuum",
+      () => new ViomiVacuum(createFakeHandle("viomi.vacuum.v8", {}).handle),
+      "run_state",
+      3,
+      "cleaning",
+    ],
+    [
+      "DreameVacuum",
+      () =>
+        new DreameVacuum(createFakeHandle("dreame.vacuum.p2008", {}).handle),
+      "device_status",
+      7,
+      "mopping",
+    ],
+  ])(
+    "%s exposes the state in state() and the stateChanged events",
+    async (_name, create, raw, code, expected) => {
+      const vacuum = create();
+      const events: unknown[] = [];
+      vacuum.on("stateChanged", (change: { key: string; value: unknown }) => {
+        if (change.key === "state") events.push(change.value);
+      });
+      vacuum.setRawProperty(raw, code);
+      await new Promise(setImmediate);
+      expect((await vacuum.state()).state).toBe(expected);
+      expect(events).toStrictEqual([expected]);
+    },
+  );
+
   test("every state has an activity", () => {
     for (const activity of Object.values(VACUUM_STATES)) {
       expect(typeof activity).toBe("string");
