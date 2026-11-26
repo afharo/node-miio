@@ -250,6 +250,8 @@ const STATE_MAP: Record<string, VacuumState> = {
   returned: "docked", // 回充完成: back on the dock
   stationassistingcleaned: "docked", // 基站辅助清洗完成: the dock finished rinsing
   // Errors
+  // Dreame's layout (1 Sweeping, 2 Idle, 3 Paused, 4 Error…) translates 4 as 暂停 (paused), like 3: its app shows a
+  // fault as paused. The spec says Error, and the cause is in `vacuum:fault`.
   error: "error",
   fault: "error",
   fail: "error", // 报错
