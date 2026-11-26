@@ -23,6 +23,11 @@ export {
 export {
   CLEANING_STATES,
   isCleaningState,
+  isKnownVacuumState,
+  VACUUM_STATES,
+  vacuumActivity,
+  type VacuumActivity,
+  type VacuumState,
 } from "./devices/vacuums/vacuum_states";
 export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 export { isVacuum, type VacuumDevice } from "./devices/vacuums/vacuum_device";

@@ -111,7 +111,14 @@ Implementation (`src/lib/miot/`):
   - Water: `mop-water-output-level`, `target-water-level`, `water-level`.
   - Cleaning type (`cleaningTypes()` / `setCleaningType()`): `sweep-mop-type` (Sweep / Mop / Sweep Mop / Sweep Before Mopping),
     or `mode` when all its values are sweep/mop types (e.g. ijai). Never the property used for the fan speed.
-  - `vacuum:status` descriptions are normalized by `normalizeState()` to the state names used by the legacy classes.
+  - `vacuum:status` descriptions are translated by `normalizeState()` (`STATE_MAP`) to the `VACUUM_STATES` of
+    `vacuum_states.ts`, the states shared by every vacuum class (each with a `VacuumActivity`, one per Matter RVC
+    operational state). Anything else is `unknown-<code>` (`describeStatus(code)` gives its description).
+    `src/lib/__fixtures__/miot/vacuum-statuses.json` lists every description on miot-spec.org, with the models using it
+    and their Chinese translations, and a test fails if one isn't translated. Refresh it with `npm run snapshot` then
+    `npm run snapshot:statuses`. The English is often terse or wrong: check the Chinese before mapping a description.
+    When a description means something else on a few models, add them to `MODEL_STATE_OVERRIDES`.
+  - The other vacuum classes must also report one of `VACUUM_STATES` (tested in `vacuum_states.test.ts`).
 - Routing (`connect_to_device.ts`): `roborock.*` and `rockrobo.*` always use the legacy classes.
   Other `*.vacuum.*` models use `MiotVacuum` only if a spec exists **and** the device answers `get_properties` for `vacuum:status`.
   Otherwise they fall back to the previous behaviour (`ViomiVacuum` for `viomi.*`, `DreameVacuum` for `dreame.*`, `Vacuum` for the rest).

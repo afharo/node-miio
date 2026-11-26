@@ -46,6 +46,7 @@
     "build": "npm run clean && tsc && node scripts/copy-types.mjs",
     "test:types": "node scripts/check-types.mjs",
     "snapshot": "node scripts/update-spec-snapshot.mjs",
+    "snapshot:statuses": "node scripts/update-status-fixture.mjs",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run clean",
     "preversion": "npm run lint && npm run build && npm run test:types && npm test",

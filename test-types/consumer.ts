@@ -3,14 +3,19 @@
 import * as miio from "node-miio";
 import {
   configureLogging,
+  isKnownVacuumState,
   isVacuum,
   MiotVacuum,
+  VACUUM_STATES,
+  vacuumActivity,
   Vacuum,
   type ErrorChangedEvent,
   type MiioLogger,
   type StateChangedEvent,
+  type VacuumActivity,
   type VacuumDevice,
   type VacuumMode,
+  type VacuumState,
 } from "node-miio";
 
 const logger: MiioLogger = { debug: (message: string) => console.log(message) };
@@ -40,6 +45,20 @@ async function useVacuum(device: VacuumDevice) {
   const state: string | undefined = device.property<string>("state");
   const props: Record<string, unknown> = device.properties;
   console.log(state, props, device.matches("type:vaccuum"));
+
+  // States
+  const activity: VacuumActivity | undefined = vacuumActivity(state);
+  const states: VacuumState[] = Object.keys(VACUUM_STATES) as VacuumState[];
+  if (isKnownVacuumState(state)) {
+    const known: VacuumState = state;
+    console.log(known, VACUUM_STATES[known]);
+  } else if (device instanceof MiotVacuum && state?.startsWith("unknown-")) {
+    const description: string | undefined = device.describeStatus(
+      Number(state.slice("unknown-".length)),
+    );
+    console.log(description);
+  }
+  console.log(activity, states);
 
   // Common vacuum API
   const fanSpeeds: VacuumMode[] = await device.fanSpeeds();

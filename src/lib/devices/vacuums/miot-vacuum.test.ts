@@ -1,12 +1,13 @@
 import d101 from "../../__fixtures__/miot/xiaomi.vacuum.d101.json";
 import d110ch from "../../__fixtures__/miot/xiaomi.vacuum.d110ch.json";
+import statusFixture from "../../__fixtures__/miot/vacuum-statuses.json";
 import ijaiV3 from "../../__fixtures__/miot/ijai.vacuum.v3.json";
 import mijiaV2 from "../../__fixtures__/miot/mijia.vacuum.v2.json";
 import p2008 from "../../__fixtures__/miot/dreame.vacuum.p2008.json";
 import roborockS5 from "../../__fixtures__/miot/roborock.vacuum.s5.json";
 import viomiV10 from "../../__fixtures__/miot/viomi.vacuum.v10.json";
 import viomiV18 from "../../__fixtures__/miot/viomi.vacuum.v18.json";
-import type { MiotSpec } from "../../miot/miot_spec";
+import { MiotSpecIndex, type MiotSpec } from "../../miot/miot_spec";
 import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
 
 import {
@@ -14,7 +15,9 @@ import {
   isSupportedMiotVacuum,
   MiotVacuum,
   normalizeState,
+  toVacuumState,
 } from "./miot-vacuum";
+import { isKnownVacuumState } from "./vacuum_states";
 
 jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
 
@@ -83,12 +86,104 @@ describe("normalizeState", () => {
     ["Remote Control", "remote-control"],
     ["Selected Sweeping", "room-cleaning"],
     ["Area Sweeping", "zone-cleaning"],
-    ["Drying", "drying"],
-    ["WashingMopPause", "washingmoppause"],
-    ["Go Washing", "returning"],
-    ["Self Station Clean", "self-station-clean"],
+    ["Drying", "drying-mop"],
+    ["WashingMopPause", "paused"],
+    ["Go Washing", "returning-to-wash-mop"],
+    ["Self Station Clean", "station-working"],
+    ["Delay", "waiting"],
+    ["Relocation", "relocating"],
   ])("%p → %p", (description, state) => {
     expect(normalizeState(description)).toBe(state);
+  });
+
+  test("returns undefined for an unknown description", () => {
+    expect(normalizeState("Doing Something New")).toBeUndefined();
+    expect(normalizeState("constructor")).toBeUndefined();
+  });
+
+  // Every description of the specs on miot-spec.org (`npm run snapshot:statuses` to refresh the list)
+  const statuses = Object.entries(statusFixture.statuses);
+  test.each(statuses)("%p is a known state", (description, { models }) => {
+    // Numbers and "Others" don't mean anything: their models must have an override (or fall back to `unknown-N`)
+    if (/^\d+$|^others$/i.test(description)) return;
+    expect(isKnownVacuumState(normalizeState(description))).toBe(true);
+    expect(models.length).toBeGreaterThan(0);
+  });
+
+  test("covers enough descriptions to be meaningful", () => {
+    expect(statuses.length).toBeGreaterThan(200);
+  });
+});
+
+describe("toVacuumState", () => {
+  // xiaomi.vacuum.d101 (Mijia H40), checked against the Chinese descriptions of its spec
+  const list = new MiotSpecIndex(d101 as MiotSpec).property("vacuum", "status")
+    ?.property["value-list"];
+  test.each([
+    [1, "idle"], // 待机中
+    [2, "charging"], // 充电中
+    [3, "charging"], // 断点续扫充电中: charging, then resume
+    [4, "cleaning"], // 工作中
+    [5, "paused"], // 暂停中
+    [6, "returning"], // 回充中
+    [7, "returning-to-wash-mop"], // GoWash
+    [8, "remote-control"], // 遥控中
+    [9, "fully-charged"], // 已充满
+    [10, "mapping"], // 建图中
+    [11, "updating"], // 升级中
+    [12, "station-working"], // 多任务基站工作中
+    [13, "returning"], // 多任务回充中
+    [14, "station-working"], // 基站工作中
+    [15, "error"], // 异常
+    [16, "cleaning"], // 扫拖中
+    [17, "cleaning"], // 拖地中
+    [18, "paused"], // 建图暂停中
+    [19, "returning"], // 断点回充中
+    [20, "returning-to-wash-mop"], // 中途返回基站
+    [21, "returning"], // 建图回充中
+    [22, "station-working"], // 基站辅助清洗中
+    [23, "docked"], // 基站辅助清洗完成
+    [24, "returning"], // 基站辅助清洗回充中
+  ])("d101: %p → %p", (value, state) => {
+    expect(toVacuumState("xiaomi.vacuum.d101", list, value)).toBe(state);
+  });
+
+  test("uses the model overrides", () => {
+    const list = [
+      { value: 5, description: "Sweeping" },
+      { value: 9, description: "Cleaning" },
+    ];
+    expect(toVacuumState("roidmi.vacuum.v62", list, 9)).toBe("washing-mop");
+    expect(toVacuumState("roidmi.vacuum.v62", list, 5)).toBe("cleaning");
+    expect(toVacuumState("scinan.vacuum.glb", list, 9)).toBe("cleaning");
+  });
+
+  test("overrides only models and values of the fixture", () => {
+    const uses = (model: string, value: number) =>
+      Object.values(statusFixture.statuses).some(({ models }) =>
+        models.includes(`${model}=${value}`),
+      );
+    for (const [model, value] of [
+      ["roidmi.vacuum.v62", 9],
+      ["deerma.vacuum.a2512", 9],
+      ["deerma.vacuum.a2513", 9],
+      ["deerma.vacuum.a2514", 9],
+      ["deerma.vacuum.a2506", 38],
+      ["deerma.vacuum.x80m", 38],
+      ["roidmi.vacuum.sdj60", 22],
+      ["roidmi.vacuum.v61", 22],
+      ["xiaomi.vacuum.d106gl", 10],
+      ["miot.vacuum.t6", 6],
+    ] as const) {
+      expect(uses(model, value)).toBe(true);
+    }
+  });
+
+  test("returns unknown-N for values or descriptions it doesn't know", () => {
+    const list = [{ value: 1, description: "Doing Something New" }];
+    expect(toVacuumState("x.vacuum.y", list, 1)).toBe("unknown-1");
+    expect(toVacuumState("x.vacuum.y", list, 2)).toBe("unknown-2");
+    expect(toVacuumState(undefined, undefined, 3)).toBe("unknown-3");
   });
 });
 
@@ -234,6 +329,23 @@ describe("MiotVacuum (xiaomi.vacuum.d110ch)", () => {
     const { vacuum } = createMiotVacuum(MODEL, d110ch);
     vacuum.setRawProperty("status", 99);
     expect(vacuum.property("state")).toBe("unknown-99");
+    expect(vacuum.describeStatus(99)).toBeUndefined();
+  });
+
+  test("maps unknown descriptions to unknown-N, and describes them", () => {
+    const spec = structuredClone(d110ch) as MiotSpec;
+    for (const property of service(spec, 2).properties ?? []) {
+      if (property.iid === 1) {
+        property["value-list"]?.push({
+          value: 42,
+          description: "Doing Something New",
+        });
+      }
+    }
+    const { vacuum } = createMiotVacuum(MODEL, spec);
+    vacuum.setRawProperty("status", 42);
+    expect(vacuum.property("state")).toBe("unknown-42");
+    expect(vacuum.describeStatus(42)).toBe("Doing Something New");
   });
 
   test("exposes the fan speeds and water levels from the spec", async () => {
