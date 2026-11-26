@@ -97,7 +97,7 @@ export class Brightness extends Capability {
   }
 
   // Left to the device. Throwing is the convention for "not implemented".
-  changeBrightness(_brightness: number): Promise<unknown> | unknown {
+  changeBrightness(_brightness: number): Promise<unknown> {
     throw new Error("changeBrightness not implemented");
   }
 

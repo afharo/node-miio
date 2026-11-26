@@ -70,7 +70,7 @@ export class SwitchableMode extends Mode {
    *
    * @param _mode The mode
    */
-  changeMode(_mode: string): Promise<unknown> | unknown {
+  changeMode(_mode: string): Promise<unknown> {
     throw new Error("changeMode has not been implemented");
   }
 }

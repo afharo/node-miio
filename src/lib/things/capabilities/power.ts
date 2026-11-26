@@ -65,7 +65,7 @@ export class SwitchablePower extends Power {
    *
    * @param _power Whether to switch it on
    */
-  changePower(_power: boolean): Promise<unknown> | unknown {
+  changePower(_power: boolean): Promise<unknown> {
     throw new Error("changePower has not been implemented");
   }
 }

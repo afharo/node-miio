@@ -53,7 +53,7 @@ export class AdjustableFanSpeed extends FanSpeed {
    *
    * @param _speed The fan speed
    */
-  changeFanSpeed(_speed: number): Promise<unknown> | unknown {
+  changeFanSpeed(_speed: number): Promise<unknown> {
     throw new Error("changeFanSpeed not implemented");
   }
 }

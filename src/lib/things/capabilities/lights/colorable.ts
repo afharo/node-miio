@@ -56,10 +56,7 @@ export class Colorable extends Capability {
    * @param _color The colour
    * @param _options The transition
    */
-  changeColor(
-    _color: Color,
-    _options: LightChangeOptions,
-  ): Promise<unknown> | unknown {
+  changeColor(_color: Color, _options: LightChangeOptions): Promise<unknown> {
     throw new Error("changeColor not implemented");
   }
 }

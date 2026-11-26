@@ -34,7 +34,7 @@ export class AutonomousCharging extends ChargingState {
   }
 
   /** Sends the device to charge. Implemented by the devices. */
-  activateCharging(): Promise<unknown> | unknown {
+  activateCharging(): Promise<unknown> {
     throw new Error("activateCharging not implemented");
   }
 }

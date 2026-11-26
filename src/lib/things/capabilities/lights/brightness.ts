@@ -111,7 +111,7 @@ export class Dimmable extends Brightness {
   changeBrightness(
     _brightness: number,
     _options: BrightnessChangeOptions,
-  ): Promise<unknown> | unknown {
+  ): Promise<unknown> {
     throw new Error("changeBrightness not implemented");
   }
 }

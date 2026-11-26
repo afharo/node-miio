@@ -20,7 +20,7 @@ export class Nameable extends Capability {
    *
    * @param _name The name
    */
-  changeName(_name: string): Promise<unknown> | unknown {
+  changeName(_name: string): Promise<unknown> {
     throw new Error("changeName has not been implemented");
   }
 }

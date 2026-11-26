@@ -53,7 +53,7 @@ export class AdjustableTargetHumidity extends TargetHumidity {
    *
    * @param _humidity The target humidity
    */
-  changeTargetHumidity(_humidity: number): Promise<unknown> | unknown {
+  changeTargetHumidity(_humidity: number): Promise<unknown> {
     throw new Error("changeTargetHumidity not implemented");
   }
 }
