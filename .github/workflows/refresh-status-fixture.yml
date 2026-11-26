@@ -1,0 +1,81 @@
+# Once a month, lists the `vacuum:status` descriptions published on miot-spec.org again
+# (`src/lib/__fixtures__/miot/vacuum-statuses.json`). When they changed, it opens a PR that merges itself
+# once CI passes. A new description that node-miio doesn't translate makes the tests fail, so the PR stays open until
+# it's mapped in `STATE_MAP` (`src/lib/devices/vacuums/miot-vacuum.ts`).
+#
+# Needs the `FIXTURE_PR_TOKEN` secret: a fine-grained token with Contents and Pull requests (read and write) on this
+# repository. A PR opened with GITHUB_TOKEN wouldn't run CI, so it could never pass the required checks.
+name: Refresh the MIoT status fixture
+
+on:
+  schedule:
+    # The 1st of every month, 06:00 UTC
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-status-fixture
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BRANCH: chore/refresh-status-fixture
+      FIXTURE: src/lib/__fixtures__/miot/vacuum-statuses.json
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          token: ${{ secrets.FIXTURE_PR_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download the specs and their translations
+        run: |
+          npm run snapshot
+          npm run snapshot:statuses
+
+      - name: Check for changes
+        id: changes
+        # The generation date changes on every run: only the statuses count
+        run: |
+          if git diff --quiet -I '"generatedAt"' -- "$FIXTURE"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No new statuses"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- "$FIXTURE"
+          fi
+
+      - name: Open the PR (merged once CI passes)
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.FIXTURE_PR_TOKEN }}
+        run: |
+          # Last month's PR is still open (e.g. waiting for a new status to be mapped): don't overwrite its branch
+          if gh pr view "$BRANCH" --json state --jq '.state' 2>/dev/null | grep -q OPEN; then
+            echo "::notice::The previous refresh PR is still open: merge or close it first"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add "$FIXTURE"
+          git commit -m "chore(miot): refresh the vacuum status fixture from miot-spec.org"
+          git push --force origin "$BRANCH"
+
+          gh pr create --base main --head "$BRANCH" --label dependencies \
+            --title "chore(miot): refresh the vacuum status fixture" \
+            --body "The \`vacuum:status\` descriptions published on miot-spec.org changed (monthly refresh, \`npm run snapshot:statuses\`).
+
+          It merges itself once CI passes. If the tests fail, a description isn't translated yet: map it in \`STATE_MAP\` (\`src/lib/devices/vacuums/miot-vacuum.ts\`), checking its Chinese translation in the fixture, and push to this branch."
+          gh pr merge "$BRANCH" --auto --squash
