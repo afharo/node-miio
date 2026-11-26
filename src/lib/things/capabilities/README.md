@@ -6,32 +6,36 @@ left to the device (`change…`, `activate…`) throw until the device implement
 
 Every state change also emits `stateChanged` (`{ key, value }`). The names (`cap:…`) are the ones `matches()` checks.
 
-## [`common.ts`](common.ts)
+There's one file per capability family: a capability and its switchable/adjustable version live together (e.g.
+`Power` and `SwitchablePower` in [`power.ts`](power.ts)), each with its test next to it (`power.test.ts`).
+Import them from [`index.ts`](index.ts), which re-exports them all.
 
-| Capability                                   | State           | Read / update                                                   | Implement            | Events                                                             |
-| -------------------------------------------- | --------------- | --------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------ |
-| `ErrorState` (`error-state`)                 | `error`         | `error` (getter), `updateError(error \| null)`                  |                      | `errorChanged`, `error`, `errorCleared`                            |
-| `Power` (`power`)                            | `power`         | `power()`, `updatePower(bool)`                                  |                      | `powerChanged`                                                     |
-| `SwitchablePower` (`switchable-power`)       | Power           | `power(value?)`, `setPower`, `togglePower`, `turnOn`, `turnOff` | `changePower(bool)`  |                                                                    |
-| `Mode` (`mode`)                              | `mode`, `modes` | `mode()`, `modes()`, `updateMode`, `updateModes`                |                      | `modeChanged`, `modesChanged`                                      |
-| `SwitchableMode` (`switchable-mode`)         | Mode            | `mode(value?)`, `setMode`                                       | `changeMode(mode)`   |                                                                    |
-| `BatteryLevel` (`battery-level`)             | `batteryLevel`  | `batteryLevel()` (`-1` until known), `updateBatteryLevel`       |                      | `batteryLevelChanged`                                              |
-| `ChargingState` (`charging-state`)           | `charging`      | `charging` (getter), `updateCharging(bool)`                     |                      | `chargingChanged`, `chargingStarted`, `chargingStopped`            |
-| `AutonomousCharging` (`autonomous-charging`) | Charging        | `charge()`                                                      | `activateCharging()` |                                                                    |
-| `Nameable` (`nameable`)                      | `metadata.name` | `setName(name)`                                                 | `changeName(name)`   | `thing:metadata`                                                   |
-| `Actions` (`actions`)                        | `actions`       | `actions()`, `updateActions`, `emitAction(action, data)`        |                      | `action` (`{ action, data }`), `action:<action>`, `actionsChanged` |
+## Common
 
-## [`climate.ts`](climate.ts)
+| Capability                                                  | State           | Read / update                                                   | Implement            | Events                                                             |
+| ----------------------------------------------------------- | --------------- | --------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------ |
+| [`ErrorState`](error-state.ts) (`error-state`)              | `error`         | `error` (getter), `updateError(error \| null)`                  |                      | `errorChanged`, `error`, `errorCleared`                            |
+| [`Power`](power.ts) (`power`)                               | `power`         | `power()`, `updatePower(bool)`                                  |                      | `powerChanged`                                                     |
+| [`SwitchablePower`](power.ts) (`switchable-power`)          | Power           | `power(value?)`, `setPower`, `togglePower`, `turnOn`, `turnOff` | `changePower(bool)`  |                                                                    |
+| [`Mode`](mode.ts) (`mode`)                                  | `mode`, `modes` | `mode()`, `modes()`, `updateMode`, `updateModes`                |                      | `modeChanged`, `modesChanged`                                      |
+| [`SwitchableMode`](mode.ts) (`switchable-mode`)             | Mode            | `mode(value?)`, `setMode`                                       | `changeMode(mode)`   |                                                                    |
+| [`BatteryLevel`](battery-level.ts) (`battery-level`)        | `batteryLevel`  | `batteryLevel()` (`-1` until known), `updateBatteryLevel`       |                      | `batteryLevelChanged`                                              |
+| [`ChargingState`](charging.ts) (`charging-state`)           | `charging`      | `charging` (getter), `updateCharging(bool)`                     |                      | `chargingChanged`, `chargingStarted`, `chargingStopped`            |
+| [`AutonomousCharging`](charging.ts) (`autonomous-charging`) | Charging        | `charge()`                                                      | `activateCharging()` |                                                                    |
+| [`Nameable`](nameable.ts) (`nameable`)                      | `metadata.name` | `setName(name)`                                                 | `changeName(name)`   | `thing:metadata`                                                   |
+| [`Actions`](actions.ts) (`actions`)                         | `actions`       | `actions()`, `updateActions`, `emitAction(action, data)`        |                      | `action` (`{ action, data }`), `action:<action>`, `actionsChanged` |
 
-| Capability                                                | State               | Read / update                                                               | Implement                                    | Events                                                                                     |
-| --------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `CleaningState` (`cleaning-state`, extends ErrorState)    | `cleaning`, `error` | `cleaning()`, `updateCleaning(bool)`. `updateError` also stops the cleaning |                                              | `cleaningChanged`, `cleaningStarted`, `cleaningStopped`, `cleaningDone` or `cleaningError` |
-| `AutonomousCleaning` (`autonomous-cleaning`)              | Cleaning            | `clean()`, `stop()`                                                         | `activateCleaning()`, `deactivateCleaning()` |                                                                                            |
-| `SpotCleaning` (`spot-cleaning`)                          | Cleaning            | `spotClean()`                                                               | `activateSpotClean()`                        |                                                                                            |
-| `FanSpeed` (`fan-speed`)                                  | `fanSpeed`          | `fanSpeed()` (`null` until known), `updateFanSpeed`                         |                                              | `fanSpeedChanged`                                                                          |
-| `AdjustableFanSpeed` (`adjustable-fan-speed`)             | Fan speed           | `fanSpeed(value?)`, `setFanSpeed`                                           | `changeFanSpeed(speed)`                      |                                                                                            |
-| `TargetHumidity` (`target-humidity`)                      | `targetHumidity`    | `targetHumidity()`, `updateTargetHumidity`                                  |                                              | `targetHumidityChanged`                                                                    |
-| `AdjustableTargetHumidity` (`adjustable-target-humidity`) | Target humidity     | `targetHumidity(value?)`, `setTargetHumidity`                               | `changeTargetHumidity(humidity)`             |                                                                                            |
+## Cleaning, fan speed and humidity
+
+| Capability                                                                      | State               | Read / update                                                               | Implement                                    | Events                                                                                     |
+| ------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [`CleaningState`](cleaning.ts) (`cleaning-state`, extends ErrorState)           | `cleaning`, `error` | `cleaning()`, `updateCleaning(bool)`. `updateError` also stops the cleaning |                                              | `cleaningChanged`, `cleaningStarted`, `cleaningStopped`, `cleaningDone` or `cleaningError` |
+| [`AutonomousCleaning`](cleaning.ts) (`autonomous-cleaning`)                     | Cleaning            | `clean()`, `stop()`                                                         | `activateCleaning()`, `deactivateCleaning()` |                                                                                            |
+| [`SpotCleaning`](cleaning.ts) (`spot-cleaning`)                                 | Cleaning            | `spotClean()`                                                               | `activateSpotClean()`                        |                                                                                            |
+| [`FanSpeed`](fan-speed.ts) (`fan-speed`)                                        | `fanSpeed`          | `fanSpeed()` (`null` until known), `updateFanSpeed`                         |                                              | `fanSpeedChanged`                                                                          |
+| [`AdjustableFanSpeed`](fan-speed.ts) (`adjustable-fan-speed`)                   | Fan speed           | `fanSpeed(value?)`, `setFanSpeed`                                           | `changeFanSpeed(speed)`                      |                                                                                            |
+| [`TargetHumidity`](target-humidity.ts) (`target-humidity`)                      | `targetHumidity`    | `targetHumidity()`, `updateTargetHumidity`                                  |                                              | `targetHumidityChanged`                                                                    |
+| [`AdjustableTargetHumidity`](target-humidity.ts) (`adjustable-target-humidity`) | Target humidity     | `targetHumidity(value?)`, `setTargetHumidity`                               | `changeTargetHumidity(humidity)`             |                                                                                            |
 
 A vacuum is `BatteryLevel` + `AutonomousCharging` + `AutonomousCleaning` + `AdjustableFanSpeed` (+ `SpotCleaning` for
 most).
@@ -64,23 +68,23 @@ All extend `Sensor` (type `sensor`): `value(key)`, `values()` (every sensor of t
 | `Contact` (`contact`)                          | `contact`             | `true` when closed. `isOpen()`, `isClosed()`. Emits `opened` / `closed`                                  |
 | `Motion` (`motion`)                            | `motion`              | Boolean. `updateMotion(true, "1m")` goes back to idle after the timeout. Emits `movement` / `inactivity` |
 
-## [`lights.ts`](lights.ts)
+## [`lights/`](lights/index.ts)
 
-- Types: `Light` (`light`), `LightBulb` (`light-bulb`) and `LightStrip` (`light-strip`).
-- `Brightness` (`brightness`): `brightness()`, `updateBrightness` (0-100). Emits `brightnessChanged`.
-- `Dimmable` (`dimmable`, extends Brightness): `brightness(value?, transition)` (`50`, `"+10"`, `"-10"`),
+- [`light.ts`](lights/light.ts): the types `Light` (`light`), `LightBulb` (`light-bulb`) and `LightStrip` (`light-strip`), and the transition options.
+- [`brightness.ts`](lights/brightness.ts): `Brightness` (`brightness`): `brightness()`, `updateBrightness` (0-100). Emits `brightnessChanged`.
+  `Dimmable` (`dimmable`, extends Brightness): `brightness(value?, transition)` (`50`, `"+10"`, `"-10"`),
   `setBrightness`, `increaseBrightness`, `decreaseBrightness`. Implement `changeBrightness(brightness, { duration, powerOn })`.
-- `Colorable` (`colorable`): `color(value?, transition)`, `setColor`, `updateColor`. Emits `colorChanged`. Implement
+- [`colorable.ts`](lights/colorable.ts): `Colorable` (`colorable`): `color(value?, transition)`, `setColor`, `updateColor`. Emits `colorChanged`. Implement
   `changeColor(color, { duration })`.
-- `ColorTemperature` (`color:temperature`): `colorTemperatureRange()`, `updateColorTemperatureRange(min, max)`. Emits
+- [`color-temperature.ts`](lights/color-temperature.ts): `ColorTemperature` (`color:temperature`): `colorTemperatureRange()`, `updateColorTemperatureRange(min, max)`. Emits
   `colorTemperatureRangeChanged`.
-- `ColorFull` (`color:full`): only the capability name.
-- `Fading` (`fading`): `maxChangeTime()`, `updateMaxChangeTime("30s")`.
+  `ColorFull` (`color:full`): only the capability name.
+- [`fading.ts`](lights/fading.ts): `Fading` (`fading`): `maxChangeTime()`, `updateMaxChangeTime("30s")`.
 
 Transitions default to 400 ms (`DEFAULT_LIGHT_DURATION`).
 
 ## Adding one
 
 Follow the rules in [`../capability.ts`](../capability.ts) ([summary](../README.md#writing-a-capability)), export it
-from its file (`index.ts` re-exports them), and test its methods and events in
-[`capabilities.test.ts`](capabilities.test.ts).
+from its family's file (or a new file, re-exported by [`index.ts`](index.ts)), and test its methods and events in
+the `.test.ts` next to it (helpers in [`test_utils.test.mock.ts`](test_utils.test.mock.ts)).
