@@ -116,7 +116,8 @@ Implementation (`src/lib/miot/`):
     operational state). Anything else is `unknown-<code>` (`describeStatus(code)` gives its description).
     `src/lib/__fixtures__/miot/vacuum-statuses.json` lists every description on miot-spec.org, with the models using it
     and their Chinese translations, and a test fails if one isn't translated. Refresh it with `npm run snapshot` then
-    `npm run snapshot:statuses`. The English is often terse or wrong: check the Chinese before mapping a description.
+    `npm run snapshot:statuses`. `.github/workflows/refresh-status-fixture.yml` does it every month and opens a PR that
+    merges itself once CI passes (it needs the `FIXTURE_PR_TOKEN` secret). When it fails, map the new descriptions there. The English is often terse or wrong: check the Chinese before mapping a description.
     When a description means something else on a few models, add them to `MODEL_STATE_OVERRIDES`.
   - The other vacuum classes must also report one of `VACUUM_STATES` (tested in `vacuum_states.test.ts`).
 - Routing (`connect_to_device.ts`): `roborock.*` and `rockrobo.*` always use the legacy classes.
