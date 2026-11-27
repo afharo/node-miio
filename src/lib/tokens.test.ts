@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+import { describe, test, expect, beforeEach, afterEach } from "vitest";
+
 import { defaultTokensFile, Tokens } from "./tokens";
 
 const TOKEN = Buffer.from("00112233445566778899aabbccddeeff", "hex");

@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import d101 from "../../__fixtures__/miot/xiaomi.vacuum.d101.json";
 import d110ch from "../../__fixtures__/miot/xiaomi.vacuum.d110ch.json";
 import statusFixture from "../../__fixtures__/miot/vacuum-statuses.json";
@@ -19,7 +21,7 @@ import {
 } from "./miot-vacuum";
 import { isKnownVacuumState } from "./vacuum_states";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 type PropertyRequest = { did: string; siid: number; piid: number };
 
@@ -62,13 +64,13 @@ function createMiotVacuum(
 async function withTimers<T>(promise: Promise<T>): Promise<T> {
   const [result] = await Promise.all([
     promise,
-    jest.advanceTimersByTimeAsync(5000),
+    vi.advanceTimersByTimeAsync(5000),
   ]);
   return result;
 }
 
-beforeEach(() => jest.useFakeTimers());
-afterEach(() => jest.useRealTimers());
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
 
 describe("normalizeState", () => {
   test.each([

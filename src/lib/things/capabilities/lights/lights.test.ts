@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { compose } from "../../compose";
 import { Duration } from "../../values";
 import { Color } from "../../color";
@@ -22,14 +24,14 @@ describe("lights", () => {
     ColorTemperature,
     Fading,
   ) {
-    changeBrightness = jest.fn(
+    changeBrightness = vi.fn(
       async (brightness: number, _options: BrightnessChangeOptions) =>
         this.updateBrightness(brightness),
     );
-    changeColor = jest.fn(async (color: Color, _options: unknown) =>
+    changeColor = vi.fn(async (color: Color, _options: unknown) =>
       this.updateColor(color),
     );
-    changePower = jest.fn();
+    changePower = vi.fn();
   }
 
   test("types and capabilities", () => {

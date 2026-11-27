@@ -1,5 +1,8 @@
 import type { Socket } from "node:dgram";
 
+import { describe, test, expect, beforeEach, vi, type Mocked } from "vitest";
+import debug from "debug";
+
 import { DeviceInfo } from "./device_info";
 import { Packet } from "./packet";
 
@@ -11,36 +14,32 @@ const TOKEN = Buffer.from("e381c97af00985577e8e6a3d94732bbe");
 function createParentMock() {
   return {
     socket: {
-      send: jest
+      send: vi
         .fn()
         .mockImplementation((_data, _size, _length, _port, _address, cb) => {
           cb();
         }),
-    } as Partial<jest.Mocked<Socket>> as jest.Mocked<Socket>,
+    } as Partial<Mocked<Socket>> as Mocked<Socket>,
   };
 }
 
-jest.mock("debug", () => {
-  return jest.fn().mockReturnValue(jest.fn());
-});
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 describe("DeviceInfo", () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("constructor", () => {
     test("creates a new DeviceInfo without id", () => {
-      const debugMock = jest.requireMock("debug");
       new DeviceInfo(createParentMock(), void 0, "localhost", 1234);
-      expect(debugMock).toHaveBeenCalledWith("thing:miio:pending");
+      expect(debug).toHaveBeenCalledWith("thing:miio:pending");
     });
     test("creates a new DeviceInfo with id", () => {
-      const debugMock = jest.requireMock("debug");
       new DeviceInfo(createParentMock(), 1, "localhost", 1234);
-      expect(debugMock).toHaveBeenCalledWith("thing:miio:1");
+      expect(debug).toHaveBeenCalledWith("thing:miio:1");
     });
   });
 
@@ -82,7 +81,7 @@ describe("DeviceInfo", () => {
       const model = "my.model";
       const device = new DeviceInfo(createParentMock(), 1, "localhost", 1234);
       device.token = TOKEN;
-      device.call = jest.fn().mockImplementation(async () => ({ model }));
+      device.call = vi.fn().mockImplementation(async () => ({ model }));
       await expect(device.enrich()).resolves.toBeUndefined();
       expect(device.tokenChanged).toBe(false);
       expect(device.model).toBe(model);
@@ -189,7 +188,7 @@ describe("DeviceInfo", () => {
       const device = new DeviceInfo(parent, 1, "localhost", 1234);
       device.token = TOKEN;
       const promise = device.handshake();
-      jest.advanceTimersByTime(2 * 1000);
+      vi.advanceTimersByTime(2 * 1000);
       await expect(promise).rejects.toThrow(
         "Could not connect to device, handshake timeout",
       );
@@ -236,7 +235,7 @@ describe("DeviceInfo", () => {
       device.token = TOKEN;
       packet.token = TOKEN;
       const response = { id: "1", result: "something" };
-      const promiseResolvers = { resolve: jest.fn(), reject: jest.fn() };
+      const promiseResolvers = { resolve: vi.fn(), reject: vi.fn() };
       device.promises.set("1", promiseResolvers);
       packet.data = Buffer.from(JSON.stringify(response));
       expect(device.onMessage(packet.raw)).toBeUndefined();
@@ -249,7 +248,7 @@ describe("DeviceInfo", () => {
       device.token = TOKEN;
       packet.token = TOKEN;
       const response = { id: "1", error: "something" };
-      const promiseResolvers = { resolve: jest.fn(), reject: jest.fn() };
+      const promiseResolvers = { resolve: vi.fn(), reject: vi.fn() };
       device.promises.set("1", promiseResolvers);
       packet.data = Buffer.from(JSON.stringify(response));
       expect(device.onMessage(packet.raw)).toBeUndefined();
@@ -306,7 +305,7 @@ describe("DeviceInfo", () => {
           if (str === null) {
             device.onMessage(packet.raw);
           } else {
-            jest.advanceTimersByTime(2 * 1000);
+            vi.advanceTimersByTime(2 * 1000);
           }
         },
       );

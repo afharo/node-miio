@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { actionUsage, groupActions } from "./inspect";
 
 describe("inspect", () => {

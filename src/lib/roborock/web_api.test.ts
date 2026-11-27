@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { describe, test, expect } from "vitest";
+
 import { fakeFetch, type FakeRequest } from "../cloud/cloud.test.mock";
 
 import { RoborockAuthError, RoborockSessionExpiredError } from "./errors";

@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { CloudDeviceCache } from "./device_cache";
 import type { CloudDevice } from "./client";
 
@@ -15,7 +17,7 @@ const device = (overrides: Partial<CloudDevice>): CloudDevice => ({
 
 describe("CloudDeviceCache", () => {
   test("lists the devices once, and finds them by ID, token or IP", async () => {
-    const getDevices = jest
+    const getDevices = vi
       .fn()
       .mockResolvedValue([
         device({ did: "1", token: "AAA", localip: "10.0.0.1" }),
@@ -34,7 +36,7 @@ describe("CloudDeviceCache", () => {
   });
 
   test("downloads the list again once when a device is not in the cached one", async () => {
-    const getDevices = jest
+    const getDevices = vi
       .fn()
       .mockResolvedValueOnce([device({ did: "1" })])
       .mockResolvedValue([device({ did: "1" }), device({ did: "3" })]);
@@ -48,7 +50,7 @@ describe("CloudDeviceCache", () => {
   });
 
   test("a failure is not cached", async () => {
-    const getDevices = jest
+    const getDevices = vi
       .fn()
       .mockRejectedValueOnce(new Error("network"))
       .mockResolvedValue([device({})]);

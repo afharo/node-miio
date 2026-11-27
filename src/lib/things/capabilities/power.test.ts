@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { compose } from "../compose";
 
 import { Base, flush, record } from "./test_utils.test.mock";
@@ -6,7 +8,7 @@ import { SwitchablePower } from "./index";
 
 describe("SwitchablePower", () => {
   class Thing extends compose(Base, SwitchablePower) {
-    changePower = jest.fn(async (power: boolean) => this.updatePower(power));
+    changePower = vi.fn(async (power: boolean) => this.updatePower(power));
   }
 
   test("gets, sets and toggles the power", async () => {

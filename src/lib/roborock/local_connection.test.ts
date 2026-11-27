@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeEach, afterEach } from "vitest";
+
 import { RoborockApiError } from "./errors";
 import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock";
 import { RoborockLocalConnection } from "./local_connection";

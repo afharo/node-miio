@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { fakeFetch } from "./cloud.test.mock";
 import { HttpSession, parseXiaomiJson } from "./http";
 

@@ -1,5 +1,7 @@
 import path from "node:path";
 
+import { describe, test, expect, afterEach, beforeAll, vi } from "vitest";
+
 import { connectToDevice } from "./connect_to_device";
 import { network } from "./network";
 import { configureMiotSpecs } from "./miot/spec_client";
@@ -9,14 +11,14 @@ import { Vacuum } from "./devices/vacuums/vacuum";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
 import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 type GetPropertiesResponder = (
   props: Array<{ did: string; siid: number; piid: number }>,
 ) => unknown;
 
 function mockDevice(model: string, getProperties?: GetPropertiesResponder) {
-  const call = jest.fn(async (method: string, params: unknown) => {
+  const call = vi.fn(async (method: string, params: unknown) => {
     switch (method) {
       case "get_properties":
         if (!getProperties) throw new Error("unknown method");
@@ -30,7 +32,7 @@ function mockDevice(model: string, getProperties?: GetPropertiesResponder) {
         throw new Error(`Unexpected call ${method}`);
     }
   });
-  jest.spyOn(network, "findDeviceViaAddress").mockResolvedValue({
+  vi.spyOn(network, "findDeviceViaAddress").mockResolvedValue({
     id: 1,
     model,
     call,
@@ -51,7 +53,7 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 async function connect() {

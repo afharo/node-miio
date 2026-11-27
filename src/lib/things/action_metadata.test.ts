@@ -1,11 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { describe, test, expect, vi } from "vitest";
+
 import { Capability } from "./capability";
 import { compose } from "./compose";
 import { MiioThing, thingActions } from "./thing";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 /** Methods that are internal by convention (the capabilities' rules, see `capability.ts`) */
 const INTERNAL =
@@ -53,11 +55,10 @@ function listModules(dir: string): string[] {
 type ThingClass = abstract new (...args: never[]) => MiioThing;
 
 /** The thing classes the modules export, and a thing for each capability */
-function thingClasses(): [string, ThingClass][] {
+async function thingClasses(): Promise<[string, ThingClass][]> {
   const found = new Map<ThingClass, string>();
   for (const modulePath of listModules(path.join(__dirname, ".."))) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const exports = require(modulePath) as Record<string, unknown>;
+    const exports = (await import(modulePath)) as Record<string, unknown>;
     for (const [name, value] of Object.entries(exports)) {
       if (typeof value !== "function" || found.has(value as ThingClass)) {
         continue;
@@ -98,9 +99,9 @@ function publicMethods(cls: ThingClass): string[] {
     .sort();
 }
 
-const classes = thingClasses();
+describe("actions", async () => {
+  const classes = await thingClasses();
 
-describe("actions", () => {
   test("finds the thing classes", () => {
     const labels = classes.map(([label]) => label);
     expect(labels).toEqual(

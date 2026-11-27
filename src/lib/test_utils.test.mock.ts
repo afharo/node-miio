@@ -1,3 +1,5 @@
+import { vi, type Mock } from "vitest";
+
 import type { DeviceHandle } from "./management";
 
 /**
@@ -9,7 +11,7 @@ export type FakeResponse = unknown | ((params: unknown) => unknown);
 export interface FakeHandle {
   handle: DeviceHandle;
   /** The mocked `call` of the low-level API. Use it to assert the RPC calls sent to the device. */
-  call: jest.Mock;
+  call: Mock;
 }
 
 /**
@@ -24,7 +26,7 @@ export function createFakeHandle(
   model: string,
   responses: Record<string, FakeResponse>,
 ): FakeHandle {
-  const call = jest.fn(async (method: string, params: unknown) => {
+  const call = vi.fn(async (method: string, params: unknown) => {
     if (!(method in responses)) {
       throw new Error(`Unexpected call to "${method}"`);
     }
@@ -35,7 +37,7 @@ export function createFakeHandle(
   });
 
   const handle = {
-    ref: { release: jest.fn() },
+    ref: { release: vi.fn() },
     api: { id: 1234, model, call },
   } as unknown as DeviceHandle;
 
@@ -48,6 +50,6 @@ export function createFakeHandle(
  * @param call The mocked `call` from {@link createFakeHandle}
  * @returns An array of `[method, params]` tuples
  */
-export function sentCalls(call: jest.Mock): Array<[string, unknown]> {
+export function sentCalls(call: Mock): Array<[string, unknown]> {
   return call.mock.calls.map(([method, params]) => [method, params]);
 }

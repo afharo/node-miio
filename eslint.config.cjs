@@ -10,7 +10,7 @@ const pluginN = require("eslint-plugin-n");
 const pluginPromise = require("eslint-plugin-promise");
 const pluginJsdoc = require("eslint-plugin-jsdoc");
 const pluginPrettierRecommended = require("eslint-plugin-prettier/recommended");
-const pluginJest = require("eslint-plugin-jest");
+const pluginVitest = require("@vitest/eslint-plugin");
 const unusedImports = require("eslint-plugin-unused-imports");
 
 module.exports = defineConfig([
@@ -142,7 +142,7 @@ module.exports = defineConfig([
     },
   },
   {
-    name: "Jest Test Files",
+    name: "Test Files",
     files: [
       "**/*.spec.ts",
       "**/*.test.ts",
@@ -153,13 +153,13 @@ module.exports = defineConfig([
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.json", // Use a separate tsconfig for Jest tests with "isolatedModules": true
-        sourceType: "commonjs",
+        project: "./tsconfig.json",
+        sourceType: "module",
         ecmaVersion: "latest",
       },
     },
     plugins: {
-      jest: pluginJest, // Add Jest plugin for test files
+      vitest: pluginVitest,
     },
     rules: {
       // Override/add rules specific to test files here
@@ -173,8 +173,8 @@ module.exports = defineConfig([
       "jsdoc/require-jsdoc": "off", // Disable JSDoc rule in test files
       "jsdoc/require-param": "off", // Helpers in tests don't need to document every param
 
-      // Recommended Jest rules
-      ...pluginJest.configs.recommended.rules,
+      // Recommended Vitest rules
+      ...pluginVitest.configs.recommended.rules,
     },
   },
   {

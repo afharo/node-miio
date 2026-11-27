@@ -1,3 +1,5 @@
+import { describe, test, expect, afterEach, vi } from "vitest";
+
 import { configureLogging, createDebug, maskToken, redact } from "./logger";
 import { DeviceInfo } from "./device_info";
 import { createFakeHandle } from "./test_utils.test.mock";
@@ -7,15 +9,15 @@ describe("logger", () => {
   afterEach(() => configureLogging({ logger: undefined }));
 
   test("sends the messages to the global logger, with the namespace", () => {
-    const logger = { debug: jest.fn() };
+    const logger = { debug: vi.fn() };
     configureLogging({ logger });
     createDebug("miio:test")("Hello", { a: 1 }, 2);
     expect(logger.debug).toHaveBeenCalledWith("[miio:test] Hello { a: 1 } 2");
   });
 
   test("prefers the logger returned by getLogger (e.g. the device's)", () => {
-    const globalLogger = { debug: jest.fn() };
-    const deviceLogger = { debug: jest.fn() };
+    const globalLogger = { debug: vi.fn() };
+    const deviceLogger = { debug: vi.fn() };
     configureLogging({ logger: globalLogger });
     createDebug("miio:test", () => deviceLogger)("Hello");
     expect(deviceLogger.debug).toHaveBeenCalledWith("[miio:test] Hello");
@@ -23,7 +25,7 @@ describe("logger", () => {
   });
 
   test("falls back to the global logger when getLogger returns nothing", () => {
-    const logger = { debug: jest.fn() };
+    const logger = { debug: vi.fn() };
     configureLogging({ logger });
     createDebug("miio:test", () => undefined)("Hello");
     expect(logger.debug).toHaveBeenCalledWith("[miio:test] Hello");
@@ -34,7 +36,7 @@ describe("logger", () => {
   });
 
   test("doesn't treat the message as a format string", () => {
-    const logger = { debug: jest.fn() };
+    const logger = { debug: vi.fn() };
     configureLogging({ logger });
     createDebug("miio:test")("100%s");
     expect(logger.debug).toHaveBeenCalledWith("[miio:test] 100%s");
@@ -64,7 +66,7 @@ describe("logger", () => {
   });
 
   test("redacts what's sent to the logger", () => {
-    const logger = { debug: jest.fn() };
+    const logger = { debug: vi.fn() };
     configureLogging({ logger });
     createDebug("miio:test")('-> {"token":"abc"}');
     expect(logger.debug).toHaveBeenCalledWith('[miio:test] -> {"token":"***"}');
@@ -72,7 +74,7 @@ describe("logger", () => {
 
   describe("devices", () => {
     test("DeviceInfo logs to its logger, and never the full token", () => {
-      const logger = { debug: jest.fn() };
+      const logger = { debug: vi.fn() };
       const info = new DeviceInfo({ socket: {} as never }, 1234, "192.168.1.2");
       info.logger = logger;
       info.token = Buffer.from("0123456789abcdef0123456789abcdef", "hex");
@@ -82,7 +84,7 @@ describe("logger", () => {
     });
 
     test("devices log to the logger of their DeviceInfo", () => {
-      const logger = { debug: jest.fn() };
+      const logger = { debug: vi.fn() };
       const { handle } = createFakeHandle("roborock.vacuum.s5", {});
       handle.api.logger = logger;
       const vacuum = new Vacuum(handle);

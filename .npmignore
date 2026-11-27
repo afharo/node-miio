@@ -22,8 +22,7 @@ renovate.json
 .eslintrc
 eslint.config.cjs
 tsconfig.json
-babel.config.js
-jest.config.js
+vitest.config.mts
 .prettierignore
 .prettierrc
 

@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
+import { describe, test, expect } from "vitest";
+
 import {
   MapParseError,
   MM_PER_PIXEL,

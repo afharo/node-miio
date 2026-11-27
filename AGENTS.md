@@ -19,7 +19,7 @@ Guidance for AI coding agents (and humans) working on `node-miio`.
 ```sh
 npm ci
 npm run lint    # eslint --max-warnings=0: warnings fail CI too
-npm test        # jest (babel-jest: tests are NOT type-checked, `npm run build` is)
+npm test        # vitest (tests are NOT type-checked by vitest, `npm run build` is)
 npm run build   # tsc -> dist/ (JS + .d.ts)
 npm run test:types   # after build: type-checks test-types/consumer.ts against the published types, like a plugin
 node dist/cli/index.js --help   # smoke-test the CLI after building
@@ -55,7 +55,7 @@ EOL. Don't add chalk back.
   Unexpected RPC methods reject, so tests fail loudly. Assert sent calls with `sentCalls(call)`.
 - Put recorded responses under `src/lib/__fixtures__/<model>/<method>.json` (excluded from the npm package).
   Prefer real captures from users' bug reports (`node-miio protocol call <ip> <method>`); scrub tokens, serial numbers and IPs.
-- Commands using `refresh`/`refreshDelay` wait on timers: use fake timers and `jest.advanceTimersByTimeAsync`.
+- Commands using `refresh`/`refreshDelay` wait on timers: use fake timers and `vi.advanceTimersByTimeAsync`.
 - `src/lib/modules_load.test.ts` loads every module in isolation. It catches broken mixins and circular imports.
 
 ## Published types
@@ -74,7 +74,9 @@ EOL. Don't add chalk back.
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
   Types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`).
 - `src/` is all TypeScript: don't add `.js` files. Tests `import` the modules (no `require()`), and mock named exports
-  (`jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }))`).
+  (`vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }))`). Import the test API from `vitest` (no globals).
+  A module with a default export (e.g. `debug`) is mocked as `{ default: ... }`, and a mock that is called with `new`
+  needs a `function` implementation (not an arrow function).
 - `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
   (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
   `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
@@ -119,7 +121,6 @@ Implementation (`src/lib/miot/`):
 - `spec_client.ts` (`MiotSpecClient`): resolves specs from `specDir` → fresh cache → network → stale cache → bundled snapshot.
   Configure it globally with `configureMiotSpecs({ offline, cacheDir, specDir, ttlMs })`. `MIIO_OFFLINE=1` and `MIIO_CACHE_DIR` also work.
 - `miot_spec.ts` (`MiotSpecIndex`): lookups by **standard** (`miot-spec-v2`) names only. Vendor namespaces are ignored.
-  Don't name files `spec.ts`/`*.spec.ts`: jest picks them up as test files.
 - `miot_api.ts`: `getProperties` (batched by 10), `setProperty`, `callAction`. These throw `MiotError` when `code !== 0`.
 - `devices/vacuums/miot-vacuum.ts` (`MiotVacuum`): spec-driven vacuum. Heuristics are based on a survey of all ~1,000 vacuum specs:
   - Many specs carry placeholder value-lists (`[Auto, Level1]`). Modes need ≥3 entries and a writable property.

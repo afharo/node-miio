@@ -1,13 +1,15 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import type { MiioThing } from "../../things/thing";
 import { createFakeHandle } from "../../test_utils.test.mock";
 
 import { Vacuum } from "./vacuum";
 import { clearErrorOnRecovery } from "./vacuum_errors";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
-beforeEach(() => jest.useFakeTimers());
-afterEach(() => jest.useRealTimers());
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
 
 function createVacuum() {
   const vacuum = new Vacuum(createFakeHandle("roborock.vacuum.s5", {}).handle);
@@ -19,7 +21,7 @@ function createVacuum() {
 /**
  * Lets the device emit its (asynchronous) events.
  */
-const flush = () => jest.advanceTimersByTimeAsync(100);
+const flush = () => vi.advanceTimersByTimeAsync(100);
 
 describe("Vacuum errors", () => {
   test("are cleared when the robot leaves the error state", async () => {
@@ -85,7 +87,7 @@ describe("clearErrorOnRecovery", () => {
   test.each(["error", "charging-error", "charger-offline"])(
     "does nothing in the %p state",
     (state) => {
-      const vacuum = { updateState: jest.fn(), emitEvent: jest.fn() };
+      const vacuum = { updateState: vi.fn(), emitEvent: vi.fn() };
       clearErrorOnRecovery(vacuum as unknown as MiioThing, state);
       expect(vacuum.updateState).not.toHaveBeenCalled();
     },
@@ -93,8 +95,8 @@ describe("clearErrorOnRecovery", () => {
 
   test("emits errorChanged (null) and errorCleared when the error changes", () => {
     const vacuum = {
-      updateState: jest.fn().mockReturnValue(true),
-      emitEvent: jest.fn(),
+      updateState: vi.fn().mockReturnValue(true),
+      emitEvent: vi.fn(),
     };
     clearErrorOnRecovery(vacuum as unknown as MiioThing, "charging");
     expect(vacuum.updateState).toHaveBeenCalledWith("error", null);

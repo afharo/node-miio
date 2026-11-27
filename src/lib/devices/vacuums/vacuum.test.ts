@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import getStatus from "../../__fixtures__/roborock.vacuum.s5/get_status.json";
 import getConsumable from "../../__fixtures__/roborock.vacuum.s5/get_consumable.json";
 import {
@@ -11,7 +13,7 @@ import {
 
 import { MOP_ROUTES, Vacuum } from "./vacuum";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 const MODEL = "roborock.vacuum.s5";
 
@@ -33,18 +35,18 @@ function createVacuum(responses: Record<string, FakeResponse> = {}) {
 async function withTimers<T>(promise: Promise<T>): Promise<T> {
   const [result] = await Promise.all([
     promise,
-    jest.advanceTimersByTimeAsync(5000),
+    vi.advanceTimersByTimeAsync(5000),
   ]);
   return result;
 }
 
 describe("Vacuum (roborock miIO)", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test("is identified as a vacuum", () => {
@@ -91,7 +93,7 @@ describe("Vacuum (roborock miIO)", () => {
         fan_power: 102,
       });
       expect(vacuum.property("currentSegment")).toBe(10);
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       expect(events).toContainEqual({ key: "currentSegment", value: 10 });
       vacuum.setRawProperty("cleaning_info", { segment_id: -1 });
       expect(vacuum.property("currentSegment")).toBeUndefined();
@@ -108,7 +110,7 @@ describe("Vacuum (roborock miIO)", () => {
       vacuum.on("stateChanged", (change) => events.push(change));
       vacuum.setRawProperty(raw, value);
       expect(vacuum.property(name)).toBe(value);
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       expect(events).toContainEqual({ key: name, value });
     });
 
@@ -125,13 +127,13 @@ describe("Vacuum (roborock miIO)", () => {
       expect(vacuum.property(name)).toBe(true);
       await expect(vacuum.state()).resolves.toMatchObject({ [name]: true });
       // The events are emitted asynchronously
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       expect(events).toContainEqual({ key: name, value: true });
 
       vacuum.setRawProperty(raw, 0);
       expect(vacuum.property(name)).toBe(false);
       await expect(vacuum.state()).resolves.toMatchObject({ [name]: false });
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       expect(events).toContainEqual({ key: name, value: false });
     });
 
@@ -631,8 +633,8 @@ describe("Vacuum (roborock miIO)", () => {
         ),
       );
       const cloud = {
-        getMapFileUrl: jest.fn().mockResolvedValue("https://files/map.gz"),
-        download: jest.fn().mockResolvedValue(file),
+        getMapFileUrl: vi.fn().mockResolvedValue("https://files/map.gz"),
+        download: vi.fn().mockResolvedValue(file),
       };
       const map = await withTimers(vacuum.getCloudMap(cloud, "de"));
       expect(cloud.getMapFileUrl).toHaveBeenCalledWith("de", "robomap%2F1%2F2");
@@ -696,8 +698,8 @@ describe("Vacuum (roborock miIO)", () => {
 });
 
 describe("Vacuum: leaving a preset (Saros 20, a296)", () => {
-  beforeEach(() => jest.useFakeTimers());
-  afterEach(() => jest.useRealTimers());
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
 
   /**
    * @param status The robot's status
@@ -721,7 +723,7 @@ describe("Vacuum: leaving a preset (Saros 20, a296)", () => {
    */
   async function run<T>(promise: Promise<T>) {
     const result = promise;
-    await jest.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(5000);
     return result;
   }
 

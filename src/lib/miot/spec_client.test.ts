@@ -3,6 +3,16 @@ import os from "node:os";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type MockedFunction,
+} from "vitest";
+
 import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json";
 
 import {
@@ -14,7 +24,7 @@ import {
   pickInstance,
 } from "./spec_client";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 const MODEL = "dreame.vacuum.p2008";
 const URN = p2008.type;
@@ -40,17 +50,17 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 function createFetch() {
-  return jest.fn(async (url: string) => {
+  return vi.fn(async (url: string) => {
     if (url.includes("/instances?")) return jsonResponse({ instances });
     if (url.includes(encodeURIComponent(URN))) return jsonResponse(p2008);
     return jsonResponse({}, 404);
-  }) as unknown as jest.MockedFunction<typeof fetch>;
+  }) as unknown as MockedFunction<typeof fetch>;
 }
 
 function failingFetch() {
-  return jest.fn(async () => {
+  return vi.fn(async () => {
     throw new Error("network down");
-  }) as unknown as jest.MockedFunction<typeof fetch>;
+  }) as unknown as MockedFunction<typeof fetch>;
 }
 
 let tmp: string;
@@ -273,7 +283,7 @@ describe("MiotSpecClient", () => {
 
   test("handles HTTP errors", async () => {
     writeSnapshot();
-    const fetchMock = jest.fn(async () =>
+    const fetchMock = vi.fn(async () =>
       jsonResponse({}, 500),
     ) as unknown as typeof fetch;
     const client = new MiotSpecClient({

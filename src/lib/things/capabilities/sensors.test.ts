@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { compose } from "../compose";
 
 import { Base, flush, record } from "./test_utils.test.mock";
@@ -51,17 +53,17 @@ describe("sensors", () => {
   });
 
   test("motion goes back to idle after the timeout", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const thing = new Thing();
       thing.updateMotion(true, "1m");
       expect(await thing.motion()).toBe(true);
-      await jest.advanceTimersByTimeAsync(59_000);
+      await vi.advanceTimersByTimeAsync(59_000);
       expect(await thing.motion()).toBe(true);
-      await jest.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(1_000);
       expect(await thing.motion()).toBe(false);
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 });

@@ -1,8 +1,10 @@
 import { EventEmitter } from "node:events";
 
-jest.mock("../lib/connect_to_device", () => ({ connectToDevice: jest.fn() }));
-jest.mock("../lib/tokens", () => ({ tokens: { get: jest.fn() } }));
-jest.mock("../lib/discovery", () => ({ Devices: jest.fn() }));
+import { describe, test, expect, beforeEach, vi, type Mock } from "vitest";
+
+vi.mock("../lib/connect_to_device", () => ({ connectToDevice: vi.fn() }));
+vi.mock("../lib/tokens", () => ({ tokens: { get: vi.fn() } }));
+vi.mock("../lib/discovery", () => ({ Devices: vi.fn() }));
 
 import { connectToDevice } from "../lib/connect_to_device";
 import { tokens } from "../lib/tokens";
@@ -11,8 +13,8 @@ import { Placeholder } from "../lib/placeholder";
 
 import { deviceFinder, withSavedToken } from "./device-finder";
 
-const connect = connectToDevice as jest.Mock;
-const get = tokens.get as jest.Mock;
+const connect = connectToDevice as Mock;
+const get = tokens.get as Mock;
 
 /** A placeholder: the device was found, but it hides its token */
 function placeholder() {
@@ -103,7 +105,9 @@ describe("deviceFinder", () => {
       onUnavailable: (listener: (device: unknown) => void) =>
         browser.on("unavailable", listener),
     });
-    (Devices as unknown as jest.Mock).mockImplementation(() => browser);
+    (Devices as unknown as Mock).mockImplementation(function () {
+      return browser;
+    });
     const connected = { id: "miio:123" };
     connect.mockResolvedValue(connected);
     get.mockResolvedValue(TOKEN);

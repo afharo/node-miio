@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 
+import { describe, test, expect } from "vitest";
+
 import { parseRoborockMap } from "../maps/roborock_map";
 
 import { roborockApiOf, RoborockDeviceApi } from "./device";
