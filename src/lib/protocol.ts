@@ -65,7 +65,7 @@ export interface Protocol extends LegacyProtocol {
     params?: [];
     response: [string, string][];
   };
-  // Roborock: the name of the current map file in the Xiaomi Cloud ("retry" while it's being uploaded)
+  // Roborock: the name of the current map file in the Xiaomi Cloud (a status word, e.g. "retry" or "locating", while it isn't ready)
   get_map_v1: {
     params?: [];
     response: [string];

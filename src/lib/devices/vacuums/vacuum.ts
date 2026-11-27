@@ -52,6 +52,12 @@ const STATE_PROPERTIES = [
  * @param value The raw value
  * @returns The boolean value, or `undefined`
  */
+/**
+ * What `get_map_v1` answers while the map isn't ready: a status word (`retry`, `locating`…), never a map name, which
+ * has the device ID and separators (`robomap%2F<did>%2F0`)
+ */
+const MAP_NOT_READY = /^[a-z_]+$/;
+
 const isOne = (value: unknown) => (value == null ? undefined : value === 1);
 
 /**
@@ -744,8 +750,9 @@ export class Vacuum extends compose(VacuumThing, SpotCleaning) {
   }
 
   /**
-   * The name of the current map file in the Xiaomi Cloud. The robot answers `retry` while it's uploading the
-   * map, so it's asked again a few times (with an increasing delay).
+   * The name of the current map file in the Xiaomi Cloud (e.g. `robomap%2F<did>%2F0`). While the map isn't ready, the
+   * robot answers a status word instead (`retry` while it's uploading it, `locating` while it finds where it is at
+   * the start of a cleaning…), so it's asked again a few times (with an increasing delay).
    *
    * @param options The options
    * @param options.retries How many times to ask (default 5)
@@ -759,7 +766,7 @@ export class Vacuum extends compose(VacuumThing, SpotCleaning) {
     let delay = options.delayMs ?? 100;
     for (let attempt = 1; ; attempt++) {
       const [name] = await this.call("get_map_v1", []);
-      if (name && name !== "retry") return name;
+      if (name && !MAP_NOT_READY.test(name)) return name;
       if (attempt >= retries) {
         throw new Error("The vacuum didn't return the map name");
       }
