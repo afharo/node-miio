@@ -3,8 +3,11 @@ import { EventEmitter } from "node:events";
 import { log } from "../log";
 import { stopGracefully } from "../stop";
 import { tokens } from "../../lib/tokens";
+import { deviceFinder } from "../device-finder";
 
-jest.mock("../device-finder", () => jest.fn());
+import * as discover from "./discover";
+
+jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }));
 jest.mock("../stop", () => ({ stopGracefully: jest.fn() }));
 jest.mock("../../lib/tokens", () => ({ tokens: { update: jest.fn() } }));
 jest.mock("../log", () => ({
@@ -16,10 +19,7 @@ jest.mock("../log", () => ({
   },
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const deviceFinder = require("../device-finder") as jest.Mock;
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const discover = require("./discover");
+const mockedFinder = deviceFinder as jest.Mock;
 
 const update = tokens.update as jest.Mock;
 
@@ -27,7 +27,7 @@ function start(argv: Record<string, unknown> = {}) {
   const browser = Object.assign(new EventEmitter(), {
     destroy: jest.fn().mockResolvedValue(undefined),
   });
-  deviceFinder.mockReturnValue(browser);
+  mockedFinder.mockReturnValue(browser);
   discover.handler(argv);
   const [stop, onStopping] = (stopGracefully as jest.Mock).mock.calls.at(-1);
   return { browser, stop, onStopping };

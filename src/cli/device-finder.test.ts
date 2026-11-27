@@ -9,9 +9,7 @@ import { tokens } from "../lib/tokens";
 import { Devices } from "../lib/discovery";
 import { Placeholder } from "../lib/placeholder";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const deviceFinder = require("./device-finder");
-const { withSavedToken } = deviceFinder;
+import { deviceFinder, withSavedToken } from "./device-finder";
 
 const connect = connectToDevice as jest.Mock;
 const get = tokens.get as jest.Mock;

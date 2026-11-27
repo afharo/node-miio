@@ -9,9 +9,6 @@
     "stripInternal": true,
     "rootDir": "src",
     "outDir": "dist",
-
-    "allowJs": true,
-    "checkJs": false,
     "noImplicitAny": false,
 
     "strict": true,
