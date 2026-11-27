@@ -212,7 +212,7 @@ devices.on("available", (device) => {
 });
 
 devices.on("unavailable", (device) => {
-  // Device is no longer available and is destroyed
+  // The device stopped answering for `cacheTime` seconds (it is not destroyed)
 });
 ```
 

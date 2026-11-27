@@ -50,7 +50,8 @@ SOFTWARE.
 ---
 
 The API of `src/lib/things/` (events, state, capabilities and values) is modelled on abstract-things
-(https://github.com/tinkerhub/abstract-things), licensed under the MIT License:
+(https://github.com/tinkerhub/abstract-things), and the API of `src/lib/discovery.ts` on tinkerhub-discovery
+(https://github.com/tinkerhub/tinkerhub-discovery), both by the same author and licensed under the MIT License:
 
 Copyright 2017 Andreas Holstenson
 
