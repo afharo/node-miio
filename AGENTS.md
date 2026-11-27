@@ -40,6 +40,8 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 - `src/lib/things/**`: the thing model (it replaced abstract-things, keeping its API): `MiioThing` (events, state, lifecycle,
   `matches`), `compose(Base, ...capabilities)` and the capabilities (plain classes extending `Capability`, see the rules in
   `capability.ts`), the values (`percentage`, `code`, `duration`…) and `Color`. See its README.md.
+- `src/lib/discovery.ts`: `browse()` / `devices()` (`Browser`, `Devices`) on a small `ServiceDiscovery` EventEmitter
+  (`on("available")` or `onAvailable()`). It replaced tinkerhub-discovery: keep it dependency-free.
 - `src/lib/devices/**`: device implementations (all TypeScript, except `gateway/developer-api.js`).
 - `src/cli/**`: the `node-miio` CLI (yargs). Commands are registered explicitly in `src/cli/index.ts`
   (`commandDir` doesn't work with the ESM-only yargs 18).
