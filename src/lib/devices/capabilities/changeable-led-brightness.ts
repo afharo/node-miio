@@ -1,9 +1,24 @@
 import { Capability } from "../../things/capability";
 import { string } from "../../things/values";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 /** The brightness of the LED of the device can be changed. Implement `changeLEDBrightness(brightness)`. */
 export class LEDBrightness extends Capability {
   static capability = "miio:led-brightness";
+  static actions: ActionDefinition[] = [
+    {
+      name: "ledBrightness",
+      description: "Gets the LED brightness, or sets it",
+      arguments: [
+        {
+          type: "string",
+          optional: true,
+          description: "The LED brightness, e.g. bright, dim or off",
+        },
+      ],
+      returns: "string",
+    },
+  ];
 
   capabilityPropertyUpdated(key: string, value: unknown) {
     if (key === "ledBrightness") {

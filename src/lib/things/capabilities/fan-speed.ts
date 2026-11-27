@@ -1,9 +1,13 @@
 import { Capability } from "../capability";
 import { percentage } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Reports its fan speed (`fanSpeedChanged`) */
 export class FanSpeed extends Capability {
   static capability = "fan-speed";
+  static actions: ActionDefinition[] = [
+    { name: "fanSpeed", description: "The fan speed", returns: "number" },
+  ];
 
   fanSpeed(): Promise<number | null> {
     return Promise.resolve(this.getState<number | null>("fanSpeed"));
@@ -25,6 +29,22 @@ export class FanSpeed extends Capability {
 /** The fan speed can be changed. Implement `changeFanSpeed(speed)`. */
 export class AdjustableFanSpeed extends FanSpeed {
   static capability = "adjustable-fan-speed";
+  static actions: ActionDefinition[] = [
+    {
+      name: "fanSpeed",
+      description: "Gets the fan speed, or sets it",
+      arguments: [
+        { type: "number", optional: true, description: "The fan speed to set" },
+      ],
+      returns: "number",
+    },
+    {
+      name: "setFanSpeed",
+      description: "Changes the fan speed",
+      arguments: [{ type: "number", description: "The fan speed" }],
+      returns: "number",
+    },
+  ];
 
   /**
    * Gets the fan speed, or sets it.

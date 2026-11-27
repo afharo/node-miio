@@ -1,12 +1,30 @@
 import { compose } from "../../things/compose";
 import { SpotCleaning } from "../../things/capabilities/cleaning";
 import { checkResult } from "../../check_result";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 import { VacuumThing } from "./vacuum_thing";
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
+import { vacuumActions } from "./vacuum_actions";
 
 export class ViomiVacuum extends compose(VacuumThing, SpotCleaning) {
+  static actions: ActionDefinition[] = vacuumActions(
+    "getDeviceInfo",
+    "getSerialNumber",
+    "getRoomMap",
+    "resumeCleanRooms",
+    "getTimer",
+    "pause",
+    "find",
+    "fanSpeeds",
+    "waterBoxModes",
+  ).concat({
+    name: "cleanRooms",
+    description: "Cleans the given rooms (ids from getRoomMap)",
+    arguments: [{ type: "number[]", description: "The room ids" }],
+  });
+
   static get type() {
     return "miio:vacuum";
   }

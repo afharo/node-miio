@@ -1,9 +1,14 @@
 import { Capability } from "../capability";
 import { code, type Code, type CodeInput } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Reports its mode (`modeChanged`) and the available ones (`modesChanged`) */
 export class Mode extends Capability {
   static capability = "mode";
+  static actions: ActionDefinition[] = [
+    { name: "mode", description: "The mode", returns: "mode" },
+    { name: "modes", description: "The supported modes", returns: "code[]" },
+  ];
   static initialState: Record<string, unknown> = { mode: null, modes: [] };
 
   mode(): Promise<string | null> {
@@ -41,6 +46,22 @@ export class Mode extends Capability {
 /** The mode can be changed. Implement `changeMode(mode)`. */
 export class SwitchableMode extends Mode {
   static capability = "switchable-mode";
+  static actions: ActionDefinition[] = [
+    {
+      name: "mode",
+      description: "Gets the mode, or sets it",
+      arguments: [
+        { type: "mode", optional: true, description: "The mode to set" },
+      ],
+      returns: "mode",
+    },
+    {
+      name: "setMode",
+      description: "Changes the mode",
+      arguments: [{ type: "mode", description: "The mode" }],
+      returns: "mode",
+    },
+  ];
 
   /**
    * Gets the mode, or sets it.

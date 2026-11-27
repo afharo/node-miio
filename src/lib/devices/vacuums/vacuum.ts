@@ -5,6 +5,7 @@ import type { DeviceHandle } from "../../management";
 import type { Protocol } from "../../protocol";
 import type { CloudServer, XiaomiCloud } from "../../cloud/client";
 import { parseRoborockMap, type RoborockMap } from "../../maps/roborock_map";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 import {
   resolveVacuumModes,
@@ -14,6 +15,7 @@ import {
 } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
 import { VacuumThing } from "./vacuum_thing";
+import { vacuumActions } from "./vacuum_actions";
 
 /** Mop routes (`get_mop_mode`/`set_mop_mode`) of the S7 and newer */
 export const MOP_ROUTES = {
@@ -65,6 +67,46 @@ const isOne = (value: unknown) => (value == null ? undefined : value === 1);
  * doesn't use properties via get_prop but instead has a get_status.
  */
 export class Vacuum extends compose(VacuumThing, SpotCleaning) {
+  static actions: ActionDefinition[] = vacuumActions(
+    "getDeviceInfo",
+    "getSerialNumber",
+    "getRoomMap",
+    "cleanRooms",
+    "resumeCleanRooms",
+    "cleanZones",
+    "getTimer",
+    "pause",
+    "find",
+    "fanSpeeds",
+    "waterBoxModes",
+    "getWaterBoxMode",
+    "setWaterBoxMode",
+    "startDustCollection",
+    "stopDustCollection",
+    "cleanPresets",
+    "setCleanMotorMode",
+    "getDoNotDisturb",
+    "setDoNotDisturb",
+    "disableDoNotDisturb",
+    "getCarpetMode",
+    "setCarpetMode",
+    "getMopRoute",
+    "setMopRoute",
+    "getMaps",
+    "loadMap",
+    "getMapName",
+    "startMopWash",
+    "stopMopWash",
+    "startMopDrying",
+    "stopMopDrying",
+    "resetConsumable",
+    "getSoundVolume",
+    "setSoundVolume",
+    "sendToLocation",
+    "getHistory",
+    "getHistoryForDay",
+  );
+
   static get type() {
     return "miio:vacuum";
   }

@@ -1,8 +1,17 @@
 import { Capability } from "../capability";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Its name can be changed. Implement `changeName(name)`. */
 export class Nameable extends Capability {
   static capability = "nameable";
+  static actions: ActionDefinition[] = [
+    {
+      name: "setName",
+      description: "Changes the name",
+      arguments: [{ type: "string", description: "The name" }],
+      returns: "string",
+    },
+  ];
 
   /**
    * Changes the name.

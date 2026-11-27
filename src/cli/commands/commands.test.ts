@@ -1,10 +1,21 @@
 import { EventEmitter } from "node:events";
 
 import { log } from "../log";
+import { createFakeHandle } from "../../lib/test_utils.test.mock";
+import { Vacuum } from "../../lib/devices/vacuums/vacuum";
+
+import * as inspectCommand from "./inspect";
 
 jest.mock("../device-finder", () => jest.fn());
 jest.mock("../log", () => ({
-  log: { info: jest.fn(), plain: jest.fn(), error: jest.fn(), warn: jest.fn() },
+  log: {
+    info: jest.fn(),
+    plain: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    device: jest.fn(),
+    group: jest.fn((print: () => void) => print()),
+  },
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -15,17 +26,20 @@ const call = require("./protocol/call");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const control = require("./control");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const inspect = require("./inspect");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const configure = require("./configure");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tokensUpdate = require("./tokens/update");
+
+// The TypeScript command types its argv: the tests pass any argv to every command
+const inspect = inspectCommand as unknown as {
+  handler: (argv: Record<string, unknown>) => void;
+};
 
 /** Runs a command against a fake device, and waits for it to exit */
 async function run(
   command: { handler: (argv: Record<string, unknown>) => void },
   argv: Record<string, unknown>,
-  device: Record<string, unknown>,
+  device: object,
 ) {
   const browser = new EventEmitter();
   deviceFinder.mockReturnValue(browser);
@@ -68,6 +82,44 @@ describe("CLI commands", () => {
     expect(miioCall).toHaveBeenCalledWith("get_properties", [
       { did: "serial", siid: 1, piid: 3 },
     ]);
+  });
+
+  test("inspect prints a real device, with its info, properties and capabilities", async () => {
+    const { handle } = createFakeHandle("roborock.vacuum.s5", {
+      "miIO.info": {
+        fw_ver: "3.5.8_0950",
+        hw_ver: "Linux",
+        ap: { ssid: "home", bssid: "AA:BB", rssi: -50 },
+        ot: "otu",
+      },
+    });
+    const vacuum = new Vacuum(handle);
+    vacuum.setRawProperty("battery", 42);
+    await run(inspect, { idOrIp: "192.168.1.2" }, vacuum);
+
+    expect(log.error).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+    expect(log.device).toHaveBeenCalledWith(vacuum, true);
+    const printed = jest
+      .mocked(log.plain)
+      .mock.calls.map((args) => args.join(" "));
+    expect(printed).toContain("Firmware version: 3.5.8_0950");
+    expect(printed).toContain("Remote access (Mi Home App): UDP");
+    expect(printed).toContain("  - batteryLevel: 42");
+    // The actions it supports, grouped
+    expect(printed).toContain(
+      "Actions: (node-miio control <device> <action> [args])",
+    );
+    expect(printed).toContain(
+      "Cleaning - cap:cleaning-state, cap:autonomous-cleaning, cap:spot-cleaning",
+    );
+    expect(printed).toContain("setFanSpeed number - Changes the fan speed");
+    expect(printed).toContain(
+      "cleanRooms number[] [object] - Cleans the given rooms (segment ids from getRoomMap)",
+    );
+    expect(printed).toContain(
+      "miioCall string [array] - Calls a miIO method (see protocol call)",
+    );
   });
 
   test("control passes the token and the parsed arguments", async () => {

@@ -1,11 +1,37 @@
 import { boolean } from "../../things/values";
 import { MiioApi } from "../../device";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 import { DeviceCapability } from "./device_capability";
 
 /** The buzzer of the device can be switched on and off (`set_buzzer`). Emits `buzzerChanged`. */
 export class Buzzer extends DeviceCapability {
   static capability = "miio:buzzer";
+  static actions: ActionDefinition[] = [
+    {
+      name: "buzzer",
+      description: "Gets whether the buzzer is on, or sets it",
+      arguments: [
+        {
+          type: "boolean",
+          optional: true,
+          description: "Whether it should beep",
+        },
+      ],
+      returns: "boolean",
+    },
+    {
+      name: "getBuzzer",
+      description: "Whether the buzzer is on",
+      returns: "boolean",
+    },
+    {
+      name: "setBuzzer",
+      description: "Switches the buzzer on or off",
+      arguments: [{ type: "boolean", description: "Whether it should beep" }],
+      returns: "boolean",
+    },
+  ];
 
   capabilityPropertyUpdated(key: string, value: unknown) {
     if (key === "buzzer" && this.updateState("buzzer", value)) {

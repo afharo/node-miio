@@ -1,4 +1,5 @@
 import { boolean, type CodeInput } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 import { ErrorState } from "./error-state";
 
@@ -8,6 +9,13 @@ import { ErrorState } from "./error-state";
  */
 export class CleaningState extends ErrorState {
   static capability = "cleaning-state";
+  static actions: ActionDefinition[] = [
+    {
+      name: "cleaning",
+      description: "Whether it's cleaning",
+      returns: "boolean",
+    },
+  ];
   static initialState: Record<string, unknown> = { cleaning: false };
 
   cleaning(): Promise<boolean> {
@@ -51,6 +59,10 @@ export class CleaningState extends ErrorState {
 /** Can clean by itself. Implement `activateCleaning()` and `deactivateCleaning()`. */
 export class AutonomousCleaning extends CleaningState {
   static capability = "autonomous-cleaning";
+  static actions: ActionDefinition[] = [
+    { name: "clean", description: "Starts cleaning" },
+    { name: "stop", description: "Stops cleaning" },
+  ];
 
   async clean(): Promise<null> {
     await this.activateCleaning();
@@ -76,6 +88,9 @@ export class AutonomousCleaning extends CleaningState {
 /** Can clean a spot. Implement `activateSpotClean()`. */
 export class SpotCleaning extends CleaningState {
   static capability = "spot-cleaning";
+  static actions: ActionDefinition[] = [
+    { name: "spotClean", description: "Cleans the spot around it" },
+  ];
 
   async spotClean(): Promise<null> {
     await this.activateSpotClean();

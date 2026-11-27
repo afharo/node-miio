@@ -1,9 +1,17 @@
 import { Capability } from "../capability";
 import { code, type Code, type CodeInput } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Emits actions (e.g. a button's `click`): `action` (`{ action, data }`) and `action:<action>` */
 export class Actions extends Capability {
   static capability = "actions";
+  static actions: ActionDefinition[] = [
+    {
+      name: "actions",
+      description: "The actions it can emit",
+      returns: "code[]",
+    },
+  ];
   static initialState: Record<string, unknown> = { actions: [] };
 
   /**

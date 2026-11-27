@@ -1,5 +1,6 @@
 import { MiioApi } from "../device";
 import { compose } from "../things/compose";
+import type { ActionDefinition } from "../things/action_metadata";
 
 import { Power } from "./capabilities/power";
 import { Mode } from "./capabilities/mode";
@@ -26,6 +27,23 @@ export class AirPurifier extends compose(
   LEDBrightness,
   Buzzer,
 ) {
+  static actions: ActionDefinition[] = [
+    {
+      name: "favoriteLevel",
+      description: "Gets the level of the favorite mode (0-16), or sets it",
+      arguments: [
+        { type: "number", optional: true, description: "The level to set" },
+      ],
+      returns: "number",
+    },
+    {
+      name: "setFavoriteLevel",
+      description: "Changes the level of the favorite mode",
+      arguments: [{ type: "number", description: "The level (0-16)" }],
+      returns: "number",
+    },
+  ];
+
   static get types() {
     return ["air-purifier"];
   }

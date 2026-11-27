@@ -1,3 +1,4 @@
+import type { ActionDefinition } from "./action_metadata";
 import type { MiioThing } from "./thing";
 
 /**
@@ -9,6 +10,8 @@ import type { MiioThing } from "./thing";
  * - No constructor nor instance fields: they never run. Declare the initial state with `static initialState`, and keep
  *   other per-instance data under symbols (created lazily).
  * - Declare its name with `static capability` (or `static capabilities`), and its types (if any) with `static type`.
+ * - Declare the methods callers can use (not the `update…`/`change…` ones) with `static actions`: `node-miio inspect`
+ *   lists them (see {@link ActionDefinition}). A test checks they match the methods.
  * - `super` works between capabilities (e.g. `CleaningState` → `ErrorState`), not into the class it's composed into.
  *   Use the hooks (`capabilityInit`, `capabilityDestroy`, `capabilityPropertyUpdated`) to take part in its lifecycle.
  * - Two unrelated capabilities can't define the same member: `compose` throws.
@@ -25,4 +28,5 @@ export interface CapabilityStatics {
   type?: string;
   types?: string[];
   initialState?: Record<string, unknown>;
+  actions?: ActionDefinition[];
 }

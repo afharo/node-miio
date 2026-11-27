@@ -7,6 +7,7 @@ import {
 } from "../things/capabilities/lights/light";
 import { Fading } from "../things/capabilities/lights/fading";
 import type { Duration } from "../things/values";
+import type { ActionDefinition } from "../things/action_metadata";
 
 import { Power } from "./capabilities/power";
 import { Dimmable } from "./capabilities/dimmable";
@@ -25,6 +26,14 @@ export class Yeelight extends compose(
   Dimmable,
   Nameable,
 ) {
+  static actions: ActionDefinition[] = [
+    {
+      name: "setDefault",
+      description:
+        "Makes the current state the one it restores when powered on",
+    },
+  ];
+
   static get type() {
     return "miio:yeelight";
   }

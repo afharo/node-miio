@@ -1,16 +1,29 @@
 import { compose } from "../../things/compose";
 import { SpotCleaning } from "../../things/capabilities/cleaning";
 import { getProperties } from "../../miot/miot_api";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 import { VacuumThing } from "./vacuum_thing";
 import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
+import { vacuumActions } from "./vacuum_actions";
 
 /**
  * Implementation of the interface used by the Dreame Vacuum. This device
  * doesn't use properties via get_prop but instead has a get_properties.
  */
 export class DreameVacuum extends compose(VacuumThing, SpotCleaning) {
+  static actions: ActionDefinition[] = vacuumActions(
+    // (no rooms nor timers yet: cleanRooms rejects, getRoomMap and getTimer are empty)
+    "getDeviceInfo",
+    "getSerialNumber",
+    "pause",
+    "find",
+    "fanSpeeds",
+    "waterBoxModes",
+    "setWaterBoxMode",
+  );
+
   static get type() {
     return "miio:vacuum";
   }

@@ -88,6 +88,7 @@ export function compose<
     types: [],
     capabilities: [],
     initialState: {},
+    actions: [],
     hooks: {
       capabilityInit: [],
       capabilityDestroy: [],
@@ -125,11 +126,23 @@ export function compose<
           : undefined;
       const names = (value: unknown) =>
         typeof value === "string" ? [value] : ((value as string[]) ?? []);
-      registry.capabilities.push(
+      const capabilityNames = [
         ...names(own("capability")),
         ...names(own("capabilities")),
-      );
-      registry.types.push(...names(own("type")), ...names(own("types")));
+      ];
+      const typeNames = [...names(own("type")), ...names(own("types"))];
+      registry.capabilities.push(...capabilityNames);
+      registry.types.push(...typeNames);
+      const actions = own("actions") as CapabilityStatics["actions"];
+      if (actions) {
+        registry.actions.push({
+          definitions: actions,
+          tags: [
+            ...capabilityNames.map((c) => `cap:${c}`),
+            ...typeNames.map((t) => `type:${t}`),
+          ],
+        });
+      }
       Object.assign(registry.initialState, own("initialState") ?? {});
     }
   }

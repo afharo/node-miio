@@ -6,12 +6,20 @@ import {
   percentageChange,
   type Duration,
 } from "../../values";
+import type { ActionDefinition } from "../../action_metadata";
 
 import { DEFAULT_LIGHT_DURATION, type BrightnessChangeOptions } from "./light";
 
 /** Reports its brightness (`brightnessChanged`) */
 export class Brightness extends Capability {
   static capability = "brightness";
+  static actions: ActionDefinition[] = [
+    {
+      name: "brightness",
+      description: "The brightness",
+      returns: "percentage",
+    },
+  ];
 
   brightness(..._args: unknown[]): number | Promise<number> {
     return this.getState<number>("brightness", 0);
@@ -33,6 +41,54 @@ export class Brightness extends Capability {
 /** The brightness can be changed. Implement `changeBrightness(brightness, options)`. */
 export class Dimmable extends Brightness {
   static capability = "dimmable";
+  static actions: ActionDefinition[] = [
+    {
+      name: "brightness",
+      description:
+        'Gets the brightness, or changes it: 50 (set), "+10" (increase) or "-10" (decrease)',
+      arguments: [
+        {
+          type: "percentage:change",
+          optional: true,
+          description: "The brightness to set",
+        },
+        { type: "duration", optional: true, description: "The transition" },
+      ],
+      returns: "percentage",
+    },
+    {
+      name: "setBrightness",
+      description: "Changes the brightness",
+      arguments: [
+        { type: "percentage", description: "The brightness" },
+        { type: "duration", optional: true, description: "The transition" },
+        {
+          type: "boolean",
+          optional: true,
+          description: "Whether to switch the light on",
+        },
+      ],
+      returns: "percentage",
+    },
+    {
+      name: "increaseBrightness",
+      description: "Increases the brightness",
+      arguments: [
+        { type: "percentage", description: "How much" },
+        { type: "duration", optional: true, description: "The transition" },
+      ],
+      returns: "percentage",
+    },
+    {
+      name: "decreaseBrightness",
+      description: "Decreases the brightness",
+      arguments: [
+        { type: "percentage", description: "How much" },
+        { type: "duration", optional: true, description: "The transition" },
+      ],
+      returns: "percentage",
+    },
+  ];
 
   /**
    * Gets the brightness, or changes it: `50` (set), `"+10"` (increase) or `"-10"` (decrease).

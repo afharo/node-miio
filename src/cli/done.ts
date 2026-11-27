@@ -1,8 +1,10 @@
 import { performance } from "node:perf_hooks";
-
-import chalk from "chalk";
+import { styleText } from "node:util";
 
 import { CANCELLED_EXIT_CODES } from "./stop";
+
+/** The message goes to stderr: colour it only when stderr supports colours */
+const STDERR = { stream: process.stderr };
 
 /**
  * @param ms A duration in milliseconds
@@ -23,11 +25,12 @@ export function formatDuration(ms: number): string {
  */
 export function doneMessage(exitCode: number, ms: number): string {
   const duration = formatDuration(ms);
-  if (exitCode === 0) return chalk.green(`Done (succeeded in ${duration})`);
+  if (exitCode === 0)
+    return styleText("green", `Done (succeeded in ${duration})`, STDERR);
   if ((Object.values(CANCELLED_EXIT_CODES) as number[]).includes(exitCode)) {
-    return chalk.yellow(`Done (cancelled after ${duration})`);
+    return styleText("yellow", `Done (cancelled after ${duration})`, STDERR);
   }
-  return chalk.red(`Done (failed after ${duration})`);
+  return styleText("red", `Done (failed after ${duration})`, STDERR);
 }
 
 /** The parts of `process` that {@link reportWhenDone} uses */
