@@ -85,7 +85,7 @@ the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` sup
 - Vacuums extend `VacuumThing` (`type:vacuum`, also `type:miio:vacuum`); `isVacuum()` is `instanceof VacuumThing`.
   (abstract-things spelled it `vaccuum`: it was fixed in 0.15.0.)
 - Roborock `get_status` / `get_consumable` respond with a single-item array (`[{...}]`).
-- Properties whose mapped value is `undefined`/`null` are not stored on first load (`deep-equal` treats them as equal).
+- Properties whose mapped value is `undefined`/`null` are not stored on first load (`isSameValue` in `same_value.ts` treats `null` and `undefined` as equal).
 - Legacy Roborock models (`roborock.vacuum.*`, `rockrobo.vacuum.*`) speak the **legacy miIO** command set (`get_status`, `app_start`, …).
   Their MIoT specs on miot-spec.org are stubs, and their fan-speed values differ from the spec (and change with the firmware).
 
