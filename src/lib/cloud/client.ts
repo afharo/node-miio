@@ -40,6 +40,16 @@ export const CLOUD_SERVERS = [
 export type CloudServer = (typeof CLOUD_SERVERS)[number];
 
 /** A device registered in the Xiaomi account */
+/** A manual scene of the Xiaomi Home app (see {@link XiaomiCloud.getScenes}) */
+export interface XiaomiScene {
+  id: string;
+  name: string;
+  enabled: boolean;
+  homeId: string;
+  /** The devices it uses */
+  dids: string[];
+}
+
 export interface CloudDevice {
   /** The device ID */
   did: string;
@@ -336,6 +346,70 @@ export class XiaomiCloud {
       );
     }
     return response.body;
+  }
+
+  /**
+   * The manual scenes of the user's homes ("Tap to run", "Controles manuales" in Spanish), e.g. to run one from
+   * another app with {@link runScene}.
+   *
+   * @param server The regional server
+   * @param options The options
+   * @param options.did Only the scenes that use this device
+   * @returns The scenes, with the devices each one uses
+   */
+  async getScenes(
+    server: CloudServer | string,
+    options: { did?: string } = {},
+  ): Promise<XiaomiScene[]> {
+    const scenes: XiaomiScene[] = [];
+    for (const home of await this.getHomes(server)) {
+      const result = await this.call<{
+        manual_scene_info_list?: Array<{
+          scene_id: string | number;
+          name?: string;
+          enable?: boolean;
+          authed?: Array<string | number>;
+        }>;
+      } | null>(
+        server,
+        "/appgateway/miot/appsceneservice/AppSceneService/GetSimpleSceneList",
+        {
+          app_version: 12,
+          get_type: 2,
+          home_id: home.homeId,
+          owner_uid: home.owner,
+        },
+      );
+      for (const scene of result?.manual_scene_info_list ?? []) {
+        const dids = (scene.authed ?? []).map(String);
+        if (options.did && !dids.includes(String(options.did))) continue;
+        scenes.push({
+          id: String(scene.scene_id),
+          name: scene.name ?? "",
+          enabled: scene.enable !== false,
+          homeId: home.homeId,
+          dids,
+        });
+      }
+    }
+    return scenes;
+  }
+
+  /**
+   * Runs a manual scene, like tapping it in the app.
+   *
+   * @param server The regional server
+   * @param sceneId The scene's id, from {@link getScenes}
+   */
+  async runScene(server: CloudServer | string, sceneId: string) {
+    const result = await this.call<unknown>(
+      server,
+      "/appgateway/miot/appsceneservice/AppSceneService/RunScene",
+      { scene_id: sceneId, trigger_key: "user.click" },
+    );
+    if (result !== true) {
+      throw new CloudApiError(`The scene ${sceneId} didn't run`);
+    }
   }
 
   /**
