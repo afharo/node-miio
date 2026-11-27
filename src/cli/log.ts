@@ -1,19 +1,25 @@
-import chalk from "chalk";
+import { styleText } from "node:util";
 
 export const log = {
   indent: "",
 
   info(...args) {
-    console.log(this.indent + chalk.bgWhite.black(" INFO "), args.join(" "));
+    console.log(
+      this.indent + styleText(["bgWhite", "black"], " INFO "),
+      args.join(" "),
+    );
   },
 
   error(...args) {
-    console.log(this.indent + chalk.bgRed.white(" ERROR "), args.join(" "));
+    console.log(
+      this.indent + styleText(["bgRed", "white"], " ERROR "),
+      args.join(" "),
+    );
   },
 
   warn(...args) {
     console.log(
-      this.indent + chalk.bgYellow.black(" WARNING "),
+      this.indent + styleText(["bgYellow", "black"], " WARNING "),
       args.join(" "),
     );
   },
@@ -39,45 +45,48 @@ export const log = {
     const filteredTypes = types.filter((t) => t.indexOf("miio:") === 0);
     const caps = Array.from(device.metadata.capabilities);
 
-    this.plain(chalk.bold("Device ID:"), device.id.replace(/^miio:/, ""));
-    this.plain(chalk.bold("Model info:"), mgmt.model || "Unknown");
+    this.plain(
+      styleText("bold", "Device ID:"),
+      device.id.replace(/^miio:/, ""),
+    );
+    this.plain(styleText("bold", "Model info:"), mgmt.model || "Unknown");
 
     if (mgmt.address) {
-      this.plain(chalk.bold("Address:"), mgmt.address);
+      this.plain(styleText("bold", "Address:"), mgmt.address);
     } else if (mgmt.parent) {
-      this.plain(chalk.bold("Address:"), "Owned by", mgmt.parent.id);
+      this.plain(styleText("bold", "Address:"), "Owned by", mgmt.parent.id);
     }
 
     if (mgmt.token) {
       this.plain(
-        chalk.bold("Token:"),
+        styleText("bold", "Token:"),
         mgmt.token,
         mgmt.autoToken
-          ? chalk.green("via auto-token")
-          : chalk.yellow("via stored token"),
+          ? styleText("green", "via auto-token")
+          : styleText("yellow", "via stored token"),
       );
     } else if (!mgmt.parent) {
-      this.plain(chalk.bold("Token:"), "???");
+      this.plain(styleText("bold", "Token:"), "???");
     } else {
       this.plain(
-        chalk.bold("Token:"),
-        chalk.green("Automatic via parent device"),
+        styleText("bold", "Token:"),
+        styleText("green", "Automatic via parent device"),
       );
     }
 
     this.plain(
-      chalk.bold("Support:"),
+      styleText("bold", "Support:"),
       mgmt.model
         ? filteredTypes.length > 0
-          ? chalk.green("At least basic")
-          : chalk.yellow("At least generic")
-        : chalk.yellow("Unknown"),
+          ? styleText("green", "At least basic")
+          : styleText("yellow", "At least generic")
+        : styleText("yellow", "Unknown"),
     );
 
     if (detailed) {
       this.plain();
-      this.plain(chalk.bold("Type info:"), types.join(", "));
-      this.plain(chalk.bold("Capabilities:"), caps.join(", "));
+      this.plain(styleText("bold", "Type info:"), types.join(", "));
+      this.plain(styleText("bold", "Capabilities:"), caps.join(", "));
     }
 
     this.plain();

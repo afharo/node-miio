@@ -59,11 +59,10 @@
     "lint": "eslint --max-warnings=0 ."
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": "^22.13.0 || >=24.0.0"
   },
   "dependencies": {
     "@types/debug": "^4.1.13",
-    "chalk": "^4.1.2",
     "color-string": "^1.9.1",
     "debug": "^4.4.3",
     "deep-equal": "^2.2.3",

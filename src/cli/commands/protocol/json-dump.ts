@@ -1,8 +1,8 @@
 "use strict";
 
 import fs from "node:fs";
+import { styleText } from "node:util";
 
-import chalk from "chalk";
 import type { CommandBuilder } from "yargs";
 
 import { log } from "../../log";
@@ -53,11 +53,11 @@ export const handler = function (argv: { file: string; token: string }) {
 
     log.plain(
       out
-        ? chalk.bgBlue.white.bold(" -> ")
-        : chalk.bgMagenta.white.bold(" <- "),
-      chalk.yellow(layers.ip["ip.src"]),
-      chalk.dim("data="),
-      packet.data ? packet.data.toString() : chalk.dim("N/A"),
+        ? styleText(["bgBlue", "white", "bold"], " -> ")
+        : styleText(["bgMagenta", "white", "bold"], " <- "),
+      styleText("yellow", layers.ip["ip.src"]),
+      styleText("dim", "data="),
+      packet.data ? packet.data.toString() : styleText("dim", "N/A"),
     );
   });
 };

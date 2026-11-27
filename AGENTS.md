@@ -25,8 +25,10 @@ npm run test:types   # after build: type-checks test-types/consumer.ts against t
 node dist/cli/index.js --help   # smoke-test the CLI after building
 ```
 
-CI (`.github/workflows/build.yml`) runs lint, test and build on Node 22/24/26. The minimum is Node 22.12 (`engines`):
-the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` support.
+CI (`.github/workflows/build.yml`) runs lint, test and build on Node 22/24/26. `engines` is `^22.13.0 || >=24.0.0`:
+the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` support (22.12), and the CLI colours its
+output with `util.styleText`, stable (and honouring `NO_COLOR` and non-TTY streams) since 22.13 and 23.5. Node 23 is
+EOL. Don't add chalk back.
 
 ## Layout
 
