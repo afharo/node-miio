@@ -1,8 +1,7 @@
 import util from "node:util";
 import type { EventEmitter } from "node:events";
 
-import isDeepEqual from "deep-equal";
-
+import { isSameValue } from "../../same_value";
 import { MiioThing } from "../../things/thing";
 import type { CallOptions, Device } from "../../device";
 import type { Protocol } from "../../protocol";
@@ -179,7 +178,7 @@ export class SubDevice extends MiioThing {
 
   setProperty(key: string, value: unknown) {
     const oldValue = this._properties[key];
-    if (!isDeepEqual(oldValue, value)) {
+    if (!isSameValue(oldValue, value)) {
       this._properties[key] = value;
       this.debug("Property", key, "changed from", oldValue, "to", value);
       this.propertyUpdated(key, value, oldValue);
