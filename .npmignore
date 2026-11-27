@@ -19,8 +19,7 @@ test.mocks.{js,js.map}
 # Development configs
 renovate.json
 .gitignore
-.eslintrc
-eslint.config.cjs
+.oxlintrc.json
 tsconfig.json
 vitest.config.mts
 .prettierignore

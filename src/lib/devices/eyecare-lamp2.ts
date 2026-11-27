@@ -164,8 +164,8 @@ export class EyecareLamp2 extends compose(
     }).then(() => null);
   }
 
-  /**
-   * Set the current eyeCare mode
+  /*
+   * Set the current eyeCare mode (not ported yet)
    *
 	changeMode(mode) {
    

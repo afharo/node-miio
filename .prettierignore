@@ -1,2 +1,5 @@
 # Recorded device responses and specs: keep them as captured or generated
 src/lib/__fixtures__/
+
+# A standalone example, not linted
+example.js

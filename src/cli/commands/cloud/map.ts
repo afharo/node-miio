@@ -151,6 +151,6 @@ export const handler = async (argv: {
   } finally {
     await vacuum?.destroy();
     // The miIO network socket keeps the process alive
-    setTimeout(() => process.exit(), 100).unref(); // eslint-disable-line n/no-process-exit
+    setTimeout(() => process.exit(), 100).unref(); // eslint-disable-line unicorn/no-process-exit
   }
 };

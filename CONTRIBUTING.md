@@ -47,7 +47,7 @@ test without hardware, and the gotchas (for humans as well).
   the release notes are generated from them.
 - Every behavioural change needs **unit tests**. Use `createFakeHandle(model, responses)` to replay device responses,
   ideally real captures from users.
-- Before pushing: `npm run lint` (ESLint and Prettier, warnings fail too), `npm test` and `npm run build`.
+- Before pushing: `npm run lint` (oxlint and Prettier, warnings fail too), `npm test` and `npm run build`.
 - **Licensing**: node-miio is MIT. Don't copy or translate code, mappings or tables from GPL projects (e.g. python-miio).
   Using them as a reference for how a device behaves is fine.
 

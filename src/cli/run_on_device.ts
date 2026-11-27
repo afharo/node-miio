@@ -45,7 +45,7 @@ export function runOnDevice(
       );
     } finally {
       pending--;
-      process.exit(); // eslint-disable-line n/no-process-exit
+      process.exit(); // eslint-disable-line unicorn/no-process-exit
     }
   });
 
@@ -55,7 +55,7 @@ export function runOnDevice(
         log.warn("Could not find device");
         process.exitCode = 1;
       }
-      process.exit(); // eslint-disable-line n/no-process-exit
+      process.exit(); // eslint-disable-line unicorn/no-process-exit
     }
   };
   setTimeout(doneHandler, SEARCH_TIMEOUT_MS);

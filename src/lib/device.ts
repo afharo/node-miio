@@ -120,7 +120,6 @@ export class Device extends MiioThing {
   constructor(public readonly handle: DeviceHandle) {
     super();
 
-    this.handle = handle;
     this.id = "miio:" + handle.api.id;
     this.miioModel = handle.api.model;
 
