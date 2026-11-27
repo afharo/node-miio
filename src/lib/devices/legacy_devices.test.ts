@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import { createFakeHandle, sentCalls } from "../test_utils.test.mock";
 import { Device } from "../device";
 import { Color } from "../things/color";
@@ -13,7 +15,7 @@ import { PowerStrip } from "./power-strip";
 import { YeelightColor } from "./yeelight.color";
 import { YeelightMono } from "./yeelight.mono";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 /** Waits for the queued events to be emitted */
 const flush = () => new Promise((resolve) => setImmediate(resolve));
@@ -55,8 +57,8 @@ async function loaded<T extends Device>(
 }
 
 describe("Device polling", () => {
-  beforeEach(() => jest.useFakeTimers());
-  afterEach(() => jest.useRealTimers());
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
 
   test("init polls once, then every 30 seconds", async () => {
     const { handle, call } = createFakeHandle("chuangmi.plug.m1", {
@@ -67,10 +69,10 @@ describe("Device polling", () => {
     expect(call).toHaveBeenCalledTimes(1);
     expect(await plug.power()).toBe(true);
 
-    await jest.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(30_000);
     expect(call).toHaveBeenCalledTimes(2);
     await plug.destroy();
-    await jest.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(60_000);
     expect(call).toHaveBeenCalledTimes(2);
     expect(handle.ref.release).toHaveBeenCalled();
   });
@@ -84,16 +86,16 @@ describe("Device polling", () => {
       },
     });
     const plug = new PowerPlug(handle);
-    const destroyed = jest.fn();
+    const destroyed = vi.fn();
     plug.on("thing:destroyed", destroyed);
     await plug.init();
 
     fail = true;
-    await jest.advanceTimersByTimeAsync(9 * 30_000);
+    await vi.advanceTimersByTimeAsync(9 * 30_000);
     expect(handle.ref.release).not.toHaveBeenCalled();
-    await jest.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(30_000);
     expect(handle.ref.release).toHaveBeenCalled();
-    await jest.runOnlyPendingTimersAsync();
+    await vi.runOnlyPendingTimersAsync();
     expect(destroyed).toHaveBeenCalled();
   });
 });
@@ -143,17 +145,17 @@ describe("AirPurifier", () => {
         set_buzzer: ["ok"],
       },
     );
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = Promise.all([
         device.setPower(false),
         device.setMode("silent"),
         device.setBuzzer(true),
       ]);
-      await jest.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     const sent = sentCalls(call).filter(([m]) => m !== "get_prop");
     expect(sent).toEqual([
@@ -221,13 +223,13 @@ describe("plugs", () => {
     );
     expect(device.matches("type:power-plug", "type:power-outlet")).toBe(true);
     expect(await device.power()).toBe(false);
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = device.turnOn();
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call)[0]).toEqual(["set_power", ["on"]]);
   });
@@ -271,13 +273,13 @@ describe("lights", () => {
     expect(await device.brightness()).toBe(80);
     expect((await device.color())?.temperature.kelvins).toBe(4350);
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = device.setColor("5700K");
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call)[0]).toEqual(["set_cct", [100]]);
   });
@@ -300,13 +302,13 @@ describe("lights", () => {
       max: 6500,
     });
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = device.setColor("9000K", 0);
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call)[0]).toEqual(["set_ct_abx", [6500, "sudden", 0]]);
   });
@@ -321,16 +323,16 @@ describe("lights", () => {
     expect(device.matches("cap:color:full")).toBe(true);
     expect(await device.color()).toEqual(new Color([255, 0, 0], "rgb"));
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = Promise.all([
         device.setColor("#00ff00"),
         device.setColor("hsl(240, 100%, 50%)"),
       ]);
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call).filter(([m]) => m !== "get_prop")).toEqual([
       ["set_rgb", [0x00ff00, "smooth", 400]],
@@ -351,13 +353,13 @@ describe("lights", () => {
     expect(await ambient.power()).toBe(true);
     expect(await ambient.brightness()).toBe(30);
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = ambient.turnOff();
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call)[0]).toEqual(["enable_amb", ["off"]]);
   });

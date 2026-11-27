@@ -1,13 +1,15 @@
 import { EventEmitter } from "node:events";
 
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import { CloudSessionExpiredError } from "../cloud/errors";
 
 import { MapWatcher, type MapWatcherDevice } from "./map_watcher";
 import type { RoborockMap } from "./roborock_map";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
-const cloud = { getMapFileUrl: jest.fn(), download: jest.fn() };
+const cloud = { getMapFileUrl: vi.fn(), download: vi.fn() };
 
 function mapAt(currentRoom: number | undefined, x = 1000): RoborockMap {
   return {
@@ -32,8 +34,8 @@ function mapAt(currentRoom: number | undefined, x = 1000): RoborockMap {
 function createDevice(cleaning = false) {
   const events = new EventEmitter();
   const device = {
-    getCloudMap: jest.fn(),
-    cleaning: jest.fn().mockResolvedValue(cleaning),
+    getCloudMap: vi.fn(),
+    cleaning: vi.fn().mockResolvedValue(cleaning),
     on: (event: string, listener: (cleaning: boolean) => void) =>
       events.on(event, listener),
     off: (event: string, listener: (cleaning: boolean) => void) =>
@@ -45,8 +47,8 @@ function createDevice(cleaning = false) {
 }
 
 describe("MapWatcher", () => {
-  beforeEach(() => jest.useFakeTimers());
-  afterEach(() => jest.useRealTimers());
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
 
   test("polls while cleaning and reports room changes (deduped)", async () => {
     const device = createDevice();
@@ -65,20 +67,20 @@ describe("MapWatcher", () => {
     expect(device.getCloudMap).not.toHaveBeenCalled(); // not cleaning yet
 
     device.setCleaning(true);
-    await jest.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(0);
     expect(device.getCloudMap).toHaveBeenCalledWith(cloud, "de");
-    await jest.advanceTimersByTimeAsync(10_000);
-    await jest.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(10_000);
     expect(rooms).toStrictEqual([16, 17]);
 
     device.setCleaning(false);
-    await jest.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(0);
     expect(rooms).toStrictEqual([16, 17, undefined]);
     expect(positions).toStrictEqual([1000, 1100, 1200, 1300]);
 
     // No more polling once it stopped cleaning
     const calls = device.getCloudMap.mock.calls.length;
-    await jest.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(60_000);
     expect(device.getCloudMap).toHaveBeenCalledTimes(calls);
   });
 
@@ -90,16 +92,16 @@ describe("MapWatcher", () => {
       intervalMs: 1000, // clamped to 5s
     });
     await watcher.start();
-    await jest.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(0);
     expect(device.getCloudMap).toHaveBeenCalledTimes(1);
-    await jest.advanceTimersByTimeAsync(4_999);
+    await vi.advanceTimersByTimeAsync(4_999);
     expect(device.getCloudMap).toHaveBeenCalledTimes(1);
-    await jest.advanceTimersByTimeAsync(1);
+    await vi.advanceTimersByTimeAsync(1);
     expect(device.getCloudMap).toHaveBeenCalledTimes(2);
 
     watcher.stop();
     expect(device.listeners()).toBe(0);
-    await jest.advanceTimersByTimeAsync(60_000);
+    await vi.advanceTimersByTimeAsync(60_000);
     expect(device.getCloudMap).toHaveBeenCalledTimes(2);
   });
 
@@ -107,17 +109,17 @@ describe("MapWatcher", () => {
     const device = createDevice(true);
     device.getCloudMap.mockRejectedValue(new Error("network"));
     const watcher = new MapWatcher(device, cloud, { server: "de" });
-    const failed = jest.fn();
+    const failed = vi.fn();
     watcher.on("failed", failed);
     await watcher.start();
-    await jest.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(0);
     expect(failed).toHaveBeenCalledTimes(1);
     // 1 failure → 20s, 2 failures → 40s
-    await jest.advanceTimersByTimeAsync(19_999);
+    await vi.advanceTimersByTimeAsync(19_999);
     expect(failed).toHaveBeenCalledTimes(1);
-    await jest.advanceTimersByTimeAsync(1);
+    await vi.advanceTimersByTimeAsync(1);
     expect(failed).toHaveBeenCalledTimes(2);
-    await jest.advanceTimersByTimeAsync(40_000);
+    await vi.advanceTimersByTimeAsync(40_000);
     expect(failed).toHaveBeenCalledTimes(3);
     watcher.stop();
   });
@@ -126,10 +128,10 @@ describe("MapWatcher", () => {
     const device = createDevice(true);
     device.getCloudMap.mockRejectedValue(new CloudSessionExpiredError());
     const watcher = new MapWatcher(device, cloud, { server: "de" });
-    const failed = jest.fn();
+    const failed = vi.fn();
     watcher.on("failed", failed);
     await watcher.start();
-    await jest.advanceTimersByTimeAsync(10 * 60_000);
+    await vi.advanceTimersByTimeAsync(10 * 60_000);
     expect(failed).toHaveBeenCalledTimes(1);
     expect(failed.mock.calls[0][0]).toBeInstanceOf(CloudSessionExpiredError);
   });

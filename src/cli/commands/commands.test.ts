@@ -1,5 +1,15 @@
 import { EventEmitter } from "node:events";
 
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
+
 import { log } from "../log";
 import { createFakeHandle } from "../../lib/test_utils.test.mock";
 import { Vacuum } from "../../lib/devices/vacuums/vacuum";
@@ -11,19 +21,19 @@ import * as controlCommand from "./control";
 import * as configureCommand from "./configure";
 import * as tokensUpdateCommand from "./tokens/update";
 
-jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }));
-jest.mock("../log", () => ({
+vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }));
+vi.mock("../log", () => ({
   log: {
-    info: jest.fn(),
-    plain: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    device: jest.fn(),
-    group: jest.fn((print: () => void) => print()),
+    info: vi.fn(),
+    plain: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    device: vi.fn(),
+    group: vi.fn((print: () => void) => print()),
   },
 }));
 
-const mockedFinder = deviceFinder as jest.Mock;
+const mockedFinder = deviceFinder as Mock;
 
 /** The commands type their argv: the tests pass any argv to every command */
 type AnyCommand = {
@@ -45,7 +55,7 @@ async function run(
   const browser = new EventEmitter();
   mockedFinder.mockReturnValue(browser);
   const exited = new Promise<void>((resolve) => {
-    jest.spyOn(process, "exit").mockImplementation((() => {
+    vi.spyOn(process, "exit").mockImplementation((() => {
       resolve();
     }) as never);
   });
@@ -56,16 +66,16 @@ async function run(
 
 describe("CLI commands", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
   afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
     process.exitCode = undefined;
   });
 
   test("protocol call sends JSON parameters as objects, with the token", async () => {
-    const miioCall = jest.fn().mockResolvedValue([{ code: 0, value: "SN" }]);
+    const miioCall = vi.fn().mockResolvedValue([{ code: 0, value: "SN" }]);
     await run(
       call,
       {
@@ -101,7 +111,7 @@ describe("CLI commands", () => {
     expect(log.error).not.toHaveBeenCalled();
     expect(process.exitCode).toBeUndefined();
     expect(log.device).toHaveBeenCalledWith(vacuum, true);
-    const printed = jest
+    const printed = vi
       .mocked(log.plain)
       .mock.calls.map((args) => args.join(" "));
     expect(printed).toContain("Firmware version: 3.5.8_0950");
@@ -124,7 +134,7 @@ describe("CLI commands", () => {
   });
 
   test("protocol call goes through the gateway for sub-devices (no miioCall)", async () => {
-    const subDeviceCall = jest.fn().mockResolvedValue(["ok"]);
+    const subDeviceCall = vi.fn().mockResolvedValue(["ok"]);
     await run(
       call,
       { idOrIp: "lumi.158d0001", method: "read", params: ["[1]"] },
@@ -135,7 +145,7 @@ describe("CLI commands", () => {
   });
 
   test("control passes the token and the parsed arguments", async () => {
-    const cleanRooms = jest.fn().mockResolvedValue("ok");
+    const cleanRooms = vi.fn().mockResolvedValue("ok");
     await run(
       control,
       {
@@ -179,7 +189,7 @@ describe("CLI commands", () => {
       await run(
         control,
         { idOrIp: "192.168.1.2", method: "changeFanSpeed", params: [3] },
-        { changeFanSpeed: jest.fn().mockResolvedValue(undefined) },
+        { changeFanSpeed: vi.fn().mockResolvedValue(undefined) },
       );
       expect(process.exitCode).toBeUndefined();
       expect(log.plain).not.toHaveBeenCalledWith(undefined);
@@ -191,7 +201,7 @@ describe("CLI commands", () => {
         control,
         { method: "changeFanSpeed", params: [3] },
         {
-          changeFanSpeed: jest.fn().mockRejectedValue(new Error("code -4005")),
+          changeFanSpeed: vi.fn().mockRejectedValue(new Error("code -4005")),
         },
       ],
       ["control: unknown method", control, { method: "nope", params: [] }, {}],
@@ -199,14 +209,14 @@ describe("CLI commands", () => {
         "protocol call: the call fails",
         call,
         { method: "get_properties", params: [] },
-        { miioCall: jest.fn().mockRejectedValue(new Error("timeout")) },
+        { miioCall: vi.fn().mockRejectedValue(new Error("timeout")) },
       ],
       [
         "inspect: the device can't be read",
         inspect,
         {},
         {
-          management: { info: jest.fn().mockRejectedValue(new Error("x")) },
+          management: { info: vi.fn().mockRejectedValue(new Error("x")) },
         },
       ],
       [
@@ -215,7 +225,7 @@ describe("CLI commands", () => {
         { ssid: "wifi", passwd: "secret" },
         {
           management: {
-            updateWireless: jest.fn().mockRejectedValue(new Error("x")),
+            updateWireless: vi.fn().mockRejectedValue(new Error("x")),
           },
         },
       ],
@@ -223,7 +233,7 @@ describe("CLI commands", () => {
         "tokens update: the token doesn't work",
         tokensUpdate,
         { token: "abc" },
-        { management: { updateToken: jest.fn().mockResolvedValue(false) } },
+        { management: { updateToken: vi.fn().mockResolvedValue(false) } },
       ],
       [
         "tokens update: the update fails",
@@ -231,7 +241,7 @@ describe("CLI commands", () => {
         { token: "abc" },
         {
           management: {
-            updateToken: jest.fn().mockRejectedValue(new Error("x")),
+            updateToken: vi.fn().mockRejectedValue(new Error("x")),
           },
         },
       ],
@@ -250,7 +260,7 @@ describe("CLI commands", () => {
       const browser = new EventEmitter();
       mockedFinder.mockReturnValue(browser);
       const exited = new Promise<void>((resolve) => {
-        jest.spyOn(process, "exit").mockImplementation((() => {
+        vi.spyOn(process, "exit").mockImplementation((() => {
           resolve();
         }) as never);
       });

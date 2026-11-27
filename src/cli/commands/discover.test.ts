@@ -1,5 +1,7 @@
 import { EventEmitter } from "node:events";
 
+import { describe, test, expect, beforeEach, vi, type Mock } from "vitest";
+
 import { log } from "../log";
 import { stopGracefully } from "../stop";
 import { tokens } from "../../lib/tokens";
@@ -7,29 +9,29 @@ import { deviceFinder } from "../device-finder";
 
 import * as discover from "./discover";
 
-jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }));
-jest.mock("../stop", () => ({ stopGracefully: jest.fn() }));
-jest.mock("../../lib/tokens", () => ({ tokens: { update: jest.fn() } }));
-jest.mock("../log", () => ({
+vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }));
+vi.mock("../stop", () => ({ stopGracefully: vi.fn() }));
+vi.mock("../../lib/tokens", () => ({ tokens: { update: vi.fn() } }));
+vi.mock("../log", () => ({
   log: {
-    info: jest.fn(),
-    plain: jest.fn(),
-    error: jest.fn(),
-    device: jest.fn(),
+    info: vi.fn(),
+    plain: vi.fn(),
+    error: vi.fn(),
+    device: vi.fn(),
   },
 }));
 
-const mockedFinder = deviceFinder as jest.Mock;
+const mockedFinder = deviceFinder as Mock;
 
-const update = tokens.update as jest.Mock;
+const update = tokens.update as Mock;
 
 function start(argv: Record<string, unknown> = {}) {
   const browser = Object.assign(new EventEmitter(), {
-    destroy: jest.fn().mockResolvedValue(undefined),
+    destroy: vi.fn().mockResolvedValue(undefined),
   });
   mockedFinder.mockReturnValue(browser);
   discover.handler(argv);
-  const [stop, onStopping] = (stopGracefully as jest.Mock).mock.calls.at(-1);
+  const [stop, onStopping] = (stopGracefully as Mock).mock.calls.at(-1) ?? [];
   return { browser, stop, onStopping };
 }
 
@@ -39,7 +41,7 @@ const device = {
 };
 
 describe("discover", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   test("stopping waits for the tokens being saved, then closes the discovery", async () => {
     let saved!: () => void;

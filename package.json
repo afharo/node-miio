@@ -52,10 +52,10 @@
     "preversion": "npm run lint && npm run build && npm run test:types && npm test",
     "version": "git add .",
     "postversion": "git push && git push --tags",
-    "test": "jest",
-    "test:verbose": "jest --verbose",
-    "test:watch": "jest --watch -verbose",
-    "test:coverage": "jest --verbose --coverage",
+    "test": "vitest run",
+    "test:verbose": "vitest run --reporter=verbose",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint --max-warnings=0 ."
   },
   "engines": {
@@ -70,26 +70,22 @@
     "yargs": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.13",
-    "@babel/preset-env": "^7.29.14",
-    "@babel/preset-typescript": "^7.29.7",
     "@eslint/js": "9.39.5",
     "@types/color-string": "^1.5.5",
-    "@types/jest": "^30.0.0",
     "@types/node": "^24.19.2",
-    "babel-jest": "^30.5.2",
+    "@vitest/coverage-v8": "^5.1.1",
+    "@vitest/eslint-plugin": "1.6.27",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-jest": "29.17.0",
     "eslint-plugin-jsdoc": "54.7.0",
     "eslint-plugin-n": "17.24.0",
     "eslint-plugin-prettier": "5.5.7",
     "eslint-plugin-promise": "7.3.0",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "jest": "^30.5.2",
     "rimraf": "^6.1.4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.72.2"
+    "typescript-eslint": "8.72.2",
+    "vitest": "^5.1.1"
   }
 }

@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { describe, test, expect } from "vitest";
+
 import { hawkAuthorization, type RoborockRriot } from "./hawk";
 
 const rriot: RoborockRriot = {

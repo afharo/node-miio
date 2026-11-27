@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { compose } from "../compose";
 
 import { Base, flush, record } from "./test_utils.test.mock";
@@ -6,7 +8,7 @@ import { AutonomousCharging, BatteryLevel } from "./index";
 
 describe("BatteryLevel and AutonomousCharging", () => {
   class Thing extends compose(Base, BatteryLevel, AutonomousCharging) {
-    activateCharging = jest.fn();
+    activateCharging = vi.fn();
   }
 
   test("battery level is -1 until known", async () => {

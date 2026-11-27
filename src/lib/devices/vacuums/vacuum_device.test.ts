@@ -1,5 +1,7 @@
 import util from "node:util";
 
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import { createFakeHandle } from "../../test_utils.test.mock";
 import { Device } from "../../device";
 import { DeviceInfo } from "../../device_info";
@@ -8,7 +10,7 @@ import { isVacuum } from "./vacuum_device";
 import { Vacuum } from "./vacuum";
 import { ViomiVacuum } from "./viomivacuum";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 describe("isVacuum", () => {
   test("is true for vacuums", () => {
@@ -53,8 +55,8 @@ describe("ViomiVacuum.getSerialNumber", () => {
 });
 
 describe("events", () => {
-  beforeEach(() => jest.useFakeTimers());
-  afterEach(() => jest.useRealTimers());
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
 
   test("errorChanged emits { id, description } (the shape of ErrorChangedEvent)", async () => {
     const vacuum = new Vacuum(
@@ -65,7 +67,7 @@ describe("events", () => {
 
     vacuum.setRawProperty("error_code", 10);
     vacuum.setRawProperty("state", 12); // "error"
-    await jest.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(100);
 
     expect(errors).toEqual([{ id: 10, description: "Filter blocked" }]);
   });

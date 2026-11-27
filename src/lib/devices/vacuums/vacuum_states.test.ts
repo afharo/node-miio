@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { createFakeHandle } from "../../test_utils.test.mock";
 
 import { DreameVacuum } from "./dreamevacuum";
@@ -11,7 +13,7 @@ import {
 } from "./vacuum_states";
 import { ViomiVacuum } from "./viomivacuum";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 describe("isCleaningState", () => {
   test.each(CLEANING_STATES)("%s is cleaning", (state) => {

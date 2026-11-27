@@ -1,6 +1,8 @@
 import { EventEmitter } from "node:events";
 import { styleText } from "node:util";
 
+import { describe, test, expect, vi } from "vitest";
+
 import { doneMessage, formatDuration, reportWhenDone } from "./done";
 
 describe("formatDuration", () => {
@@ -45,7 +47,7 @@ describe("doneMessage", () => {
 describe("reportWhenDone", () => {
   test("prints the message when a command ran", () => {
     const proc = new EventEmitter();
-    const print = jest.fn();
+    const print = vi.fn();
     const started = reportWhenDone(proc, print);
     started();
     proc.emit("exit", 1);
@@ -56,7 +58,7 @@ describe("reportWhenDone", () => {
 
   test("uses the exit code of the process when the event has none", () => {
     const proc = Object.assign(new EventEmitter(), { exitCode: 0 });
-    const print = jest.fn();
+    const print = vi.fn();
     reportWhenDone(proc, print)();
     proc.emit("exit");
     expect(print).toHaveBeenCalledWith(
@@ -66,7 +68,7 @@ describe("reportWhenDone", () => {
 
   test("prints nothing when no command ran (--help, usage errors)", () => {
     const proc = new EventEmitter();
-    const print = jest.fn();
+    const print = vi.fn();
     reportWhenDone(proc, print);
     proc.emit("exit", 0);
     expect(print).not.toHaveBeenCalled();

@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { compose } from "../compose";
 import { Code } from "../values";
 

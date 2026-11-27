@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json";
 
 import {

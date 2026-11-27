@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { describe, test, expect, vi } from "vitest";
+
 import { fakeFetch, type Handler } from "./cloud.test.mock";
 import {
   CloudAuthError,
@@ -8,7 +10,7 @@ import {
 } from "./errors";
 import { loginWithPassword, loginWithQrCode } from "./login";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 const ACCOUNT = "account.xiaomi.com";
 const SSECURITY = "c3NlY3VyaXR5LXZhbHVl";
@@ -117,7 +119,7 @@ describe("loginWithPassword", () => {
 
     test("solved: retries with the captcha code", async () => {
       const { fetch } = fakeFetch(routes());
-      const solveCaptcha = jest.fn().mockResolvedValue("AbC12");
+      const solveCaptcha = vi.fn().mockResolvedValue("AbC12");
       await expect(
         loginWithPassword("me", "pw", { fetch, solveCaptcha }),
       ).resolves.toMatchObject({
@@ -194,7 +196,7 @@ describe("loginWithPassword", () => {
 
     test("verifies the emailed code and completes the login", async () => {
       const { fetch, requests } = fakeFetch(routes());
-      const getVerificationCode = jest.fn().mockResolvedValue(" 123456 ");
+      const getVerificationCode = vi.fn().mockResolvedValue(" 123456 ");
       await expect(
         loginWithPassword("me", "pw", { fetch, getVerificationCode }),
       ).resolves.toStrictEqual({
@@ -246,7 +248,7 @@ describe("loginWithQrCode", () => {
             },
       ...sts,
     });
-    const onQrCode = jest.fn();
+    const onQrCode = vi.fn();
 
     // The first poll answers without ssecurity: it keeps polling
     await expect(

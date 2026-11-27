@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { MiioThing } from "./thing";
 
 /** Waits for the queued events to be emitted */
@@ -35,7 +37,7 @@ describe("MiioThing", () => {
 
     test("capabilities can be added and removed at runtime", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("thing:metadata", listener);
       thing.metadata.addCapabilities("c");
       thing.metadata.removeCapabilities("a");
@@ -47,7 +49,7 @@ describe("MiioThing", () => {
 
     test("the name emits thing:metadata when it changes", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("thing:metadata", listener);
       thing.metadata.name = "Robot";
       thing.metadata.name = "Robot";
@@ -60,7 +62,7 @@ describe("MiioThing", () => {
   describe("events", () => {
     test("are emitted asynchronously, with the data and the thing", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("something", listener);
       thing.emitEvent("something", 1);
       expect(listener).not.toHaveBeenCalled();
@@ -70,7 +72,7 @@ describe("MiioThing", () => {
 
     test("only the last event of each name is emitted per tick", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("something", listener);
       thing.emitEvent("something", 1);
       thing.emitEvent("something", 2);
@@ -80,7 +82,7 @@ describe("MiioThing", () => {
 
     test("multiple: true keeps all of them", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("something", listener);
       thing.emitEvent("something", 1, { multiple: true });
       thing.emitEvent("something", 2, { multiple: true });
@@ -93,7 +95,7 @@ describe("MiioThing", () => {
 
     test("multiple as a function replaces the matching queued event", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("something", listener);
       const sameKey = (key: string) => (e: { key: string }) => e.key === key;
       thing.emitEvent(
@@ -120,7 +122,7 @@ describe("MiioThing", () => {
 
     test("events emitted by listeners are emitted on the next tick", async () => {
       const thing = new TestThing();
-      const second = jest.fn();
+      const second = vi.fn();
       thing.on("first", () => thing.emitEvent("second", 2));
       thing.on("second", second);
       thing.emitEvent("first", 1);
@@ -132,7 +134,7 @@ describe("MiioThing", () => {
 
     test("an error event without listeners doesn't throw", async () => {
       const thing = new TestThing();
-      const other = jest.fn();
+      const other = vi.fn();
       thing.on("other", other);
       thing.emitEvent("error", new Error("boom"));
       thing.emitEvent("other", 1);
@@ -142,7 +144,7 @@ describe("MiioThing", () => {
 
     test("an error event is emitted to its listeners", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("error", listener);
       thing.emitEvent("error", "boom");
       await flush();
@@ -153,7 +155,7 @@ describe("MiioThing", () => {
   describe("state", () => {
     test("updateState emits stateChanged when the value changes (deeply)", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("stateChanged", listener);
       expect(thing.updateState("a", { x: 1 })).toBe(true);
       expect(thing.updateState("a", { x: 1 })).toBe(false);
@@ -168,7 +170,7 @@ describe("MiioThing", () => {
 
     test("only the last stateChanged of each key is emitted per tick", async () => {
       const thing = new TestThing();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("stateChanged", listener);
       thing.updateState("a", 1);
       thing.updateState("b", 1);
@@ -192,7 +194,7 @@ describe("MiioThing", () => {
       const thing = new TestThing();
       thing.updateState("a", 1);
       await flush();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("stateChanged", listener);
       thing.removeState("a");
       thing.removeState("missing");
@@ -212,7 +214,7 @@ describe("MiioThing", () => {
 
   describe("lifecycle", () => {
     test("init runs initCallback, validates the id and emits thing:initialized", async () => {
-      const initCallback = jest.fn();
+      const initCallback = vi.fn();
       class Initialized extends TestThing {
         async initCallback() {
           await super.initCallback();
@@ -220,7 +222,7 @@ describe("MiioThing", () => {
         }
       }
       const thing = new Initialized();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("thing:initialized", listener);
       await expect(thing.init()).resolves.toBe(thing);
       await expect(thing.init()).resolves.toBe(thing);
@@ -250,7 +252,7 @@ describe("MiioThing", () => {
     });
 
     test("destroy runs destroyCallback once and emits thing:destroyed", async () => {
-      const destroyCallback = jest.fn();
+      const destroyCallback = vi.fn();
       class Destroyable extends TestThing {
         async destroyCallback() {
           await super.destroyCallback();
@@ -262,7 +264,7 @@ describe("MiioThing", () => {
       expect(destroyCallback).not.toHaveBeenCalled(); // not initialized
 
       await thing.init();
-      const listener = jest.fn();
+      const listener = vi.fn();
       thing.on("thing:destroyed", listener);
       await thing.destroy();
       await thing.destroy();

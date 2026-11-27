@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { isSameValue } from "./same_value";
 
 describe("isSameValue", () => {

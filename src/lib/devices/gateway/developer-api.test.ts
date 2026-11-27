@@ -2,13 +2,15 @@ import { EventEmitter } from "node:events";
 import dgram from "node:dgram";
 import os from "node:os";
 
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import DeveloperApi from "./developer-api";
 
 class FakeSocket extends EventEmitter {
-  bind = jest.fn();
-  send = jest.fn();
-  close = jest.fn();
-  addMembership = jest.fn();
+  bind = vi.fn();
+  send = vi.fn();
+  close = vi.fn();
+  addMembership = vi.fn();
 
   /**
    * @param message What the gateway sends
@@ -20,15 +22,15 @@ class FakeSocket extends EventEmitter {
 
 describe("DeveloperApi", () => {
   let socket: FakeSocket;
-  const parent = { debug: jest.fn() };
+  const parent = { debug: vi.fn() };
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     socket = new FakeSocket();
-    jest
-      .spyOn(dgram, "createSocket")
-      .mockReturnValue(socket as unknown as dgram.Socket);
-    jest.spyOn(os, "networkInterfaces").mockReturnValue({
+    vi.spyOn(dgram, "createSocket").mockReturnValue(
+      socket as unknown as dgram.Socket,
+    );
+    vi.spyOn(os, "networkInterfaces").mockReturnValue({
       en0: [
         { family: "IPv4", address: "192.168.1.10" } as os.NetworkInterfaceInfo,
         { family: "IPv6", address: "fe80::1" } as os.NetworkInterfaceInfo,
@@ -37,8 +39,8 @@ describe("DeveloperApi", () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   test("joins the multicast group and asks who's there", () => {
@@ -63,7 +65,7 @@ describe("DeveloperApi", () => {
 
   test("is ready when the gateway answers, and talks to its port", () => {
     const api = new DeveloperApi(parent, "192.168.1.2");
-    const ready = jest.fn();
+    const ready = vi.fn();
     api.on("ready", ready);
 
     socket.receive({ cmd: "iam", ip: "192.168.1.3", port: 1, sid: "other" });
@@ -85,18 +87,18 @@ describe("DeveloperApi", () => {
 
   test("is ready after a second without an answer", () => {
     const api = new DeveloperApi(parent, "192.168.1.2");
-    const ready = jest.fn();
+    const ready = vi.fn();
     api.on("ready", ready);
     socket.emit("listening");
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
     expect(ready).toHaveBeenCalled();
   });
 
   test("emits the properties of the gateway (id 0) and of its sub-devices", () => {
     const api = new DeveloperApi(parent, "192.168.1.2");
-    const changed = jest.fn();
-    const sensor = jest.fn();
+    const changed = vi.fn();
+    const sensor = vi.fn();
     api.on("propertiesChanged", changed);
     api.on("properties:158d0001", sensor);
 
@@ -123,7 +125,7 @@ describe("DeveloperApi", () => {
 
   test("emits an error for a message that isn't JSON", () => {
     const api = new DeveloperApi(parent, "192.168.1.2");
-    const error = jest.fn();
+    const error = vi.fn();
     api.on("error", error);
 
     socket.emit("message", Buffer.from("not json"));

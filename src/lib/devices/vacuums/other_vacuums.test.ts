@@ -1,21 +1,23 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+
 import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
 
 import { DreameVacuum } from "./dreamevacuum";
 import { MijiaVacuum } from "./mijiavacuum";
 import { ViomiVacuum } from "./viomivacuum";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 async function withTimers<T>(promise: Promise<T>): Promise<T> {
   const [result] = await Promise.all([
     promise,
-    jest.advanceTimersByTimeAsync(5000),
+    vi.advanceTimersByTimeAsync(5000),
   ]);
   return result;
 }
 
-beforeEach(() => jest.useFakeTimers());
-afterEach(() => jest.useRealTimers());
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
 
 describe("MijiaVacuum", () => {
   const status = { get_status: [{ state: 5 }], get_consumable: [{}] };

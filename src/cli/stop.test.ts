@@ -1,9 +1,11 @@
 import { EventEmitter } from "node:events";
 
+import { describe, test, expect, vi } from "vitest";
+
 import { stopGracefully } from "./stop";
 
 function fakeProcess() {
-  return Object.assign(new EventEmitter(), { exit: jest.fn() });
+  return Object.assign(new EventEmitter(), { exit: vi.fn() });
 }
 
 describe("stopGracefully", () => {
@@ -12,10 +14,10 @@ describe("stopGracefully", () => {
     async (signal) => {
       const proc = fakeProcess();
       let finish!: () => void;
-      const stop = jest.fn(
+      const stop = vi.fn(
         () => new Promise<void>((resolve) => (finish = resolve)),
       );
-      const onStopping = jest.fn();
+      const onStopping = vi.fn();
       stopGracefully(stop, onStopping, proc);
 
       proc.emit(signal);
@@ -34,7 +36,7 @@ describe("stopGracefully", () => {
     ["SIGTERM", 143],
   ])("a second %s quits right away (exit code %p)", (signal, code) => {
     const proc = fakeProcess();
-    const stop = jest.fn(() => new Promise<void>(() => {}));
+    const stop = vi.fn(() => new Promise<void>(() => {}));
     stopGracefully(stop, undefined, proc);
     proc.emit("SIGINT");
     proc.emit(signal);

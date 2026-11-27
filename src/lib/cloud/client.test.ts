@@ -1,8 +1,10 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { encryptedApi, fakeFetch, type Handler } from "./cloud.test.mock";
 import { XiaomiCloud } from "./client";
 import { CloudApiError, CloudSessionExpiredError } from "./errors";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 const session = {
   userId: "1001",

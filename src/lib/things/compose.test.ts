@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { Capability } from "./capability";
 import { compose } from "./compose";
 import { MiioThing } from "./thing";
@@ -117,7 +119,7 @@ describe("compose", () => {
     class Thing extends compose(Base, Counter) {}
     const a = new Thing();
     const b = new Thing();
-    const listener = jest.fn();
+    const listener = vi.fn();
     a.on("stateChanged", listener);
     a.getState<unknown[]>("list").push(1);
     expect(await a.state()).toEqual({ count: 0, list: [1] });

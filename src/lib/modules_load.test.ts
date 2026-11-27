@@ -1,9 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { describe, test, expect, vi } from "vitest";
+
 import * as miio from "./index";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 /**
  * Regression test: every module must be loadable on its own (no broken mixins, no circular imports evaluated too early).
@@ -24,12 +26,11 @@ function listModules(dir: string): string[] {
 const modules = listModules(__dirname).map((p) => path.relative(__dirname, p));
 
 describe("modules", () => {
-  test.each(modules)("%s loads in isolation", (modulePath) => {
-    jest.isolateModules(() => {
-      expect(() =>
-        jest.requireActual(path.join(__dirname, modulePath)),
-      ).not.toThrow();
-    });
+  test.each(modules)("%s loads in isolation", async (modulePath) => {
+    vi.resetModules();
+    await expect(
+      import(path.join(__dirname, modulePath)),
+    ).resolves.toBeDefined();
   });
 
   test("the public API is exported", () => {

@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+import { describe, test, expect } from "vitest";
+
 import { RoborockApiError } from "./errors";
 import { fakeMqtt } from "./fake_mqtt.test.mock";
 import type { RoborockRriot } from "./hawk";

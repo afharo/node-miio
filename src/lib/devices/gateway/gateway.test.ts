@@ -1,5 +1,7 @@
 import { EventEmitter } from "node:events";
 
+import { describe, test, expect, vi } from "vitest";
+
 import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
 import { GatewayBasic, GatewayWithLightAndSensor } from "../gateway";
 
@@ -10,14 +12,14 @@ import { Plug } from "./plug";
 import { Magnet, MotionSensor, WeatherSensor } from "./sensors";
 import type { SubDeviceParent } from "./subdevice";
 
-jest.mock("debug", () => jest.fn().mockReturnValue(jest.fn()));
+vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 /** A fake gateway: a developer API that reports properties, and a mocked call */
 function fakeParent() {
-  const devApi = Object.assign(new EventEmitter(), { read: jest.fn() });
-  const call = jest.fn().mockResolvedValue(["ok"]);
+  const devApi = Object.assign(new EventEmitter(), { read: vi.fn() });
+  const call = vi.fn().mockResolvedValue(["ok"]);
   const parent = { id: "miio:1", devApi, call } as unknown as SubDeviceParent;
   /**
    * Reports the properties of a sub-device, as the developer API does.
@@ -76,7 +78,7 @@ describe("gateway sub-devices", () => {
   });
 
   test("fall back to get_device_prop_exp when the developer API doesn't answer", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const { parent, call } = fakeParent();
       call.mockResolvedValue([["close", 3300]]);
@@ -85,7 +87,7 @@ describe("gateway sub-devices", () => {
         model: "lumi.magnet",
       });
       const loading = magnet.loadProperties(["contact"]);
-      await jest.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(1000);
       await loading;
       expect(sentCalls(call)).toEqual([
         ["get_device_prop_exp", [["lumi.158d0002", "status", "voltage"]]],
@@ -93,7 +95,7 @@ describe("gateway sub-devices", () => {
       expect(await magnet.isClosed()).toBe(true);
       expect(await magnet.batteryLevel()).toBe(100);
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
@@ -131,7 +133,7 @@ describe("gateway sub-devices", () => {
   });
 
   test("motion goes back to idle after a minute", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const { parent } = fakeParent();
       const motion = new MotionSensor(parent, {
@@ -140,10 +142,10 @@ describe("gateway sub-devices", () => {
       });
       motion._report({ status: "motion" });
       expect(await motion.motion()).toBe(true);
-      await jest.advanceTimersByTimeAsync(60_000);
+      await vi.advanceTimersByTimeAsync(60_000);
       expect(await motion.motion()).toBe(false);
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   });
 
@@ -199,8 +201,8 @@ describe("Gateway", () => {
     });
     const gateway = new GatewayBasic(handle);
     const devApi = Object.assign(new EventEmitter(), {
-      read: jest.fn(),
-      destroy: jest.fn(),
+      read: vi.fn(),
+      destroy: vi.fn(),
     });
     gateway.devApi = devApi as unknown as GatewayBasic["devApi"];
     devApi.read.mockImplementation((id: string) =>
@@ -237,13 +239,13 @@ describe("Gateway", () => {
     expect(Number(await gateway.illuminance())).toBe(100);
 
     call.mockClear();
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     try {
       const done = light.setBrightness(50);
-      await jest.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(100);
       await done;
     } finally {
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
     expect(sentCalls(call)[0]).toEqual([
       "set_rgb",

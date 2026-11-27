@@ -1,3 +1,5 @@
+import { describe, test, expect, vi } from "vitest";
+
 import { compose } from "../compose";
 import { Code } from "../values";
 
@@ -7,9 +9,9 @@ import { AutonomousCleaning, SpotCleaning } from "./index";
 
 describe("cleaning", () => {
   class Thing extends compose(Base, AutonomousCleaning, SpotCleaning) {
-    activateCleaning = jest.fn();
-    deactivateCleaning = jest.fn();
-    activateSpotClean = jest.fn();
+    activateCleaning = vi.fn();
+    deactivateCleaning = vi.fn();
+    activateSpotClean = vi.fn();
   }
 
   test("emits cleaningStarted, then cleaningDone and cleaningStopped", async () => {

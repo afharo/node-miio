@@ -1,3 +1,5 @@
+import { describe, test, expect } from "vitest";
+
 import { Vacuum } from "../devices/vacuums/vacuum";
 
 import { RoborockDeviceApi, roborockDevice } from "./device";
