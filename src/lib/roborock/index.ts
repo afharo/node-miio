@@ -9,6 +9,7 @@ export {
   type RoborockHomeDevice,
   type RoborockProduct,
   type RoborockDevice,
+  type RoborockRoutine,
   type RoborockWebApiOptions,
 } from "./web_api";
 export { hawkAuthorization, type RoborockRriot } from "./hawk";

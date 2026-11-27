@@ -5,6 +5,7 @@ export {
   matchDevice,
   type CloudDevice,
   type CloudDeviceMatch,
+  type XiaomiScene,
   type XiaomiCloudOptions,
 } from "./client";
 export { CloudDeviceCache } from "./device_cache";

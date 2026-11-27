@@ -83,6 +83,13 @@ export interface RoborockHomeData {
 }
 
 /** A robot of the account, with its product details */
+/** A routine of the Roborock app (see {@link RoborockWebApi.getRoutines}) */
+export interface RoborockRoutine {
+  id: number;
+  name: string;
+  enabled: boolean;
+}
+
 export interface RoborockDevice {
   duid: string;
   name: string;
@@ -435,14 +442,9 @@ export class RoborockWebApi {
    */
   async getHomeData(): Promise<RoborockHomeData> {
     const homeId = await this.getHomeId();
-    const { rriot } = this.session.userData;
-    const path = `/v3/user/homes/${homeId}`;
-    const response = await this.http.json<RoborockHomeData>(
-      `${rriot.r.a.replace(/\/$/, "")}${path}`,
-      {
-        method: "GET",
-        headers: { Authorization: hawkAuthorization(rriot, path) },
-      },
+    const response = await this.rriotRequest<RoborockHomeData>(
+      "GET",
+      `/v3/user/homes/${homeId}`,
     );
     if (!response.success || !response.result) {
       throw new RoborockApiError(
@@ -457,6 +459,63 @@ export class RoborockWebApi {
       receivedDevices: response.result.receivedDevices ?? [],
       rooms: response.result.rooms ?? [],
     };
+  }
+
+  /**
+   * The robot's routines in the Roborock app (they run in the Roborock cloud). Based on python-roborock's
+   * `ScenesApi.get_scenes` (Apache-2.0).
+   *
+   * @param duid The robot
+   * @returns Its routines
+   */
+  async getRoutines(duid: string): Promise<RoborockRoutine[]> {
+    const response = await this.rriotRequest<
+      Array<{ id: number; name?: string; enabled?: boolean }>
+    >("GET", `/user/scene/device/${duid}`);
+    if (!response.success || !Array.isArray(response.result)) {
+      throw new RoborockApiError(
+        `Getting the routines failed: ${response.msg ?? JSON.stringify(response)}`,
+        response.code,
+      );
+    }
+    return response.result.map(({ id, name, enabled }) => ({
+      id,
+      name: name ?? "",
+      enabled: enabled !== false,
+    }));
+  }
+
+  /**
+   * Runs a routine, like tapping it in the Roborock app. Based on python-roborock's `ScenesApi.execute_scene`.
+   *
+   * @param id The routine's id, from {@link getRoutines}
+   */
+  async runRoutine(id: number) {
+    const response = await this.rriotRequest<unknown>(
+      "POST",
+      `/user/scene/${id}/execute`,
+    );
+    if (!response.success) {
+      throw new RoborockApiError(
+        `Running the routine failed: ${response.msg ?? JSON.stringify(response)}`,
+        response.code,
+      );
+    }
+  }
+
+  /**
+   * A request to the IoT API, signed with the session's `rriot`.
+   *
+   * @param method The HTTP method
+   * @param path The API path
+   * @returns The response
+   */
+  private rriotRequest<T>(method: "GET" | "POST", path: string) {
+    const { rriot } = this.session.userData;
+    return this.http.json<T>(`${rriot.r.a.replace(/\/$/, "")}${path}`, {
+      method,
+      headers: { Authorization: hawkAuthorization(rriot, path) },
+    });
   }
 
   /**

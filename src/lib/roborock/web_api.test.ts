@@ -283,6 +283,53 @@ describe("RoborockWebApi", () => {
     );
   });
 
+  test("routines: lists and runs them (signed like the home data)", async () => {
+    const { fetch, requests } = fakeFetch({
+      [`GET api-eu.roborock.com/user/scene/device/duid-1`]: () => ({
+        json: {
+          success: true,
+          result: [
+            {
+              id: 19799177,
+              name: "Limpieza completa",
+              enabled: true,
+              param: "{}",
+            },
+            { id: 19799118, name: "Limpieza inteligente", enabled: false },
+          ],
+        },
+      }),
+      [`POST api-eu.roborock.com/user/scene/19799177/execute`]: () => ({
+        json: { success: true, result: null },
+      }),
+      [`POST api-eu.roborock.com/user/scene/1/execute`]: () => ({
+        json: { success: false, msg: "scene not found" },
+      }),
+    });
+    const api = new RoborockWebApi(session, { fetch });
+    await expect(api.getRoutines("duid-1")).resolves.toStrictEqual([
+      { id: 19799177, name: "Limpieza completa", enabled: true },
+      { id: 19799118, name: "Limpieza inteligente", enabled: false },
+    ]);
+    await api.runRoutine(19799177);
+    expect(requests[1].method).toBe("POST");
+    expect(requests[1].headers.authorization).toMatch(/^Hawk id="u1"/);
+    await expect(api.runRoutine(1)).rejects.toThrow(
+      "Running the routine failed: scene not found",
+    );
+  });
+
+  test("routines: a failed request", async () => {
+    const { fetch } = fakeFetch({
+      [`GET api-eu.roborock.com/user/scene/device/duid-1`]: () => ({
+        json: { success: false, msg: "nope" },
+      }),
+    });
+    await expect(
+      new RoborockWebApi(session, { fetch }).getRoutines("duid-1"),
+    ).rejects.toThrow("Getting the routines failed: nope");
+  });
+
   test("an expired session", async () => {
     const { fetch } = fakeFetch({
       [`GET ${EU}/api/v1/getHomeDetail`]: () => ({

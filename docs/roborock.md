@@ -76,6 +76,11 @@ console.log(await vacuum.batteryLevel(), vacuum.property("state"));
 const rooms = roomNames(await vacuum.getRoomMap(), home.rooms); // [{ segmentId: 1, roomId, name: "Kitchen" }, …]
 await vacuum.cleanRooms([rooms[0].segmentId]);
 
+// The robot's routines of the Roborock app (they run in Roborock's cloud)
+const api = new RoborockWebApi(session);
+const routines = await api.getRoutines(robot.duid); // [{ id: 19799177, name: "Full clean", enabled: true }]
+await api.runRoutine(routines[0].id);
+
 // The map (over MQTT): the same `RoborockMap` as `parseRoborockMap` (rooms, robot position, current room…)
 const map = await roborockApiOf(vacuum)?.getMap();
 await vacuum.destroy();
@@ -87,5 +92,5 @@ without waiting for the next poll.
 
 ## Credits
 
-The account endpoints, the message format (`1.0` and `L01`), the MQTT topics and the map responses follow [python-roborock](https://github.com/Python-roborock/python-roborock) (Apache-2.0),
+The account endpoints (routines included), the message format (`1.0` and `L01`), the MQTT topics and the map responses follow [python-roborock](https://github.com/Python-roborock/python-roborock) (Apache-2.0),
 which documents Roborock's API. No code is copied from it.

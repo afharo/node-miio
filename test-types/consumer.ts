@@ -125,9 +125,24 @@ export async function roborockDevices() {
   const devices: miio.RoborockDevice[] = await new miio.RoborockWebApi(
     session,
   ).getDevices();
+  const api = new miio.RoborockWebApi(session);
+  const routines: miio.RoborockRoutine[] = devices[0]
+    ? await api.getRoutines(devices[0].duid)
+    : [];
+  if (routines[0]) await api.runRoutine(routines[0].id);
   return devices.map(
     ({ model, protocolVersion }) => `${model} ${protocolVersion}`,
   );
+}
+
+// Xiaomi Cloud: the manual scenes that use a device
+export async function xiaomiScenes(did: string) {
+  const session = await miio.loadSession();
+  if (!session) return [];
+  const cloud = new miio.XiaomiCloud(session);
+  const scenes: miio.XiaomiScene[] = await cloud.getScenes("de", { did });
+  if (scenes[0]) await cloud.runScene("de", scenes[0].id);
+  return scenes.map(({ name }) => name);
 }
 
 // Roborock app robots over the local network (experimental)

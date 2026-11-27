@@ -183,6 +183,70 @@ describe("XiaomiCloud", () => {
     });
   });
 
+  test("manual scenes: of every home, optionally only the ones using a device", async () => {
+    const lists: unknown[] = [];
+    const { fetch } = fakeFetch({
+      "POST de.api.io.mi.com/app/v2/homeroom/gethome": api(() =>
+        ok({ homelist: [{ id: 749 }] }),
+      ),
+      "POST de.api.io.mi.com/app/v2/user/get_device_cnt": api(() =>
+        ok({ share: { share_family: [{ home_id: 800, home_owner: 42 }] } }),
+      ),
+      "POST de.api.io.mi.com/app/appgateway/miot/appsceneservice/AppSceneService/GetSimpleSceneList":
+        api((data) => {
+          const request = JSON.parse(data);
+          lists.push(request);
+          return ok(
+            request.home_id === "749"
+              ? {
+                  manual_scene_info_list: [
+                    {
+                      scene_id: "2075222181387190272",
+                      name: "Vacuum the kitchen",
+                      enable: true,
+                      authed: ["123456"],
+                    },
+                    {
+                      scene_id: "2075222186600718336",
+                      name: "Camera off",
+                      authed: [368644599],
+                    },
+                  ],
+                }
+              : null,
+          );
+        }),
+      "POST de.api.io.mi.com/app/appgateway/miot/appsceneservice/AppSceneService/RunScene":
+        api((data) => ok(JSON.parse(data).scene_id === "1" ? true : false)),
+    });
+    const cloud = new XiaomiCloud(session, { fetch });
+    await expect(cloud.getScenes("de")).resolves.toStrictEqual([
+      {
+        id: "2075222181387190272",
+        name: "Vacuum the kitchen",
+        enabled: true,
+        homeId: "749",
+        dids: ["123456"],
+      },
+      {
+        id: "2075222186600718336",
+        name: "Camera off",
+        enabled: true,
+        homeId: "749",
+        dids: ["368644599"],
+      },
+    ]);
+    expect(lists[1]).toMatchObject({ home_id: "800", owner_uid: "42" });
+    await expect(
+      cloud.getScenes("de", { did: "123456" }),
+    ).resolves.toMatchObject([{ name: "Vacuum the kitchen" }]);
+
+    await expect(cloud.runScene("de", "1")).resolves.toBeUndefined();
+    await expect(cloud.runScene("de", "2")).rejects.toThrow(
+      "The scene 2 didn't run",
+    );
+  });
+
   test("map files", async () => {
     const { fetch } = fakeFetch({
       "POST de.api.io.mi.com/app/home/getmapfileurl": api((data) =>

@@ -66,6 +66,14 @@ const devices = await new XiaomiCloud(session!).getDevices({ servers: ["de"] });
 // [{ did, name, model, token, localip, mac, server, homeId, homeOwner }]
 ```
 
+The manual scenes of the Xiaomi Home app ("Tap to run"; "Controles manuales" in Spanish) can be listed and run:
+
+```ts
+const scenes = await cloud.getScenes("de", { did: robot.did }); // only the ones using the robot (optional)
+// [{ id: "2075222181387190272", name: "Vacuum the kitchen", enabled: true, homeId, dids: ["123456"] }]
+await cloud.runScene("de", scenes[0].id);
+```
+
 To share the device list (e.g. between the devices of a Homebridge or Matterbridge platform), use
 `CloudDeviceCache`: it lists the devices once, and finds them by ID, token or IP.
 
