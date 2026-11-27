@@ -602,6 +602,19 @@ describe("Vacuum (roborock miIO)", () => {
       expect(attempts).toBe(3);
     });
 
+    test("getMapName waits while the vacuum is locating itself", async () => {
+      // A roborock.vacuum.s5 answers "locating" at the start of a cleaning: it's not a map name
+      let attempts = 0;
+      const { vacuum } = createVacuum({
+        get_map_v1: () =>
+          ++attempts < 2 ? ["locating"] : ["robomap%2F96818260%2F1"],
+      });
+      await expect(withTimers(vacuum.getMapName())).resolves.toBe(
+        "robomap%2F96818260%2F1",
+      );
+      expect(attempts).toBe(2);
+    });
+
     test("getMapName gives up after the retries", async () => {
       const { vacuum } = createVacuum({ get_map_v1: ["retry"] });
       await expect(
