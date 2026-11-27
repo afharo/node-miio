@@ -95,10 +95,18 @@ async function useVacuum(device: VacuumDevice) {
     await device.startMopWash();
     await device.startMopDrying();
     const maps: Array<{ id: number; name: string }> = await device.getMaps();
+    const backups: Array<{ id: number; savedAt: Date }> =
+      await device.getBackupMaps();
+    if (backups[0]) await device.loadBackupMap(backups[0].id);
     const waterBoxMode: number | undefined = await device.getWaterBoxMode();
     const presets: miio.CleanPreset[] = await device.cleanPresets();
     if (presets[0]) await device.setCleanMotorMode(presets[0]);
-    console.log(maps, waterBoxMode, device.property<boolean>("waterShortage"));
+    console.log(
+      maps,
+      backups,
+      waterBoxMode,
+      device.property<boolean>("waterShortage"),
+    );
   }
 
   // MIoT-only API

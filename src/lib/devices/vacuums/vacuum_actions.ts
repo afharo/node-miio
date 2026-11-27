@@ -103,6 +103,16 @@ const VACUUM_ACTIONS = {
     description: "Switches to another saved map",
     arguments: [{ type: "number", description: "The id, from getMaps" }],
   },
+  getBackupMaps: {
+    description: "The map backups (e.g. S5), newest first",
+    returns: "array",
+  },
+  loadBackupMap: {
+    description: "Restores a map backup (it replaces the current map)",
+    arguments: [
+      { type: "number", description: "The slot, from getBackupMaps" },
+    ],
+  },
   getMapName: {
     description: "The name of the current map file in the Xiaomi Cloud",
     arguments: [

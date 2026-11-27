@@ -186,6 +186,15 @@ export interface Protocol extends LegacyProtocol {
     params: [number];
     response: unknown;
   };
+  // Roborock: map backups ("Map saving" in the app, e.g. S5). Each one is [slot, saved at (Unix seconds)]
+  get_recover_maps: {
+    params: [];
+    response: Array<[number, number]>;
+  };
+  recover_map: {
+    params: [number];
+    response: unknown;
+  };
   // Roborock: dock (mop washing)
   app_start_wash: {
     params: [];
