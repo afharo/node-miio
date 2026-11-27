@@ -1,6 +1,5 @@
 import { EventEmitter } from "node:events";
-
-import chalk from "chalk";
+import { styleText } from "node:util";
 
 import { doneMessage, formatDuration, reportWhenDone } from "./done";
 
@@ -21,16 +20,24 @@ describe("formatDuration", () => {
 
 describe("doneMessage", () => {
   test("succeeded", () => {
-    expect(doneMessage(0, 127)).toBe(chalk.green("Done (succeeded in 127ms)"));
+    expect(doneMessage(0, 127)).toBe(
+      styleText("green", "Done (succeeded in 127ms)", {
+        stream: process.stderr,
+      }),
+    );
   });
 
   test("failed", () => {
-    expect(doneMessage(1, 2100)).toBe(chalk.red("Done (failed after 2.1s)"));
+    expect(doneMessage(1, 2100)).toBe(
+      styleText("red", "Done (failed after 2.1s)", { stream: process.stderr }),
+    );
   });
 
   test.each([130, 143])("cancelled (exit code %p)", (code) => {
     expect(doneMessage(code, 2100)).toBe(
-      chalk.yellow("Done (cancelled after 2.1s)"),
+      styleText("yellow", "Done (cancelled after 2.1s)", {
+        stream: process.stderr,
+      }),
     );
   });
 });

@@ -1,21 +1,28 @@
-"use strict";
+import { styleText } from "node:util";
 
-const chalk = require("chalk");
+import type { CommandBuilder } from "yargs";
 
-const { log } = require("../log");
-const deviceFinder = require("../device-finder");
+import { log } from "../log";
+import deviceFinder from "../device-finder";
 
-exports.command = "inspect <idOrIp>";
-exports.description = "Inspect a device";
-exports.builder = {
+export const command = "inspect <idOrIp>";
+export const description = "Inspect a device";
+export const builder: CommandBuilder = {
   token: {
     type: "string",
     description: "The known token of the device to communicate with",
   },
 };
 
-exports.handler = function (argv) {
-  let target = argv.idOrIp;
+/**
+ * Prints what the device reports about itself: model, token, firmware, Wi-Fi, properties and capabilities.
+ *
+ * @param argv The parsed command line
+ * @param argv.idOrIp The device to inspect
+ * @param argv.token The token, when it's not saved and the device hides it
+ */
+export function handler(argv: { idOrIp: string; token?: string }) {
+  const target = argv.idOrIp;
   log.info("Attempting to inspect", target);
 
   let foundDevice = false;
@@ -37,31 +44,37 @@ exports.handler = function (argv) {
       log.device(device, true);
 
       if (!mgmt.parent) {
-        log.plain(chalk.bold("Firmware version:"), info.fw_ver);
-        log.plain(chalk.bold("Hardware version:"), info.hw_ver);
+        log.plain(styleText("bold", "Firmware version:"), info.fw_ver);
+        log.plain(styleText("bold", "Hardware version:"), info.hw_ver);
         if (info.mcu_fw_ver) {
-          log.plain(chalk.bold("MCU firmware version:"), info.mcu_fw_ver);
+          log.plain(
+            styleText("bold", "MCU firmware version:"),
+            info.mcu_fw_ver,
+          );
         }
         log.plain();
 
         if (info.ap) {
           log.plain(
-            chalk.bold("WiFi:"),
+            styleText("bold", "WiFi:"),
             info.ap.ssid,
-            chalk.dim("(" + info.ap.bssid + ")"),
-            chalk.bold("RSSI:"),
+            styleText("dim", "(" + info.ap.bssid + ")"),
+            styleText("bold", "RSSI:"),
             info.ap.rssi,
           );
         } else {
-          log.plain(chalk.bold("WiFi:"), "Not Connected");
+          log.plain(styleText("bold", "WiFi:"), "Not Connected");
         }
         if (info.wifi_fw_ver) {
-          log.plain(chalk.bold("WiFi firmware version:"), info.wifi_fw_ver);
+          log.plain(
+            styleText("bold", "WiFi firmware version:"),
+            info.wifi_fw_ver,
+          );
         }
         log.plain();
 
         if (info.ot) {
-          let type;
+          let type: string;
           switch (info.ot) {
             case "otu":
               type = "UDP";
@@ -72,9 +85,9 @@ exports.handler = function (argv) {
             default:
               type = "Unknown (" + info.ot + ")";
           }
-          log.plain(chalk.bold("Remote access (Mi Home App):"), type);
+          log.plain(styleText("bold", "Remote access (Mi Home App):"), type);
         } else {
-          log.plain(chalk.bold("Remote access (Mi Home App):"), "Maybe");
+          log.plain(styleText("bold", "Remote access (Mi Home App):"), "Maybe");
         }
         log.plain();
       }
@@ -82,7 +95,7 @@ exports.handler = function (argv) {
       const props = device.properties;
       const keys = Object.keys(props);
       if (keys.length > 0) {
-        log.plain(chalk.bold("Properties:"));
+        log.plain(styleText("bold", "Properties:"));
         for (const key of keys) {
           log.plain("  -", key + ":", props[key]);
         }
@@ -90,14 +103,17 @@ exports.handler = function (argv) {
       }
 
       if (mgmt.parent) {
-        log.plain(chalk.bold("Parent:"));
+        log.plain(styleText("bold", "Parent:"));
         log.group(() => {
           log.device(mgmt.parent);
         });
       }
     } catch (err) {
       process.exitCode = 1;
-      log.error("Could not inspect the device. Error was:", err.message);
+      log.error(
+        "Could not inspect the device. Error was:",
+        err instanceof Error ? err.message : String(err),
+      );
     } finally {
       pending--;
       process.exit(); // eslint-disable-line n/no-process-exit
@@ -115,4 +131,4 @@ exports.handler = function (argv) {
   };
   setTimeout(doneHandler, 5000);
   browser.on("done", doneHandler);
-};
+}

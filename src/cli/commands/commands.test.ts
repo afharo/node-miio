@@ -4,6 +4,8 @@ import { log } from "../log";
 import { createFakeHandle } from "../../lib/test_utils.test.mock";
 import { Vacuum } from "../../lib/devices/vacuums/vacuum";
 
+import * as inspectCommand from "./inspect";
+
 jest.mock("../device-finder", () => jest.fn());
 jest.mock("../log", () => ({
   log: {
@@ -24,11 +26,14 @@ const call = require("./protocol/call");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const control = require("./control");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const inspect = require("./inspect");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const configure = require("./configure");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tokensUpdate = require("./tokens/update");
+
+// The TypeScript command types its argv: the tests pass any argv to every command
+const inspect = inspectCommand as unknown as {
+  handler: (argv: Record<string, unknown>) => void;
+};
 
 /** Runs a command against a fake device, and waits for it to exit */
 async function run(
