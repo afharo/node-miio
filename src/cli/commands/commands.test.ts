@@ -1,10 +1,19 @@
 import { EventEmitter } from "node:events";
 
 import { log } from "../log";
+import { createFakeHandle } from "../../lib/test_utils.test.mock";
+import { Vacuum } from "../../lib/devices/vacuums/vacuum";
 
 jest.mock("../device-finder", () => jest.fn());
 jest.mock("../log", () => ({
-  log: { info: jest.fn(), plain: jest.fn(), error: jest.fn(), warn: jest.fn() },
+  log: {
+    info: jest.fn(),
+    plain: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    device: jest.fn(),
+    group: jest.fn((print: () => void) => print()),
+  },
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -25,7 +34,7 @@ const tokensUpdate = require("./tokens/update");
 async function run(
   command: { handler: (argv: Record<string, unknown>) => void },
   argv: Record<string, unknown>,
-  device: Record<string, unknown>,
+  device: object,
 ) {
   const browser = new EventEmitter();
   deviceFinder.mockReturnValue(browser);
@@ -68,6 +77,30 @@ describe("CLI commands", () => {
     expect(miioCall).toHaveBeenCalledWith("get_properties", [
       { did: "serial", siid: 1, piid: 3 },
     ]);
+  });
+
+  test("inspect prints a real device, with its info, properties and capabilities", async () => {
+    const { handle } = createFakeHandle("roborock.vacuum.s5", {
+      "miIO.info": {
+        fw_ver: "3.5.8_0950",
+        hw_ver: "Linux",
+        ap: { ssid: "home", bssid: "AA:BB", rssi: -50 },
+        ot: "otu",
+      },
+    });
+    const vacuum = new Vacuum(handle);
+    vacuum.setRawProperty("battery", 42);
+    await run(inspect, { idOrIp: "192.168.1.2" }, vacuum);
+
+    expect(log.error).not.toHaveBeenCalled();
+    expect(process.exitCode).toBeUndefined();
+    expect(log.device).toHaveBeenCalledWith(vacuum, true);
+    const printed = jest
+      .mocked(log.plain)
+      .mock.calls.map((args) => args.join(" "));
+    expect(printed).toContain("Firmware version: 3.5.8_0950");
+    expect(printed).toContain("Remote access (Mi Home App): UDP");
+    expect(printed).toContain("  - batteryLevel: 42");
   });
 
   test("control passes the token and the parsed arguments", async () => {
