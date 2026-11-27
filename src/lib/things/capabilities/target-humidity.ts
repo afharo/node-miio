@@ -1,9 +1,17 @@
 import { Capability } from "../capability";
 import { percentage } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Reports its target humidity (`targetHumidityChanged`) */
 export class TargetHumidity extends Capability {
   static capability = "target-humidity";
+  static actions: ActionDefinition[] = [
+    {
+      name: "targetHumidity",
+      description: "The target humidity",
+      returns: "percentage",
+    },
+  ];
 
   targetHumidity(): Promise<number | null> {
     return Promise.resolve(this.getState<number | null>("targetHumidity"));
@@ -25,6 +33,26 @@ export class TargetHumidity extends Capability {
 /** The target humidity can be changed. Implement `changeTargetHumidity(humidity)`. */
 export class AdjustableTargetHumidity extends TargetHumidity {
   static capability = "adjustable-target-humidity";
+  static actions: ActionDefinition[] = [
+    {
+      name: "targetHumidity",
+      description: "Gets the target humidity, or sets it",
+      arguments: [
+        {
+          type: "percentage",
+          optional: true,
+          description: "The target humidity to set",
+        },
+      ],
+      returns: "percentage",
+    },
+    {
+      name: "setTargetHumidity",
+      description: "Changes the target humidity",
+      arguments: [{ type: "percentage", description: "The target humidity" }],
+      returns: "percentage",
+    },
+  ];
 
   /**
    * Gets the target humidity, or sets it.

@@ -1,5 +1,6 @@
 import { Capability } from "../capability";
 import { boolean } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** Reports whether it's charging (`chargingChanged`, `chargingStarted`, `chargingStopped`) */
 export class ChargingState extends Capability {
@@ -27,6 +28,9 @@ export class ChargingState extends Capability {
 /** Can go charge by itself (e.g. a vacuum returning to its dock). Implement `activateCharging()`. */
 export class AutonomousCharging extends ChargingState {
   static capability = "autonomous-charging";
+  static actions: ActionDefinition[] = [
+    { name: "charge", description: "Sends it to charge" },
+  ];
 
   async charge(): Promise<null> {
     await this.activateCharging();

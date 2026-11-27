@@ -1,5 +1,6 @@
 import { Capability } from "../../capability";
 import { duration, type Duration } from "../../values";
+import type { ActionDefinition } from "../../action_metadata";
 
 const MAX_CHANGE_TIME = Symbol("maxChangeTime");
 
@@ -8,6 +9,13 @@ type WithMaxChangeTime = { [MAX_CHANGE_TIME]?: Duration };
 /** Can fade between changes, up to a maximum time */
 export class Fading extends Capability {
   static capability = "fading";
+  static actions: ActionDefinition[] = [
+    {
+      name: "maxChangeTime",
+      description: "The longest transition it supports",
+      returns: "duration",
+    },
+  ];
 
   maxChangeTime(): Promise<Duration | undefined> {
     return Promise.resolve((this as WithMaxChangeTime)[MAX_CHANGE_TIME]);

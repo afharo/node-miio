@@ -18,11 +18,13 @@ import {
   type ResolvedAction,
   type ResolvedProperty,
 } from "../../miot/miot_spec";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 import { VacuumThing } from "./vacuum_thing";
 import { isCleaningState, type VacuumState } from "./vacuum_states";
 import type { VacuumMode } from "./vacuum_modes";
 import { clearErrorOnRecovery } from "./vacuum_errors";
+import { vacuumActions } from "./vacuum_actions";
 
 /** A selectable mode (fan speed or water level), as described by the spec */
 export type MiotMode = VacuumMode;
@@ -406,6 +408,21 @@ function describe(list: MiotValueListItem[] | undefined, value: unknown) {
  * (`miot-spec-v2`) services: `vacuum`, `battery`, `identify`, `brush-cleaner`, `filter`, `mop`, `device-information`.
  */
 export class MiotVacuum extends VacuumThing {
+  static actions: ActionDefinition[] = vacuumActions(
+    // (no rooms nor timers yet: cleanRooms rejects, getRoomMap and getTimer are empty)
+    "getDeviceInfo",
+    "getSerialNumber",
+    "pause",
+    "find",
+    "fanSpeeds",
+    "waterBoxModes",
+    "getWaterBoxMode",
+    "setWaterBoxMode",
+    "cleaningTypes",
+    "setCleaningType",
+    "describeStatus",
+  );
+
   static get type() {
     return "miio:vacuum";
   }

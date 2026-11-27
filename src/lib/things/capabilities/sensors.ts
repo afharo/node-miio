@@ -13,6 +13,7 @@ import {
   voltage,
   type Quantity,
 } from "../values";
+import type { ActionDefinition } from "../action_metadata";
 
 /** The state key of each sensor capability */
 const SENSOR_KEYS: Record<string, string> = {
@@ -33,6 +34,20 @@ const SENSOR_KEYS: Record<string, string> = {
 /** Base of the sensors: each value is a state key, and emits `<key>Changed` */
 export class Sensor extends Capability {
   static type = "sensor";
+  static actions: ActionDefinition[] = [
+    {
+      name: "value",
+      description: "The value of a sensor",
+      arguments: [
+        { type: "string", description: "The sensor, e.g. temperature" },
+      ],
+    },
+    {
+      name: "values",
+      description: "The values of all the sensors",
+      returns: "object",
+    },
+  ];
 
   /** The state keys of the sensors of this thing */
   get sensorTypes(): string[] {
@@ -78,6 +93,13 @@ export class Sensor extends Capability {
 
 export class Temperature extends Sensor {
   static capability = "temperature";
+  static actions: ActionDefinition[] = [
+    {
+      name: "temperature",
+      description: "The temperature",
+      returns: "temperature",
+    },
+  ];
 
   temperature() {
     return this.value<Quantity>("temperature");
@@ -90,6 +112,13 @@ export class Temperature extends Sensor {
 
 export class RelativeHumidity extends Sensor {
   static capability = "relative-humidity";
+  static actions: ActionDefinition[] = [
+    {
+      name: "relativeHumidity",
+      description: "The relative humidity",
+      returns: "percentage",
+    },
+  ];
 
   relativeHumidity() {
     return this.value<number>("relativeHumidity");
@@ -102,6 +131,9 @@ export class RelativeHumidity extends Sensor {
 
 export class PM2_5 extends Sensor {
   static capability = "pm2.5";
+  static actions: ActionDefinition[] = [
+    { name: "pm2_5", description: "The PM2.5 density", returns: "number" },
+  ];
 
   pm2_5() {
     return this.value<number>("pm2.5");
@@ -114,6 +146,9 @@ export class PM2_5 extends Sensor {
 
 export class PM10 extends Sensor {
   static capability = "pm10";
+  static actions: ActionDefinition[] = [
+    { name: "pm10", description: "The PM10 density", returns: "number" },
+  ];
 
   pm10() {
     return this.value<number>("pm10");
@@ -126,6 +161,13 @@ export class PM10 extends Sensor {
 
 export class Illuminance extends Sensor {
   static capability = "illuminance";
+  static actions: ActionDefinition[] = [
+    {
+      name: "illuminance",
+      description: "The illuminance",
+      returns: "illuminance",
+    },
+  ];
 
   illuminance() {
     return this.value<Quantity>("illuminance");
@@ -138,6 +180,13 @@ export class Illuminance extends Sensor {
 
 export class AtmosphericPressure extends Sensor {
   static capability = "atmospheric-pressure";
+  static actions: ActionDefinition[] = [
+    {
+      name: "atmosphericPressure",
+      description: "The atmospheric pressure",
+      returns: "pressure",
+    },
+  ];
 
   atmosphericPressure() {
     return this.value<Quantity>("atmosphericPressure");
@@ -150,6 +199,9 @@ export class AtmosphericPressure extends Sensor {
 
 export class PowerLoad extends Sensor {
   static capability = "power-load";
+  static actions: ActionDefinition[] = [
+    { name: "powerLoad", description: "The power load", returns: "power" },
+  ];
 
   powerLoad() {
     return this.value<Quantity>("powerLoad");
@@ -162,6 +214,13 @@ export class PowerLoad extends Sensor {
 
 export class PowerConsumed extends Sensor {
   static capability = "power-consumed";
+  static actions: ActionDefinition[] = [
+    {
+      name: "powerConsumed",
+      description: "The power consumed",
+      returns: "energy",
+    },
+  ];
 
   powerConsumed() {
     return this.value<Quantity>("powerConsumed");
@@ -174,6 +233,9 @@ export class PowerConsumed extends Sensor {
 
 export class Voltage extends Sensor {
   static capability = "voltage";
+  static actions: ActionDefinition[] = [
+    { name: "voltage", description: "The voltage", returns: "voltage" },
+  ];
 
   voltage() {
     return this.value<Quantity>("voltage");
@@ -187,6 +249,19 @@ export class Voltage extends Sensor {
 /** A contact sensor (e.g. a door): `true` when closed. Emits `opened` / `closed`. */
 export class Contact extends Sensor {
   static capability = "contact";
+  static actions: ActionDefinition[] = [
+    {
+      name: "contact",
+      description: "Whether it detects contact (closed)",
+      returns: "boolean",
+    },
+    { name: "isOpen", description: "Whether it's open", returns: "boolean" },
+    {
+      name: "isClosed",
+      description: "Whether it's closed",
+      returns: "boolean",
+    },
+  ];
 
   contact() {
     return this.value<boolean>("contact");
@@ -213,6 +288,13 @@ const IDLE_TIMER = Symbol("idleTimer");
 /** A motion sensor. Emits `movement` / `inactivity`. */
 export class Motion extends Sensor {
   static capability = "motion";
+  static actions: ActionDefinition[] = [
+    {
+      name: "motion",
+      description: "Whether it detects motion",
+      returns: "boolean",
+    },
+  ];
 
   motion() {
     return this.value<boolean>("motion");

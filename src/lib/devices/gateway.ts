@@ -2,6 +2,7 @@ import { MiioApi } from "../device";
 import { compose } from "../things/compose";
 import { Children, ChildSyncer } from "../things/capabilities/children";
 import type { MiioThing } from "../things/thing";
+import type { ActionDefinition } from "../things/action_metadata";
 
 import { Illuminance } from "./capabilities/sensor";
 import DeveloperApi from "./gateway/developer-api";
@@ -53,6 +54,19 @@ type ChildDefinition =
  * that together with the regular calls for changing things on the gateway.
  */
 export class GatewayBasic extends compose(MiioApi, Children) {
+  static actions: ActionDefinition[] = [
+    {
+      name: "addDevice",
+      description: "Lets Zigbee devices join (pairing mode)",
+    },
+    { name: "stopAddDevice", description: "Stops letting devices join" },
+    {
+      name: "removeDevice",
+      description: "Removes a sub-device",
+      arguments: [{ type: "string", description: "Its id" }],
+    },
+  ];
+
   static get type() {
     return "miio:gateway";
   }

@@ -85,6 +85,14 @@ export class Brightness extends Capability {
   static capability = "brightness";
   // Set on construction, without events. No constructor, no instance fields: they never run.
   static initialState: Record<string, unknown> = { brightness: 0 };
+  // The methods callers can use (`metadata.actions`, listed by `node-miio inspect`)
+  static actions: ActionDefinition[] = [
+    {
+      name: "brightness",
+      description: "The brightness",
+      returns: "percentage",
+    },
+  ];
 
   brightness(): Promise<number> {
     return Promise.resolve(this.getState<number>("brightness"));
@@ -112,6 +120,11 @@ export class Brightness extends Capability {
   To call the device (`this.call(…)`, `this.property(…)`), extend `DeviceCapability`
   ([`devices/capabilities/device_capability.ts`](../devices/capabilities/device_capability.ts)) instead: it's the same
   base, typed as a miIO device.
+- Declare every public method that isn't internal (`update…`, `change…`, `activate…`, hooks…) in `static actions`,
+  with its arguments: [`action_metadata.test.ts`](action_metadata.test.ts) fails when a method is missing or a declared
+  one doesn't exist. Device classes declare their own methods the same way (the vacuums share theirs:
+  [`vacuum_actions.ts`](../devices/vacuums/vacuum_actions.ts)). `metadata.actions` (and `thingActions(Class)`) has
+  them by name, tagged with the capabilities and types that declare them.
 - Other per-instance data goes under a symbol, created lazily (see `Children` or `Motion`).
 - `super` works between capabilities (`SwitchablePower` → `Power`), not into the class the capability is composed into.
   To take part in its lifecycle, implement a hook:

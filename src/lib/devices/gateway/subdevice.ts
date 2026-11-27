@@ -6,6 +6,7 @@ import isDeepEqual from "deep-equal";
 import { MiioThing } from "../../things/thing";
 import type { CallOptions, Device } from "../../device";
 import type { Protocol } from "../../protocol";
+import type { ActionDefinition } from "../../things/action_metadata";
 
 const IDENTITY_MAPPER = <T>(v: T) => v;
 
@@ -56,6 +57,35 @@ class SubDeviceManagement {
  * API, and its calls are sent through the gateway (with its `sid`).
  */
 export class SubDevice extends MiioThing {
+  static actions: ActionDefinition[] = [
+    {
+      name: "call",
+      description: "Calls a method of the sub-device (through the gateway)",
+      arguments: [
+        { type: "string", description: "The method" },
+        { type: "array", description: "Its parameters" },
+        {
+          type: "object",
+          optional: true,
+          description: "Options: { refresh, refreshDelay, retries }",
+        },
+      ],
+    },
+    {
+      name: "property",
+      description: "The value of a property",
+      arguments: [{ type: "string", description: "The property" }],
+    },
+    {
+      name: "getProperties",
+      description: "Several properties at once",
+      arguments: [
+        { type: "string[]", optional: true, description: "The properties" },
+      ],
+      returns: "object",
+    },
+  ];
+
   static get types() {
     return ["miio", "miio:subdevice"];
   }

@@ -1,12 +1,33 @@
 import { Capability } from "../../capability";
 import { duration, type Duration } from "../../values";
 import { color, type Color, type ColorInput } from "../../color";
+import type { ActionDefinition } from "../../action_metadata";
 
 import { DEFAULT_LIGHT_DURATION, type LightChangeOptions } from "./light";
 
 /** The colour can be changed. Implement `changeColor(color, options)`. */
 export class Colorable extends Capability {
   static capability = "colorable";
+  static actions: ActionDefinition[] = [
+    {
+      name: "color",
+      description: "Gets the colour, or changes it",
+      arguments: [
+        { type: "color", optional: true, description: "The colour to set" },
+        { type: "duration", optional: true, description: "The transition" },
+      ],
+      returns: "color",
+    },
+    {
+      name: "setColor",
+      description: "Changes the colour",
+      arguments: [
+        { type: "color", description: "The colour" },
+        { type: "duration", optional: true, description: "The transition" },
+      ],
+      returns: "color",
+    },
+  ];
 
   /**
    * Gets the colour, or changes it.

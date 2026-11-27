@@ -6,6 +6,7 @@ import { SwitchablePower } from "../things/capabilities/power";
 import { Light } from "../things/capabilities/lights/light";
 import { Dimmable } from "../things/capabilities/lights/brightness";
 import { percentage } from "../things/values";
+import type { ActionDefinition } from "../things/action_metadata";
 
 import { Dimmable as MiioDimmable } from "./capabilities/dimmable";
 import { Power as MiioPower } from "./capabilities/power";
@@ -38,6 +39,29 @@ export class EyecareLamp2 extends compose(
   MiioDimmable,
   Children,
 ) {
+  static actions: ActionDefinition[] = [
+    {
+      name: "eyeCare",
+      description: "Whether eye care is on",
+      returns: "boolean",
+    },
+    {
+      name: "setEyeCare",
+      description: "Switches eye care on or off",
+      arguments: [{ type: "boolean", description: "Whether to switch it on" }],
+    },
+    {
+      name: "setAmbientPower",
+      description: "Switches the ambient light on or off",
+      arguments: [{ type: "boolean", description: "Whether to switch it on" }],
+    },
+    {
+      name: "setAmbientBrightness",
+      description: "Changes the brightness of the ambient light",
+      arguments: [{ type: "percentage", description: "The brightness" }],
+    },
+  ];
+
   static get type() {
     return "miio:eyecare-lamp2";
   }

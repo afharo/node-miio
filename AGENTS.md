@@ -76,6 +76,10 @@ EOL. Don't add chalk back.
 
 ## Gotchas learned the hard way
 
+- **New public methods need `static actions`**: a capability or device method callers can use (not `update…`,
+  `change…`, hooks) is declared in the class' `static actions` (vacuums: `vacuumActions(...)` from `vacuum_actions.ts`).
+  `node-miio inspect` lists them, and `src/lib/things/action_metadata.test.ts` fails when one is missing or stale.
+  Internal or TS-private ones go in its `NOT_ACTIONS`, stubs a class doesn't support in `UNSUPPORTED`.
 - **Capabilities are copied, not inherited**: `device instanceof Children` is always `false`. Check `device.matches("cap:children")`.
   Their constructors never run: use `static initialState`, and the `capabilityPropertyUpdated` hook (not `propertyUpdated` + `super`).
 - **Things use `#private` fields**: a fake made with `Object.create(Class.prototype)` can't use their accessors (e.g. the

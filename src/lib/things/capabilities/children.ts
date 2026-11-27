@@ -1,5 +1,6 @@
 import { Capability } from "../capability";
 import type { MiioThing } from "../thing";
+import type { ActionDefinition } from "../action_metadata";
 
 const CHILDREN = Symbol("children");
 
@@ -26,6 +27,26 @@ function idOf(thingOrId: MiioThing | string): string {
  */
 export class Children extends Capability {
   static capability = "children";
+  static actions: ActionDefinition[] = [
+    { name: "children", description: "The child things", returns: "thing[]" },
+    {
+      name: "child",
+      description: "A child by id",
+      arguments: [
+        {
+          type: "string",
+          description: "Its id, with or without the parent's id as a prefix",
+        },
+      ],
+      returns: "thing",
+    },
+    {
+      name: "hasChild",
+      description: "Whether it has a child",
+      arguments: [{ type: "string", description: "Its id" }],
+      returns: "boolean",
+    },
+  ];
 
   /** @internal */
   get childMap(): Map<string, MiioThing> {

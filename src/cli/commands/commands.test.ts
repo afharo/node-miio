@@ -106,6 +106,20 @@ describe("CLI commands", () => {
     expect(printed).toContain("Firmware version: 3.5.8_0950");
     expect(printed).toContain("Remote access (Mi Home App): UDP");
     expect(printed).toContain("  - batteryLevel: 42");
+    // The actions it supports, grouped
+    expect(printed).toContain(
+      "Actions: (node-miio control <device> <action> [args])",
+    );
+    expect(printed).toContain(
+      "Cleaning - cap:cleaning-state, cap:autonomous-cleaning, cap:spot-cleaning",
+    );
+    expect(printed).toContain("setFanSpeed number - Changes the fan speed");
+    expect(printed).toContain(
+      "cleanRooms number[] [object] - Cleans the given rooms (segment ids from getRoomMap)",
+    );
+    expect(printed).toContain(
+      "miioCall string [array] - Calls a miIO method (see protocol call)",
+    );
   });
 
   test("control passes the token and the parsed arguments", async () => {

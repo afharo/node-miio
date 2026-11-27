@@ -1,3 +1,5 @@
+import type { ActionDefinition } from "./action_metadata";
+
 /** Where {@link compose} records what the capabilities of a composed class contribute */
 export const REGISTRY = Symbol("node-miio:capabilities");
 
@@ -22,5 +24,7 @@ export interface Registry {
   types: string[];
   capabilities: string[];
   initialState: Record<string, unknown>;
+  /** The actions each capability declares, with its tags, in the order they're applied */
+  actions: { definitions: ActionDefinition[]; tags: string[] }[];
   hooks: Record<CapabilityHook, ((...args: unknown[]) => unknown)[]>;
 }

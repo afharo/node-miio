@@ -4,6 +4,11 @@ import { isDeepStrictEqual } from "node:util";
 import { createDebug, type DebugFn } from "../logger";
 
 import { REGISTRY, type CapabilityHook, type Registry } from "./registry";
+import {
+  addActions,
+  type ActionDefinition,
+  type ActionMetadata,
+} from "./action_metadata";
 
 export interface EmitOptions<T = unknown> {
   /**
@@ -23,7 +28,11 @@ export class Metadata {
   parent?: MiioThing;
   #name?: string;
 
-  constructor(private readonly thing: MiioThing) {}
+  constructor(
+    private readonly thing: MiioThing,
+    /** The actions it supports, by name (declared by its capabilities and classes with `static actions`) */
+    readonly actions: Readonly<Record<string, ActionMetadata>> = {},
+  ) {}
 
   get name() {
     return this.#name;
@@ -83,6 +92,7 @@ interface CollectedRegistry {
   types: string[];
   capabilities: string[];
   initialState: Record<string, unknown>;
+  actions: Readonly<Record<string, ActionMetadata>>;
   hooks: Record<CapabilityHook, ((...args: unknown[]) => unknown)[]>;
 }
 
@@ -117,10 +127,12 @@ function collect(ctor: object): CollectedRegistry {
     chain.unshift(c);
   }
 
+  const actions = new Map<string, ActionMetadata>();
   const result: CollectedRegistry = {
     types: [],
     capabilities: [],
     initialState: {},
+    actions: {},
     hooks: {
       capabilityInit: [],
       capabilityDestroy: [],
@@ -133,18 +145,42 @@ function collect(ctor: object): CollectedRegistry {
       result.types.push(...registry.types);
       result.capabilities.push(...registry.capabilities);
       Object.assign(result.initialState, registry.initialState);
+      for (const { definitions, tags } of registry.actions) {
+        addActions(actions, definitions, tags);
+      }
       for (const hook of Object.keys(result.hooks) as CapabilityHook[]) {
         result.hooks[hook].push(...registry.hooks[hook]);
       }
     }
-    result.types.push(...ownNames(cls, "types"), ...ownNames(cls, "type"));
-    result.capabilities.push(
+    const types = [...ownNames(cls, "types"), ...ownNames(cls, "type")];
+    const capabilities = [
       ...ownNames(cls, "capabilities"),
       ...ownNames(cls, "capability"),
-    );
+    ];
+    result.types.push(...types);
+    result.capabilities.push(...capabilities);
+    if (Object.prototype.hasOwnProperty.call(cls, "actions")) {
+      addActions(actions, (cls as { actions: ActionDefinition[] }).actions, [
+        ...capabilities.map((c) => `cap:${c}`),
+        ...types.map((t) => `type:${t}`),
+      ]);
+    }
   }
+  result.actions = Object.freeze(Object.fromEntries(actions));
   collected.set(ctor, result);
   return result;
+}
+
+/**
+ * The actions the things of a class support, from the `static actions` of its capabilities and classes.
+ *
+ * @param ctor The class of the thing
+ * @returns Its actions, by name
+ */
+export function thingActions(
+  ctor: abstract new (...args: never[]) => MiioThing,
+): Readonly<Record<string, ActionMetadata>> {
+  return collect(ctor).actions;
 }
 
 /**
@@ -169,7 +205,7 @@ export class MiioThing extends EventEmitter {
   constructor() {
     super();
     const registry = collect(this.constructor);
-    this.metadata = new Metadata(this);
+    this.metadata = new Metadata(this, registry.actions);
     for (const type of registry.types) this.metadata.types.add(type);
     for (const capability of registry.capabilities) {
       this.metadata.capabilities.add(capability);

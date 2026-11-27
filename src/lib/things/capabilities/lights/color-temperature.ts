@@ -2,6 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 
 import { Capability } from "../../capability";
 import { number } from "../../values";
+import type { ActionDefinition } from "../../action_metadata";
 
 const TEMPERATURE_RANGE = Symbol("colorTemperatureRange");
 
@@ -12,6 +13,13 @@ type WithRange = {
 /** Supports colour temperatures, in a range (`colorTemperatureRangeChanged`) */
 export class ColorTemperature extends Capability {
   static capability = "color:temperature";
+  static actions: ActionDefinition[] = [
+    {
+      name: "colorTemperatureRange",
+      description: "The supported colour temperatures, in kelvins",
+      returns: "object",
+    },
+  ];
 
   /** The supported range, in kelvins */
   async colorTemperatureRange(): Promise<{ min: number; max: number }> {
