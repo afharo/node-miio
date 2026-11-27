@@ -2,8 +2,7 @@
 
 import util from "node:util";
 
-import isDeepEqual from "deep-equal";
-
+import { isSameValue } from "./same_value";
 import { type DeviceHandle, DeviceManagement } from "./management";
 import { createDebug, type DebugFn } from "./logger";
 import { MiioThing } from "./things/thing";
@@ -257,7 +256,7 @@ export class Device extends MiioThing {
   public setProperty(key: string, value: unknown) {
     const oldValue = this._properties[key];
 
-    if (!isDeepEqual(oldValue, value)) {
+    if (!isSameValue(oldValue, value)) {
       this._properties[key] = value;
       this.debug("Property", key, "changed from", oldValue, "to", value);
 
