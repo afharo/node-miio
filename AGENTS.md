@@ -71,9 +71,8 @@ EOL. Don't add chalk back.
 
 ## Linting
 
-- JSDoc is optional. When present, it must be correct: oxlint checks `require-param` and `check-tag-names`, but not
-  that `@param` names match (ESLint's `check-param-names`): keep them in sync by hand. Types come from TypeScript, so
-  don't write JSDoc types (`{string}`).
+- JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
+  Types come from TypeScript, so JSDoc types are not allowed (`no-types`).
 - `src/` is all TypeScript: don't add `.js` files. Tests `import` the modules (no `require()`), and mock named exports
   (`vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }))`). Import the test API from `vitest` (no globals).
   A module with a default export (e.g. `debug`) is mocked as `{ default: ... }`, and a mock that is called with `new`
@@ -81,9 +80,9 @@ EOL. Don't add chalk back.
 - `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
   (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
   `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
-- oxlint doesn't sort imports nor check the Node APIs against `engines` (ESLint's `import/order` and
-  `n/no-unsupported-features`): check a new Node API's version against `engines.node`. CI runs the tests on Node 22.
-
+- oxlint runs the rules it doesn't have natively through ESLint plugins (`jsPlugins` in `.oxlintrc.json`, alpha):
+  `eslint-plugin-n` (Node APIs checked against `engines`), `eslint-plugin-jsdoc` (as `jsdoc-js`) and
+  `eslint-plugin-import-x` (as `import-js`: `import-x` is reserved). `npm run lint:fix` sorts the imports (it runs `oxlint --fix` twice: oxlint applies one round of fixes per run).
 ## Gotchas learned the hard way
 
 - **New public methods need `static actions`**: a capability or device method callers can use (not `update…`,
