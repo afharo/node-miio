@@ -593,6 +593,40 @@ describe("Vacuum (roborock miIO)", () => {
       expect(sentCalls(call)[1]).toEqual(["load_multi_map", [1]]);
     });
 
+    test("multi-floor maps: none on models that don't have them (S5)", async () => {
+      const { vacuum } = createVacuum({
+        get_multi_maps_list: "unknown_method",
+      });
+      await expect(vacuum.getMaps()).resolves.toEqual([]);
+    });
+
+    test("map backups, newest first (replayed from a roborock.vacuum.s5)", async () => {
+      const { vacuum, call } = createVacuum({
+        get_recover_maps: [
+          [1, 1791368336],
+          [3, 1761993118],
+          [2, 1791189835],
+        ],
+        recover_map: ["ok"],
+      });
+      await expect(vacuum.getBackupMaps()).resolves.toEqual([
+        { id: 1, savedAt: new Date(1791368336000) },
+        { id: 2, savedAt: new Date(1791189835000) },
+        { id: 3, savedAt: new Date(1761993118000) },
+      ]);
+      await vacuum.loadBackupMap(2);
+      expect(sentCalls(call)[1]).toEqual(["recover_map", [2]]);
+    });
+
+    test("map backups: none on models without them", async () => {
+      const { vacuum } = createVacuum({ get_recover_maps: "unknown_method" });
+      await expect(vacuum.getBackupMaps()).resolves.toEqual([]);
+      const { vacuum: other } = createVacuum({
+        get_recover_maps: [[1, null], "x"],
+      });
+      await expect(other.getBackupMaps()).resolves.toEqual([]);
+    });
+
     test("getMapName retries while the vacuum answers retry", async () => {
       let attempts = 0;
       const { vacuum } = createVacuum({

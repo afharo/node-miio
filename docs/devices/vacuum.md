@@ -1,9 +1,9 @@
 # Robot Vacuums
 
-* **Devices**:
-  * Roborock / Mi Robot Vacuum (legacy miIO): `rockrobo.vacuum.*`, `roborock.vacuum.*` (class `Vacuum`)
-  * Viomi (legacy miIO): older `viomi.vacuum.*` such as v6/v7/v8 (class `ViomiVacuum`)
-  * Any MIoT vacuum (Xiaomi, Dreame, Mijia, ijai, newer Viomi…), driven by its spec (class `MiotVacuum`, see the README)
+- **Devices**:
+  - Roborock / Mi Robot Vacuum (legacy miIO): `rockrobo.vacuum.*`, `roborock.vacuum.*` (class `Vacuum`)
+  - Viomi (legacy miIO): older `viomi.vacuum.*` such as v6/v7/v8 (class `ViomiVacuum`)
+  - Any MIoT vacuum (Xiaomi, Dreame, Mijia, ijai, newer Viomi…), driven by its spec (class `MiotVacuum`, see the README)
 
 Robot vacuums are mapped into a device of type [`vacuum`][vacuum]. The device
 will support many different capabilities, such as autonomous cleaning, getting
@@ -14,7 +14,7 @@ the cleaning state and more.
 ### Check if device is a vacuum
 
 ```javascript
-if(device.matches('type:vacuum')) {
+if (device.matches("type:vacuum")) {
   /*
    * This device is a vacuum.
    */
@@ -150,6 +150,11 @@ await device.setMopRoute(MOP_ROUTES.deep);
 const maps = await device.getMaps(); // [{ id: 0, name: "Ground floor" }, ...]
 await device.loadMap(maps[1].id);
 
+// Map backups ("Map saving" on models without multi-floor maps, e.g. S5). The slot of a backup changes once a newer
+// one is saved: find it by its date.
+const backups = await device.getBackupMaps(); // [{ id: 1, savedAt: Date }, ...], newest first
+await device.loadBackupMap(backups[0].id); // replaces the current map
+
 // Docks with mop washing / drying
 await device.startMopWash();
 await device.startMopDrying();
@@ -168,4 +173,3 @@ await device.setSoundVolume(50);
 
 > These commands follow the community-documented miIO protocol and are not tested on every model.
 > Please report which ones work on yours.
-

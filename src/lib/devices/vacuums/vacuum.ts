@@ -94,6 +94,8 @@ export class Vacuum extends compose(VacuumThing, SpotCleaning) {
     "setMopRoute",
     "getMaps",
     "loadMap",
+    "getBackupMaps",
+    "loadBackupMap",
     "getMapName",
     "startMopWash",
     "stopMopWash",
@@ -784,11 +786,34 @@ export class Vacuum extends compose(VacuumThing, SpotCleaning) {
    * @returns The id and name of each map
    */
   async getMaps(): Promise<Array<{ id: number; name: string }>> {
-    const [list] = await this.call("get_multi_maps_list", []);
+    const response = await this.call("get_multi_maps_list", []);
+    // Models without multi-floor maps (e.g. S5) answer "unknown_method"
+    const [list] = Array.isArray(response) ? response : [];
     return (list?.map_info ?? []).map(({ mapFlag, name }) => ({
       id: mapFlag,
       name,
     }));
+  }
+
+  /**
+   * The map backups ("Map saving" in the app, on models without multi-floor maps, e.g. S5): the robot keeps the last
+   * few maps, and {@link loadBackupMap} restores one of them. A slot holds a different map once a newer one is saved:
+   * identify a backup by when it was saved.
+   *
+   * @returns The slot and the time each backup was saved, newest first (none on models without backups)
+   */
+  async getBackupMaps(): Promise<Array<{ id: number; savedAt: Date }>> {
+    const response = await this.call("get_recover_maps", []);
+    if (!Array.isArray(response)) return [];
+    return response
+      .filter(
+        (entry): entry is [number, number] =>
+          Array.isArray(entry) &&
+          Number.isFinite(entry[0]) &&
+          Number.isFinite(entry[1]),
+      )
+      .map(([id, savedAt]) => ({ id, savedAt: new Date(savedAt * 1000) }))
+      .sort((a, b) => b.savedAt.getTime() - a.savedAt.getTime());
   }
 
   /**
@@ -840,6 +865,15 @@ export class Vacuum extends compose(VacuumThing, SpotCleaning) {
    */
   async loadMap(id: number) {
     await this.call("load_multi_map", [id]).then(checkResult);
+  }
+
+  /**
+   * Restores a map backup: it replaces the current map.
+   *
+   * @param id The slot, from {@link getBackupMaps}
+   */
+  async loadBackupMap(id: number) {
+    await this.call("recover_map", [id]).then(checkResult);
   }
 
   /**
