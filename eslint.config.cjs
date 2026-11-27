@@ -5,7 +5,7 @@
 const { defineConfig } = require("eslint/config");
 const js = require("@eslint/js");
 const tseslint = require("typescript-eslint");
-const pluginImport = require("eslint-plugin-import");
+const { importX } = require("eslint-plugin-import-x");
 const pluginN = require("eslint-plugin-n");
 const pluginPromise = require("eslint-plugin-promise");
 const pluginJsdoc = require("eslint-plugin-jsdoc");
@@ -30,7 +30,7 @@ module.exports = defineConfig([
   ...tseslint.configs.strict,
   // Comment the previous line and uncomment the following line if you want to use strict with type checking
   // ...tseslint.configs.strictTypeChecked,
-  pluginImport.flatConfigs.recommended,
+  importX.flatConfigs.recommended,
   pluginN.configs["flat/recommended-script"],
   pluginPromise.configs["flat/recommended"],
   pluginJsdoc.configs["flat/recommended"],
@@ -49,9 +49,9 @@ module.exports = defineConfig([
       "no-console": "warn", // Warn on console usage
       "spaced-comment": ["error", "always"], // Require space after comment markers
       "no-unused-vars": "warn", // Use the base rule for unused variables
-      "import/order": ["warn", { "newlines-between": "always" }],
-      "import/no-unresolved": "off", // Too many false errors with named exports
-      "import/named": "off", // Too many false errors with named exports
+      "import-x/order": ["warn", { "newlines-between": "always" }],
+      "import-x/no-unresolved": "off", // Too many false errors with named exports
+      "import-x/named": "off", // Too many false errors with named exports
       "n/prefer-node-protocol": "error", // Prefer using 'node:' protocol for built-in modules
       // `fetch` is available (unflagged) in every supported Node.js version
       "n/no-unsupported-features/node-builtins": [
