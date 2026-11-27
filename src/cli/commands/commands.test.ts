@@ -3,10 +3,15 @@ import { EventEmitter } from "node:events";
 import { log } from "../log";
 import { createFakeHandle } from "../../lib/test_utils.test.mock";
 import { Vacuum } from "../../lib/devices/vacuums/vacuum";
+import { deviceFinder } from "../device-finder";
 
 import * as inspectCommand from "./inspect";
+import * as callCommand from "./protocol/call";
+import * as controlCommand from "./control";
+import * as configureCommand from "./configure";
+import * as tokensUpdateCommand from "./tokens/update";
 
-jest.mock("../device-finder", () => jest.fn());
+jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }));
 jest.mock("../log", () => ({
   log: {
     info: jest.fn(),
@@ -18,22 +23,18 @@ jest.mock("../log", () => ({
   },
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const deviceFinder = require("../device-finder") as jest.Mock;
+const mockedFinder = deviceFinder as jest.Mock;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const call = require("./protocol/call");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const control = require("./control");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const configure = require("./configure");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const tokensUpdate = require("./tokens/update");
-
-// The TypeScript command types its argv: the tests pass any argv to every command
-const inspect = inspectCommand as unknown as {
+/** The commands type their argv: the tests pass any argv to every command */
+type AnyCommand = {
   handler: (argv: Record<string, unknown>) => void;
+  builder: Record<string, unknown>;
 };
+const inspect = inspectCommand as unknown as AnyCommand;
+const call = callCommand as unknown as AnyCommand;
+const control = controlCommand as unknown as AnyCommand;
+const configure = configureCommand as unknown as AnyCommand;
+const tokensUpdate = tokensUpdateCommand as unknown as AnyCommand;
 
 /** Runs a command against a fake device, and waits for it to exit */
 async function run(
@@ -42,7 +43,7 @@ async function run(
   device: object,
 ) {
   const browser = new EventEmitter();
-  deviceFinder.mockReturnValue(browser);
+  mockedFinder.mockReturnValue(browser);
   const exited = new Promise<void>((resolve) => {
     jest.spyOn(process, "exit").mockImplementation((() => {
       resolve();
@@ -75,7 +76,7 @@ describe("CLI commands", () => {
       },
       { miioCall },
     );
-    expect(deviceFinder).toHaveBeenCalledWith({
+    expect(mockedFinder).toHaveBeenCalledWith({
       filter: "192.168.1.2",
       token: "abc",
     });
@@ -122,6 +123,17 @@ describe("CLI commands", () => {
     );
   });
 
+  test("protocol call goes through the gateway for sub-devices (no miioCall)", async () => {
+    const subDeviceCall = jest.fn().mockResolvedValue(["ok"]);
+    await run(
+      call,
+      { idOrIp: "lumi.158d0001", method: "read", params: ["[1]"] },
+      { call: subDeviceCall },
+    );
+    expect(subDeviceCall).toHaveBeenCalledWith("read", [1]);
+    expect(process.exitCode).toBeUndefined();
+  });
+
   test("control passes the token and the parsed arguments", async () => {
     const cleanRooms = jest.fn().mockResolvedValue("ok");
     await run(
@@ -134,7 +146,7 @@ describe("CLI commands", () => {
       },
       { cleanRooms },
     );
-    expect(deviceFinder).toHaveBeenCalledWith({
+    expect(mockedFinder).toHaveBeenCalledWith({
       filter: "192.168.1.2",
       token: "abc",
     });
@@ -146,9 +158,9 @@ describe("CLI commands", () => {
     ["configure", configure, { ssid: "wifi", passwd: "secret" }],
     ["tokens update", tokensUpdate, {}],
   ])("%s connects with the token", (_name, command, extra) => {
-    deviceFinder.mockReturnValue(new EventEmitter());
+    mockedFinder.mockReturnValue(new EventEmitter());
     command.handler({ idOrIp: "192.168.1.2", token: "abc", ...extra });
-    expect(deviceFinder).toHaveBeenCalledWith(
+    expect(mockedFinder).toHaveBeenCalledWith(
       expect.objectContaining({ filter: "192.168.1.2", token: "abc" }),
     );
   });
@@ -236,7 +248,7 @@ describe("CLI commands", () => {
       ["tokens update", tokensUpdate, { token: "abc" }],
     ])("%s fails when the device isn't found", async (_name, command, argv) => {
       const browser = new EventEmitter();
-      deviceFinder.mockReturnValue(browser);
+      mockedFinder.mockReturnValue(browser);
       const exited = new Promise<void>((resolve) => {
         jest.spyOn(process, "exit").mockImplementation((() => {
           resolve();

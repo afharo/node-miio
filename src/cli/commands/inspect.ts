@@ -3,8 +3,9 @@ import { styleText } from "node:util";
 import type { CommandBuilder } from "yargs";
 
 import { log } from "../log";
-import deviceFinder from "../device-finder";
+import { runOnDevice } from "../run_on_device";
 import type { ActionMetadata } from "../../lib/things/action_metadata";
+import type { MiioDeviceInfo } from "../../lib/protocol";
 
 /** How `inspect` groups the actions: by the first group with one of their tags */
 const GROUPS = [
@@ -139,24 +140,17 @@ export function handler(argv: { idOrIp: string; token?: string }) {
   const target = argv.idOrIp;
   log.info("Attempting to inspect", target);
 
-  let foundDevice = false;
-  let pending = 0;
-  const browser = deviceFinder({
-    instances: true,
-    filter: target,
-    token: argv.token,
-  });
-  browser.on("available", async (device) => {
-    pending++;
-    foundDevice = true;
-
-    const mgmt = device.management;
-    try {
-      const info = await mgmt.info();
+  runOnDevice(
+    { target, token: argv.token, failure: "Could not inspect the device" },
+    async (device) => {
+      const mgmt = device.management;
+      // Sub-devices are reached through their gateway
+      const parent = "parent" in mgmt ? mgmt.parent : undefined;
+      const info = (await mgmt.info()) as Partial<MiioDeviceInfo>;
       log.plain();
       log.device(device, true);
 
-      if (!mgmt.parent) {
+      if (!parent) {
         log.plain(styleText("bold", "Firmware version:"), info.fw_ver);
         log.plain(styleText("bold", "Hardware version:"), info.hw_ver);
         if (info.mcu_fw_ver) {
@@ -207,37 +201,16 @@ export function handler(argv: { idOrIp: string; token?: string }) {
         log.plain();
       }
 
-      if (mgmt.parent) {
+      if (parent) {
         log.plain(styleText("bold", "Parent:"));
         log.group(() => {
-          log.device(mgmt.parent);
+          log.device(parent);
         });
       }
 
       printActions(device.metadata.actions ?? {});
-    } catch (err) {
-      process.exitCode = 1;
-      log.error(
-        "Could not inspect the device. Error was:",
-        err instanceof Error ? err.message : String(err),
-      );
-    } finally {
-      pending--;
-      process.exit(); // eslint-disable-line n/no-process-exit
-    }
-  });
-
-  const doneHandler = () => {
-    if (pending === 0) {
-      if (!foundDevice) {
-        log.warn("Could not find device");
-        process.exitCode = 1;
-      }
-      process.exit(); // eslint-disable-line n/no-process-exit
-    }
-  };
-  setTimeout(doneHandler, 5000);
-  browser.on("done", doneHandler);
+    },
+  );
 }
 
 /**

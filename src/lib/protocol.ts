@@ -324,9 +324,19 @@ export interface RoborockMultiMapsList {
   }>;
 }
 
+/** The response of `miIO.info`. Only `model` and `fw_ver` are always there. */
 export interface MiioDeviceInfo {
   fw_ver: string;
   model: string;
+  hw_ver?: string;
+  mcu_fw_ver?: string;
+  wifi_fw_ver?: string;
+  mac?: string;
+  /** The Wi-Fi network it's connected to */
+  ap?: { ssid: string; bssid: string; rssi: number };
+  netif?: { localIp: string; mask: string; gw: string };
+  /** How the Mi Home app reaches it remotely: `otu` (UDP) or `ott` (TCP) */
+  ot?: string;
 }
 
 export type GetTimerResponseTimer = [

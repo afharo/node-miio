@@ -44,8 +44,9 @@ EOL. Don't add chalk back.
   `capability.ts`), the values (`percentage`, `code`, `duration`…) and `Color`. See its README.md.
 - `src/lib/discovery.ts`: `browse()` / `devices()` (`Browser`, `Devices`) on a small `ServiceDiscovery` EventEmitter
   (`on("available")` or `onAvailable()`). It replaced tinkerhub-discovery: keep it dependency-free.
-- `src/lib/devices/**`: device implementations (all TypeScript, except `gateway/developer-api.js`).
-- `src/cli/**`: the `node-miio` CLI (yargs). Commands are registered explicitly in `src/cli/index.ts`
+- `src/lib/devices/**`: device implementations.
+- `src/cli/**`: the `node-miio` CLI (yargs). Commands that act on one device use `runOnDevice` (`run_on_device.ts`):
+  it finds the device (`device-finder.ts`), runs the action and exits (code 1 if not found or the action throws). Commands are registered explicitly in `src/cli/index.ts`
   (`commandDir` doesn't work with the ESM-only yargs 18).
 
 ## Testing without hardware
@@ -71,7 +72,9 @@ EOL. Don't add chalk back.
 ## Linting
 
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
-  In `.ts` files, types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`). In `.js` files, `@param {type}` is required (prefer converting a `.js` file to TypeScript when you change it).
+  Types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`).
+- `src/` is all TypeScript: don't add `.js` files. Tests `import` the modules (no `require()`), and mock named exports
+  (`jest.mock("../device-finder", () => ({ deviceFinder: jest.fn() }))`).
 - `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`
   (not the `debug` package directly): it also forwards to the logger injected by the plugins (`device({ logger })` /
   `configureLogging`), and redacts tokens and passwords. Never log a token in full (use `maskToken`).
