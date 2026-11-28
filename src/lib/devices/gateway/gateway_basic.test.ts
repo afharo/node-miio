@@ -74,6 +74,16 @@ describe("GatewayBasic", () => {
       ]);
     });
 
+    test("clears the timeout once the developer API is ready", async () => {
+      const { handle } = createFakeHandle("lumi.gateway.v3", {});
+      const gateway = new GatewayBasic(handle);
+      const result = gateway._setDeveloperKey(KEY);
+      expect(vi.getTimerCount()).toBe(1);
+      apis[0].emit("ready");
+      await result;
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
     test("does not create a second developer API", async () => {
       const { handle } = createFakeHandle("lumi.gateway.v3", {});
       const gateway = new GatewayBasic(handle);
