@@ -30,7 +30,7 @@ export interface FindDeviceViaAddressOptions {
 class Network extends EventEmitter {
   private readonly packet = new Packet(true);
   private readonly addresses = new Map<string, DeviceInfo>();
-  private readonly devices = new Map<number | null, DeviceInfo>();
+  private readonly devices = new Map<number, DeviceInfo>();
   private references = 0;
   private debug: (...msg: unknown[]) => void;
   private _socket: dgram.Socket | null = null;
@@ -120,13 +120,16 @@ class Network extends EventEmitter {
   }
 
   /**
-   * Caches the device if not previously cached (could be the reason of failures when reconnecting?)
+   * Caches the device by its id, if not previously cached.
+   * A device without an id (its handshake failed, e.g. `missing-token`) is only tracked by its address: keyed by a
+   * shared `null`, every such device would collapse into the first one.
    *
    * @param device {@link DeviceInfo}
    * @returns New device or the previously cached one
    */
   cacheDevice(device: DeviceInfo): DeviceInfo {
-    const deviceId = device.id || null;
+    const deviceId = device.id;
+    if (!deviceId) return device;
     if (!this.devices.has(deviceId)) {
       // This is a new device, keep track of it
       this.devices.set(deviceId, device);
