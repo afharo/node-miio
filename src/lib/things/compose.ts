@@ -103,8 +103,11 @@ export function compose<
 
       for (const key of Reflect.ownKeys(cls.prototype)) {
         if (key === "constructor") continue;
-        const descriptor = Object.getOwnPropertyDescriptor(cls.prototype, key);
-        if (!descriptor) continue;
+        // An own key always has a descriptor
+        const descriptor = Object.getOwnPropertyDescriptor(
+          cls.prototype,
+          key,
+        ) as PropertyDescriptor;
         if (typeof key === "string" && HOOKS.has(key)) {
           registry.hooks[key as CapabilityHook].push(descriptor.value);
           continue;
