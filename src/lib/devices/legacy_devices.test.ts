@@ -409,9 +409,7 @@ describe("AirPurifier commands", () => {
     );
     await expect(device.favoriteLevel()).resolves.toBe(5);
     expect(call).not.toHaveBeenCalled();
-    await expect(
-      (device.favoriteLevel as (level?: number) => Promise<unknown>)(9),
-    ).resolves.toBeNull();
+    await expect(device.favoriteLevel(9)).resolves.toBeNull();
     expect(commands(call)).toEqual([["set_level_favorite", [9]]]);
   });
 

@@ -150,7 +150,7 @@ export class AirPurifier extends compose(
    *
    * @param level
    */
-  favoriteLevel(level = undefined) {
+  favoriteLevel(level?: number) {
     if (typeof level === "undefined") {
       return Promise.resolve(this.property("favoriteLevel"));
     }
@@ -164,7 +164,7 @@ export class AirPurifier extends compose(
    *
    * @param level
    */
-  setFavoriteLevel(level) {
+  setFavoriteLevel(level: number) {
     return this.call("set_level_favorite", [level]).then(() => null);
   }
 
