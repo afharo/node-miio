@@ -10,6 +10,9 @@ import { DreameVacuum } from "./devices/vacuums/dreamevacuum.js";
 import { MiotVacuum } from "./devices/vacuums/miot-vacuum.js";
 import { Vacuum } from "./devices/vacuums/vacuum.js";
 import { ViomiVacuum } from "./devices/vacuums/viomivacuum.js";
+import { MiioError } from "./miio_error.js";
+import { Device } from "./device.js";
+import { Placeholder } from "./placeholder.js";
 import { MijiaVacuum } from "./devices/vacuums/mijiavacuum.js";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -120,5 +123,57 @@ describe("connectToDevice", () => {
     const device = await connect();
     expect(device).toBeInstanceOf(Vacuum);
     expect(device).not.toBeInstanceOf(MiotVacuum);
+  });
+});
+
+describe("connectToDevice errors and generic devices", () => {
+  test("uses the generic device for models it doesn't know", async () => {
+    mockDevice("acme.gadget.v1");
+    const device = await connect();
+    expect(device).toBeInstanceOf(Device);
+    expect(device.constructor).toBe(Device);
+  });
+
+  test.each(["missing-token", "connection-failure"] as const)(
+    "returns a placeholder on %s when asked to",
+    async (code) => {
+      const failure = new MiioError("nope", code);
+      Object.assign(failure, { device: { id: 7, model: null, call: vi.fn() } });
+      vi.spyOn(network, "findDeviceViaAddress").mockRejectedValue(failure);
+
+      const device = await connectToDevice({
+        address: "192.168.1.10",
+        withPlaceholder: true,
+      });
+      expect(device).toBeInstanceOf(Placeholder);
+      await device.destroy();
+    },
+  );
+
+  test("rethrows the error, releasing the network, otherwise", async () => {
+    const release = vi.fn();
+    vi.spyOn(network, "ref").mockReturnValue({ release });
+    const failure = new MiioError("nope", "missing-token");
+    Object.assign(failure, { device: { id: 7 } });
+    vi.spyOn(network, "findDeviceViaAddress").mockRejectedValue(failure);
+
+    // Without withPlaceholder
+    await expect(connectToDevice({ address: "192.168.1.10" })).rejects.toBe(
+      failure,
+    );
+    expect(release).toHaveBeenCalledOnce();
+    // The device the error carries is not leaked to the caller
+    expect(
+      (failure as MiioError & { device?: unknown }).device,
+    ).toBeUndefined();
+
+    // Other errors, even with withPlaceholder
+    release.mockClear();
+    const other = new Error("boom");
+    vi.mocked(network.findDeviceViaAddress).mockRejectedValue(other);
+    await expect(
+      connectToDevice({ address: "192.168.1.10", withPlaceholder: true }),
+    ).rejects.toBe(other);
+    expect(release).toHaveBeenCalledOnce();
   });
 });
