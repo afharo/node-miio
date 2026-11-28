@@ -73,11 +73,8 @@ class Network extends EventEmitter {
   }
 
   async findDeviceViaAddress(options: FindDeviceViaAddressOptions) {
-    if (!this.socket) {
-      throw new Error(
-        "Implementation issue: Using network without a reference",
-      );
-    }
+    // The getter throws when there's no socket (no reference)
+    void this.socket;
 
     let device = this.addresses.get(options.address);
     if (!device) {

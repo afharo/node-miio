@@ -364,3 +364,311 @@ describe("lights", () => {
     expect(sentCalls(call)[0]).toEqual(["enable_amb", ["off"]]);
   });
 });
+
+/**
+ * Runs an action that waits on timers (`refreshDelay`, effects…).
+ *
+ * @param action The action to run
+ * @returns Its result
+ */
+async function withTimers<T>(action: () => Promise<T>) {
+  vi.useFakeTimers();
+  try {
+    const done = action();
+    const settled = done.then(
+      (value) => ({ value }),
+      (error: unknown) => ({ error }),
+    );
+    await vi.advanceTimersByTimeAsync(1000);
+    const result = await settled;
+    if ("error" in result) throw result.error;
+    return result.value;
+  } finally {
+    vi.useRealTimers();
+  }
+}
+
+/**
+ * The calls other than the polling.
+ *
+ * @param call The mocked call
+ * @returns The `[method, params]` calls
+ */
+const commands = (call: Parameters<typeof sentCalls>[0]) =>
+  sentCalls(call).filter(([m]) => m !== "get_prop");
+
+describe("AirPurifier commands", () => {
+  const props = { power: "on", mode: "auto", favorite_level: 5, led_b: 0 };
+
+  test("reads and sets the favorite level", async () => {
+    const { device, call } = await loaded(
+      AirPurifier,
+      "zhimi.airpurifier.m1",
+      props,
+      { set_level_favorite: ["ok"] },
+    );
+    await expect(device.favoriteLevel()).resolves.toBe(5);
+    expect(call).not.toHaveBeenCalled();
+    await expect(
+      (device.favoriteLevel as (level?: number) => Promise<unknown>)(9),
+    ).resolves.toBeNull();
+    expect(commands(call)).toEqual([["set_level_favorite", [9]]]);
+  });
+
+  test.each([
+    ["bright", 0],
+    ["dim", 1],
+    ["off", 2],
+  ])("sets the LED brightness to %s", async (level, value) => {
+    const { device, call } = await loaded(
+      AirPurifier,
+      "zhimi.airpurifier.m1",
+      props,
+      { set_led_b: ["ok"] },
+    );
+    await device.ledBrightness(level);
+    expect(commands(call)[0]).toEqual(["set_led_b", [value]]);
+  });
+
+  test("maps unknown LED brightness values", async () => {
+    const { device } = await loaded(AirPurifier, "zhimi.airpurifier.m1", {
+      ...props,
+      led_b: 7,
+    });
+    expect(await device.ledBrightness()).toBe("unknown");
+  });
+
+  test("rejects an invalid LED brightness without calling the device", async () => {
+    const { device, call } = await loaded(
+      AirPurifier,
+      "zhimi.airpurifier.m1",
+      props,
+    );
+    await expect(device.ledBrightness("blinding")).rejects.toThrow(
+      "Invalid LED brigthness: blinding",
+    );
+    expect(call).not.toHaveBeenCalled();
+  });
+
+  test("explains when a mode is not supported", async () => {
+    const { device } = await loaded(
+      AirPurifier,
+      "zhimi.airpurifier.m1",
+      props,
+      {
+        set_mode: () => {
+          throw Object.assign(new Error("unsupported"), { code: -5001 });
+        },
+      },
+    );
+    await expect(withTimers(() => device.setMode("silent"))).rejects.toThrow(
+      "Mode `silent` not supported",
+    );
+  });
+
+  test("passes through other mode errors", async () => {
+    const { device } = await loaded(
+      AirPurifier,
+      "zhimi.airpurifier.m1",
+      props,
+      {
+        set_mode: () => {
+          throw new Error("timeout");
+        },
+      },
+    );
+    await expect(withTimers(() => device.setMode("silent"))).rejects.toThrow(
+      "timeout",
+    );
+  });
+});
+
+describe("Humidifier commands", () => {
+  const props = { power: "off", mode: "auto", limit_hum: 50, led_b: 1 };
+
+  test("changing the mode powers the device on first", async () => {
+    const { device, call } = await loaded(
+      Humidifier,
+      "zhimi.humidifier.v1",
+      props,
+      { set_power: ["ok"], set_mode: ["ok"] },
+    );
+    await withTimers(() => device.setMode("high"));
+    expect(commands(call).map(([m]) => m)).toEqual(["set_power", "set_mode"]);
+    expect(commands(call)[0]).toEqual(["set_power", ["on"]]);
+    expect(commands(call)[1]).toEqual(["set_mode", ["high"]]);
+  });
+
+  test("the idle mode powers the device off", async () => {
+    const { device, call } = await loaded(
+      Humidifier,
+      "zhimi.humidifier.v1",
+      { ...props, power: "on" },
+      { set_power: ["ok"] },
+    );
+    await withTimers(() => device.setMode("idle"));
+    expect(commands(call)).toEqual([["set_power", ["off"]]]);
+  });
+
+  test("explains when a mode is not supported, and passes through other errors", async () => {
+    let error: Error = Object.assign(new Error("x"), { code: -5001 });
+    const { device } = await loaded(
+      Humidifier,
+      "zhimi.humidifier.v1",
+      { ...props, power: "on" },
+      {
+        set_mode: () => {
+          throw error;
+        },
+      },
+    );
+    await expect(withTimers(() => device.setMode("turbo"))).rejects.toThrow(
+      "Mode `turbo` not supported",
+    );
+    error = new Error("timeout");
+    await expect(withTimers(() => device.setMode("turbo"))).rejects.toThrow(
+      "timeout",
+    );
+  });
+
+  test("sets the target humidity and the LED brightness", async () => {
+    const { device, call } = await loaded(
+      Humidifier,
+      "zhimi.humidifier.v1",
+      props,
+      { set_limit_hum: ["ok"], set_led_b: ["ok"] },
+    );
+    await withTimers(() => device.setTargetHumidity(60));
+    await withTimers(() => device.ledBrightness("dim"));
+    expect(commands(call)).toEqual([
+      ["set_limit_hum", [60]],
+      ["set_led_b", [1]],
+    ]);
+  });
+});
+
+describe("Yeelight commands", () => {
+  const props = { power: "off", bright: "40", color_mode: "3", name: "Lamp" };
+  const responses = {
+    set_power: ["ok"],
+    set_bright: ["ok"],
+    set_name: ["ok"],
+    set_default: ["ok"],
+  };
+
+  test("powers on and off with the default effect", async () => {
+    const { device, call } = await loaded(
+      YeelightMono,
+      "yeelink.light.mono1",
+      props,
+      responses,
+    );
+    await withTimers(() => device.setPower(true));
+    await withTimers(() => device.setPower(false));
+    expect(commands(call)).toEqual([
+      ["set_power", ["on", "smooth", 500]],
+      ["set_power", ["off", "smooth", 500]],
+    ]);
+  });
+
+  test("brightness 0 powers off, and a positive one powers on first", async () => {
+    const { device, call } = await loaded(
+      YeelightMono,
+      "yeelink.light.mono1",
+      props,
+      responses,
+    );
+    await withTimers(() => device.setBrightness(0));
+    await withTimers(() => device.setBrightness(70));
+    expect(commands(call)).toEqual([
+      ["set_power", ["off", "smooth", 500]],
+      ["set_power", ["on", "smooth", 500]],
+      ["set_bright", [70, "smooth", 400]],
+    ]);
+  });
+
+  test("brightness does not power on when it's already on, or when asked not to", async () => {
+    const { device, call } = await loaded(
+      YeelightMono,
+      "yeelink.light.mono1",
+      { ...props, power: "on" },
+      responses,
+    );
+    await withTimers(() => device.setBrightness(70));
+    expect(commands(call)).toEqual([["set_bright", [70, "smooth", 400]]]);
+    device.setProperty("power", false);
+    call.mockClear();
+    await withTimers(() => device.setBrightness(80, undefined, false));
+    expect(commands(call)).toEqual([["set_bright", [80, "smooth", 400]]]);
+  });
+
+  test("renames the light and saves the default state", async () => {
+    const { device, call } = await loaded(
+      YeelightMono,
+      "yeelink.light.mono1",
+      props,
+      responses,
+    );
+    expect(device.metadata.name).toBe("Lamp");
+    await device.setName("Desk");
+    await device.setDefault();
+    expect(commands(call)).toEqual([
+      ["set_name", ["Desk"]],
+      ["set_default", []],
+    ]);
+    expect(device.metadata.name).toBe("Desk");
+  });
+
+  test("effects honour the requested duration", async () => {
+    const { device, call } = await loaded(
+      YeelightMono,
+      "yeelink.light.mono1",
+      { ...props, power: "on" },
+      responses,
+    );
+    await withTimers(() => device.setBrightness(30, "2s"));
+    await withTimers(() => device.setBrightness(30, 0));
+    expect(commands(call)).toEqual([
+      ["set_bright", [30, "smooth", 2000]],
+      ["set_bright", [30, "sudden", 0]],
+    ]);
+  });
+});
+
+describe("EyecareLamp2 commands", () => {
+  const props = { power: "on", bright: "60", ambstatus: "on", ambvalue: "30" };
+
+  test("changes the brightness and the ambient light", async () => {
+    const { device, call } = await loaded(
+      EyecareLamp2,
+      "philips.light.sread1",
+      props,
+      { set_bright: ["ok"], enable_amb: ["ok"], set_amb_bright: ["ok"] },
+    );
+    await withTimers(() => device.setBrightness(80));
+    await withTimers(() => device.ambient.setBrightness(10));
+    await withTimers(() => device.ambient.turnOn());
+    expect(commands(call).map(([m]) => m)).toEqual(
+      expect.arrayContaining(["set_bright", "set_amb_bright", "enable_amb"]),
+    );
+    expect(commands(call).find(([m]) => m === "set_bright")?.[1]).toEqual([80]);
+    expect(commands(call).find(([m]) => m === "set_amb_bright")?.[1]).toEqual([
+      10,
+    ]);
+    expect(commands(call).find(([m]) => m === "enable_amb")?.[1]).toEqual([
+      "on",
+    ]);
+  });
+
+  test("toggles the eye care mode", async () => {
+    const { device, call } = await loaded(
+      EyecareLamp2,
+      "philips.light.sread1",
+      { ...props, eyecare: "on" },
+      { set_eyecare: ["ok"] },
+    );
+    await expect(device.eyeCare()).resolves.toBe(true);
+    await withTimers(() => device.setEyeCare(false));
+    expect(commands(call)[0]).toEqual(["set_eyecare", ["off"]]);
+  });
+});
