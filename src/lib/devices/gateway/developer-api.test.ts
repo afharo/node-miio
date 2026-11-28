@@ -4,7 +4,7 @@ import os from "node:os";
 
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import DeveloperApi from "./developer-api";
+import DeveloperApi from "./developer-api.js";
 
 class FakeSocket extends EventEmitter {
   bind = vi.fn();

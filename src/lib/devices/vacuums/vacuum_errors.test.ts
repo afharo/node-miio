@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import type { MiioThing } from "../../things/thing";
-import { createFakeHandle } from "../../test_utils.test.mock";
+import type { MiioThing } from "../../things/thing.js";
+import { createFakeHandle } from "../../test_utils.test.mock.js";
 
-import { Vacuum } from "./vacuum";
-import { clearErrorOnRecovery } from "./vacuum_errors";
+import { Vacuum } from "./vacuum.js";
+import { clearErrorOnRecovery } from "./vacuum_errors.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

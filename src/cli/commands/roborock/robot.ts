@@ -6,8 +6,8 @@ import {
   toDevices,
   type RoborockDevice,
   type RoborockHomeData,
-} from "../../../lib/roborock/index";
-import { log } from "../../log";
+} from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
 
 export const robotOptions = {
   ip: {

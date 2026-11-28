@@ -6,15 +6,15 @@
  */
 import crypto from "node:crypto";
 
-import { createDebug } from "../logger";
+import { createDebug } from "../logger.js";
 
 import {
   CloudAuthError,
   CloudCaptchaRequiredError,
   CloudError,
   CloudTwoFactorRequiredError,
-} from "./errors";
-import { type FetchLike, HttpSession, parseXiaomiJson } from "./http";
+} from "./errors.js";
+import { type FetchLike, HttpSession, parseXiaomiJson } from "./http.js";
 
 const debug = createDebug("miio:cloud");
 

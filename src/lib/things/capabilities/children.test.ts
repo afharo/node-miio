@@ -1,11 +1,11 @@
 import { describe, test, expect } from "vitest";
 
-import { compose } from "../compose";
-import { MiioThing } from "../thing";
+import { compose } from "../compose.js";
+import { MiioThing } from "../thing.js";
 
-import { Base, flush, record } from "./test_utils.test.mock";
+import { Base, flush, record } from "./test_utils.test.mock.js";
 
-import { Children, ChildSyncer } from "./index";
+import { Children, ChildSyncer } from "./index.js";
 
 describe("Children", () => {
   class Parent extends compose(Base, Children) {}

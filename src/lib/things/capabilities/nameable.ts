@@ -1,5 +1,5 @@
-import { Capability } from "../capability";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** Its name can be changed. Implement `changeName(name)`. */
 export class Nameable extends Capability {

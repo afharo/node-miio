@@ -7,11 +7,11 @@ import {
   CloudSessionExpiredError,
   loadSession,
   XiaomiCloud,
-} from "../../../lib/cloud/index";
-import { connectToDevice } from "../../../lib/connect_to_device";
-import { Vacuum } from "../../../lib/devices/vacuums/vacuum";
-import { parseRoborockMap } from "../../../lib/maps/roborock_map";
-import { log } from "../../log";
+} from "../../../lib/cloud/index.js";
+import { connectToDevice } from "../../../lib/connect_to_device.js";
+import { Vacuum } from "../../../lib/devices/vacuums/vacuum.js";
+import { parseRoborockMap } from "../../../lib/maps/roborock_map.js";
+import { log } from "../../log.js";
 
 export const command = "map <device>";
 export const description =

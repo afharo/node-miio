@@ -100,7 +100,7 @@ Without a device, `resolveVacuumModes(model, firmware)` gives the same lists for
 `vacuumModels()` lists the models that have their own (the others get their brand's defaults):
 
 ```javascript
-const { resolveVacuumModes, vacuumModels } = require("node-miio");
+import { resolveVacuumModes, vacuumModels } from "node-miio";
 
 resolveVacuumModes("roborock.vacuum.s5", "3.5.8_002034").fanSpeeds;
 vacuumModels(); // ["rockrobo.vacuum.v1", "roborock.vacuum.c1", ...]
@@ -113,7 +113,7 @@ vacuumModels(); // ["rockrobo.vacuum.v1", "roborock.vacuum.c1", ...]
 the robot is paused, it's `false` for `paused`:
 
 ```javascript
-const { isCleaningState } = require("node-miio");
+import { isCleaningState } from "node-miio";
 
 isCleaningState(device.property("state"));
 ```
@@ -143,7 +143,7 @@ await device.disableDoNotDisturb();
 await device.setCarpetMode(true);
 
 // Mop route (S7 and newer)
-const { MOP_ROUTES } = require("node-miio");
+import { MOP_ROUTES } from "node-miio";
 await device.setMopRoute(MOP_ROUTES.deep);
 
 // Multi-floor maps

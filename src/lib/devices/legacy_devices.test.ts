@@ -1,19 +1,19 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import { createFakeHandle, sentCalls } from "../test_utils.test.mock";
-import { Device } from "../device";
-import { Color } from "../things/color";
+import { createFakeHandle, sentCalls } from "../test_utils.test.mock.js";
+import { Device } from "../device.js";
+import { Color } from "../things/color.js";
 
-import { AirMonitor } from "./air-monitor";
-import { AirPurifier } from "./air-purifier";
-import { PowerPlugChuangmiV1 } from "./chuangmi.plug.v1";
-import { EyecareLamp2 } from "./eyecare-lamp2";
-import { Humidifier } from "./humidifier";
-import { PhilipsLightBulb } from "./philips-light-bulb";
-import { PowerPlug } from "./power-plug";
-import { PowerStrip } from "./power-strip";
-import { YeelightColor } from "./yeelight.color";
-import { YeelightMono } from "./yeelight.mono";
+import { AirMonitor } from "./air-monitor.js";
+import { AirPurifier } from "./air-purifier.js";
+import { PowerPlugChuangmiV1 } from "./chuangmi.plug.v1.js";
+import { EyecareLamp2 } from "./eyecare-lamp2.js";
+import { Humidifier } from "./humidifier.js";
+import { PhilipsLightBulb } from "./philips-light-bulb.js";
+import { PowerPlug } from "./power-plug.js";
+import { PowerStrip } from "./power-strip.js";
+import { YeelightColor } from "./yeelight.color.js";
+import { YeelightMono } from "./yeelight.mono.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

@@ -1,6 +1,6 @@
 import type { Argv, CommandBuilder, CommandModule } from "yargs";
 
-import * as update from "./tokens/update";
+import * as update from "./tokens/update.js";
 
 export const command = "tokens <command>";
 export const description = "Manage tokens of devices";

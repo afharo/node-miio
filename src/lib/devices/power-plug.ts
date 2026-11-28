@@ -1,7 +1,7 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
 
-import { Power } from "./capabilities/power";
+import { Power } from "./capabilities/power.js";
 
 /** Mi Smart Socket Plugs */
 export class PowerPlug extends compose(MiioApi, Power) {

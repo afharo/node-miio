@@ -1,6 +1,6 @@
-import { Capability } from "../capability";
-import { percentage } from "../values";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import { percentage } from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** Reports its target humidity (`targetHumidityChanged`) */
 export class TargetHumidity extends Capability {

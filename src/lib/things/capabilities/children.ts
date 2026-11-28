@@ -1,6 +1,6 @@
-import { Capability } from "../capability";
-import type { MiioThing } from "../thing";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import type { MiioThing } from "../thing.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 const CHILDREN = Symbol("children");
 

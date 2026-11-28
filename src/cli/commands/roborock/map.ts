@@ -3,11 +3,11 @@ import { gzipSync } from "node:zlib";
 
 import type { CommandBuilder } from "yargs";
 
-import { parseRoborockMap } from "../../../lib/maps/roborock_map";
-import { roomNames } from "../../../lib/roborock/index";
-import { log } from "../../log";
+import { parseRoborockMap } from "../../../lib/maps/roborock_map.js";
+import { roomNames } from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
 
-import { connectRobot, robotOptions, type ConnectedRobot } from "./robot";
+import { connectRobot, robotOptions, type ConnectedRobot } from "./robot.js";
 
 export const command = "map";
 export const description =

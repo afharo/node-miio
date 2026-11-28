@@ -1,6 +1,6 @@
 import { vi, type Mock } from "vitest";
 
-import type { DeviceHandle } from "./management";
+import type { DeviceHandle } from "./management.js";
 
 /**
  * A response for a given method: either a static value or a function that computes it from the params.

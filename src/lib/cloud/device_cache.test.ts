@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { CloudDeviceCache } from "./device_cache";
-import type { CloudDevice } from "./client";
+import { CloudDeviceCache } from "./device_cache.js";
+import type { CloudDevice } from "./client.js";
 
 const device = (overrides: Partial<CloudDevice>): CloudDevice => ({
   did: "1",

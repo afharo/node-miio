@@ -1,4 +1,4 @@
-import { SwitchableMode } from "../../things/capabilities/mode";
+import { SwitchableMode } from "../../things/capabilities/mode.js";
 
 /** Switchable mode, following the `mode` property */
 export class Mode extends SwitchableMode {

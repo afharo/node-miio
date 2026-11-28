@@ -1,22 +1,22 @@
 import { EventEmitter } from "node:events";
 
-import type { DeviceApi } from "../device_info";
-import type { IDevice } from "../device";
-import { Vacuum } from "../devices/vacuums/vacuum";
-import { createDebug, type MiioLogger } from "../logger";
-import { MiioError } from "../miio_error";
-import { models } from "../models";
-import { parseRoborockMap, type RoborockMap } from "../maps/roborock_map";
+import type { DeviceApi } from "../device_info.js";
+import type { IDevice } from "../device.js";
+import { Vacuum } from "../devices/vacuums/vacuum.js";
+import { createDebug, type MiioLogger } from "../logger.js";
+import { MiioError } from "../miio_error.js";
+import { models } from "../models.js";
+import { parseRoborockMap, type RoborockMap } from "../maps/roborock_map.js";
 
-import { RoborockApiError, RoborockError } from "./errors";
-import { RoborockLocalConnection } from "./local_connection";
+import { RoborockApiError, RoborockError } from "./errors.js";
+import { RoborockLocalConnection } from "./local_connection.js";
 import {
   dataPoints,
   rpcResponse,
   type RoborockMessage,
   type RoborockMessageVersion,
-} from "./message";
-import { RoborockMqttConnection, type RoborockMqttSession } from "./mqtt";
+} from "./message.js";
+import { RoborockMqttConnection, type RoborockMqttSession } from "./mqtt.js";
 
 /** After the local connection fails, how long to use MQTT only before trying it again */
 const LOCAL_RETRY_MS = 60_000;

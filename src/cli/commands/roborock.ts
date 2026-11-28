@@ -1,11 +1,11 @@
 import type { Argv, CommandBuilder, CommandModule } from "yargs";
 
-import * as call from "./roborock/call";
-import * as devices from "./roborock/devices";
-import * as login from "./roborock/login";
-import * as logout from "./roborock/logout";
-import * as map from "./roborock/map";
-import * as rooms from "./roborock/rooms";
+import * as call from "./roborock/call.js";
+import * as devices from "./roborock/devices.js";
+import * as login from "./roborock/login.js";
+import * as logout from "./roborock/logout.js";
+import * as map from "./roborock/map.js";
+import * as rooms from "./roborock/rooms.js";
 
 export const command = "roborock <command>";
 export const description =

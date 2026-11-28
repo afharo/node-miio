@@ -1,12 +1,10 @@
-"use strict";
-
 import EventEmitter from "node:events";
 import dgram from "node:dgram";
 
-import { createDebug, type MiioLogger } from "./logger";
-import { Packet } from "./packet";
-import { DeviceInfo } from "./device_info";
-import { isMiioError } from "./miio_error";
+import { createDebug, type MiioLogger } from "./logger.js";
+import { Packet } from "./packet.js";
+import { DeviceInfo } from "./device_info.js";
+import { isMiioError } from "./miio_error.js";
 
 const PORT = 54321;
 

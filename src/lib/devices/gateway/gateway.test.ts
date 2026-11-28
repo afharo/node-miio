@@ -2,15 +2,15 @@ import { EventEmitter } from "node:events";
 
 import { describe, test, expect, vi } from "vitest";
 
-import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
-import { GatewayBasic, GatewayWithLightAndSensor } from "../gateway";
+import { createFakeHandle, sentCalls } from "../../test_utils.test.mock.js";
+import { GatewayBasic, GatewayWithLightAndSensor } from "../gateway.js";
 
-import { Cube, Switch, Switch2 } from "./controllers";
-import { CtrlNeutral2 } from "./ctrl_neutral2";
-import { GatewayLight } from "./gateway-light";
-import { Plug } from "./plug";
-import { Magnet, MotionSensor, WeatherSensor } from "./sensors";
-import type { SubDeviceParent } from "./subdevice";
+import { Cube, Switch, Switch2 } from "./controllers.js";
+import { CtrlNeutral2 } from "./ctrl_neutral2.js";
+import { GatewayLight } from "./gateway-light.js";
+import { Plug } from "./plug.js";
+import { Magnet, MotionSensor, WeatherSensor } from "./sensors.js";
+import type { SubDeviceParent } from "./subdevice.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

@@ -1,9 +1,7 @@
-"use strict";
-
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../../log";
-import { Packet } from "../../../lib/packet";
+import { log } from "../../log.js";
+import { Packet } from "../../../lib/packet.js";
 
 export const command = "packet <hexData>";
 export const description = "Decode a miIO UDP packet";

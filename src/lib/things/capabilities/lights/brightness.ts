@@ -1,14 +1,17 @@
-import { Capability } from "../../capability";
+import { Capability } from "../../capability.js";
 import {
   boolean,
   duration,
   percentage,
   percentageChange,
   type Duration,
-} from "../../values";
-import type { ActionDefinition } from "../../action_metadata";
+} from "../../values.js";
+import type { ActionDefinition } from "../../action_metadata.js";
 
-import { DEFAULT_LIGHT_DURATION, type BrightnessChangeOptions } from "./light";
+import {
+  DEFAULT_LIGHT_DURATION,
+  type BrightnessChangeOptions,
+} from "./light.js";
 
 /** Reports its brightness (`brightnessChanged`) */
 export class Brightness extends Capability {

@@ -1,9 +1,9 @@
 import { describe, test, expect, afterEach, vi } from "vitest";
 
-import { configureLogging, createDebug, maskToken, redact } from "./logger";
-import { DeviceInfo } from "./device_info";
-import { createFakeHandle } from "./test_utils.test.mock";
-import { Vacuum } from "./devices/vacuums/vacuum";
+import { configureLogging, createDebug, maskToken, redact } from "./logger.js";
+import { DeviceInfo } from "./device_info.js";
+import { createFakeHandle } from "./test_utils.test.mock.js";
+import { Vacuum } from "./devices/vacuums/vacuum.js";
 
 describe("logger", () => {
   afterEach(() => configureLogging({ logger: undefined }));

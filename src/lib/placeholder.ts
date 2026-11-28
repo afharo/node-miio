@@ -1,7 +1,5 @@
-"use strict";
-
-import { MiioApi } from "./device";
-import type { DeviceHandle } from "./management";
+import { MiioApi } from "./device.js";
+import type { DeviceHandle } from "./management.js";
 
 export class Placeholder extends MiioApi {
   static get type() {

@@ -2,10 +2,10 @@ import { EventEmitter } from "node:events";
 
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import { CloudSessionExpiredError } from "../cloud/errors";
+import { CloudSessionExpiredError } from "../cloud/errors.js";
 
-import { MapWatcher, type MapWatcherDevice } from "./map_watcher";
-import type { RoborockMap } from "./roborock_map";
+import { MapWatcher, type MapWatcherDevice } from "./map_watcher.js";
+import type { RoborockMap } from "./roborock_map.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

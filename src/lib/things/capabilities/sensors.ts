@@ -1,4 +1,4 @@
-import { Capability } from "../capability";
+import { Capability } from "../capability.js";
 import {
   boolean,
   concentration,
@@ -12,8 +12,8 @@ import {
   temperature,
   voltage,
   type Quantity,
-} from "../values";
-import type { ActionDefinition } from "../action_metadata";
+} from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** The state key of each sensor capability */
 const SENSOR_KEYS: Record<string, string> = {

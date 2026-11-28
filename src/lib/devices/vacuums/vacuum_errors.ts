@@ -1,4 +1,4 @@
-import type { MiioThing } from "../../things/thing";
+import type { MiioThing } from "../../things/thing.js";
 
 /** The states in which a vacuum reports an error */
 const ERROR_STATES = ["error", "charging-error", "charger-offline"];

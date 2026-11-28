@@ -8,8 +8,8 @@ import {
   deleteRoborockSession,
   loadRoborockSession,
   saveRoborockSession,
-} from "./session_store";
-import type { RoborockSession } from "./web_api";
+} from "./session_store.js";
+import type { RoborockSession } from "./web_api.js";
 
 describe("Roborock session store", () => {
   test("saves (readable only by the user), loads and deletes the session", async () => {

@@ -1,6 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { MiioThing } from "./thing";
+import { MiioThing } from "./thing.js";
 
 /** Waits for the queued events to be emitted */
 const flush = () => new Promise((resolve) => setImmediate(resolve));

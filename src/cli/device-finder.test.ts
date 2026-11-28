@@ -2,16 +2,16 @@ import { EventEmitter } from "node:events";
 
 import { describe, test, expect, beforeEach, vi, type Mock } from "vitest";
 
-vi.mock("../lib/connect_to_device", () => ({ connectToDevice: vi.fn() }));
-vi.mock("../lib/tokens", () => ({ tokens: { get: vi.fn() } }));
-vi.mock("../lib/discovery", () => ({ Devices: vi.fn() }));
+vi.mock("../lib/connect_to_device.js", () => ({ connectToDevice: vi.fn() }));
+vi.mock("../lib/tokens.js", () => ({ tokens: { get: vi.fn() } }));
+vi.mock("../lib/discovery.js", () => ({ Devices: vi.fn() }));
 
-import { connectToDevice } from "../lib/connect_to_device";
-import { tokens } from "../lib/tokens";
-import { Devices } from "../lib/discovery";
-import { Placeholder } from "../lib/placeholder";
+import { connectToDevice } from "../lib/connect_to_device.js";
+import { tokens } from "../lib/tokens.js";
+import { Devices } from "../lib/discovery.js";
+import { Placeholder } from "../lib/placeholder.js";
 
-import { deviceFinder, withSavedToken } from "./device-finder";
+import { deviceFinder, withSavedToken } from "./device-finder.js";
 
 const connect = connectToDevice as Mock;
 const get = tokens.get as Mock;

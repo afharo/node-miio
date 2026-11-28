@@ -11,32 +11,32 @@ export {
   type RoborockDevice,
   type RoborockRoutine,
   type RoborockWebApiOptions,
-} from "./web_api";
-export { hawkAuthorization, type RoborockRriot } from "./hawk";
+} from "./web_api.js";
+export { hawkAuthorization, type RoborockRriot } from "./hawk.js";
 export {
   RoborockError,
   RoborockAuthError,
   RoborockSessionExpiredError,
   RoborockApiError,
-} from "./errors";
+} from "./errors.js";
 export {
   saveRoborockSession,
   loadRoborockSession,
   deleteRoborockSession,
   defaultRoborockSessionFile,
-} from "./session_store";
+} from "./session_store.js";
 export {
   roborockDevice,
   roborockApiOf,
   RoborockDeviceApi,
   type RoborockDeviceOptions,
-} from "./device";
+} from "./device.js";
 export {
   RoborockLocalConnection,
   ROBOROCK_LOCAL_PORT,
   type RoborockLocalConnectionOptions,
-} from "./local_connection";
-export { roomNames, type RoborockRoom } from "./rooms";
+} from "./local_connection.js";
+export { roomNames, type RoborockRoom } from "./rooms.js";
 export {
   RoborockMqttSession,
   RoborockMqttConnection,
@@ -45,5 +45,5 @@ export {
   type MqttConnect,
   type RoborockMqttSessionOptions,
   type RoborockMqttConnectionOptions,
-} from "./mqtt";
-export { MapResponseAssembler, type MapResponse } from "./map_response";
+} from "./mqtt.js";
+export { MapResponseAssembler, type MapResponse } from "./map_response.js";

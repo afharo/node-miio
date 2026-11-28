@@ -1,12 +1,12 @@
-import { compose } from "../../things/compose";
-import { SpotCleaning } from "../../things/capabilities/cleaning";
-import { checkResult } from "../../check_result";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { compose } from "../../things/compose.js";
+import { SpotCleaning } from "../../things/capabilities/cleaning.js";
+import { checkResult } from "../../check_result.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { VacuumThing } from "./vacuum_thing";
-import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
-import { clearErrorOnRecovery } from "./vacuum_errors";
-import { vacuumActions } from "./vacuum_actions";
+import { VacuumThing } from "./vacuum_thing.js";
+import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes.js";
+import { clearErrorOnRecovery } from "./vacuum_errors.js";
+import { vacuumActions } from "./vacuum_actions.js";
 
 export class ViomiVacuum extends compose(VacuumThing, SpotCleaning) {
   static actions: ActionDefinition[] = vacuumActions(

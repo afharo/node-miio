@@ -1,12 +1,10 @@
-"use strict";
-
 import fs from "node:fs";
 import { styleText } from "node:util";
 
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../../log";
-import { Packet } from "../../../lib/packet";
+import { log } from "../../log.js";
+import { Packet } from "../../../lib/packet.js";
 
 export const command = "json-dump <file>";
 export const description = "Extract packets from a Wireshark JSON dump";

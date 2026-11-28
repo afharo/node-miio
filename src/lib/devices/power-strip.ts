@@ -1,8 +1,8 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
 
-import { Power } from "./capabilities/power";
-import { Mode } from "./capabilities/mode";
+import { Power } from "./capabilities/power.js";
+import { Mode } from "./capabilities/mode.js";
 
 /** Mi Smart Power Strips */
 export class PowerStrip extends compose(MiioApi, Power, Mode) {

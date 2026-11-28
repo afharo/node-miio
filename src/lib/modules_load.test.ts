@@ -1,9 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, test, expect, vi } from "vitest";
 
-import * as miio from "./index";
+import * as miio from "./index.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
@@ -23,13 +26,13 @@ function listModules(dir: string): string[] {
   });
 }
 
-const modules = listModules(__dirname).map((p) => path.relative(__dirname, p));
+const modules = listModules(moduleDir).map((p) => path.relative(moduleDir, p));
 
 describe("modules", () => {
   test.each(modules)("%s loads in isolation", async (modulePath) => {
     vi.resetModules();
     await expect(
-      import(path.join(__dirname, modulePath)),
+      import(path.join(moduleDir, modulePath)),
     ).resolves.toBeDefined();
   });
 

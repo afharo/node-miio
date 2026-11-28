@@ -1,9 +1,9 @@
 import type { Argv, CommandBuilder, CommandModule } from "yargs";
 
-import * as devices from "./cloud/devices";
-import * as login from "./cloud/login";
-import * as logout from "./cloud/logout";
-import * as map from "./cloud/map";
+import * as devices from "./cloud/devices.js";
+import * as login from "./cloud/login.js";
+import * as logout from "./cloud/logout.js";
+import * as map from "./cloud/map.js";
 
 export const command = "cloud <command>";
 export const description =

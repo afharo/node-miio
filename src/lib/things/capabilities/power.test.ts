@@ -1,10 +1,10 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { compose } from "../compose";
+import { compose } from "../compose.js";
 
-import { Base, flush, record } from "./test_utils.test.mock";
+import { Base, flush, record } from "./test_utils.test.mock.js";
 
-import { SwitchablePower } from "./index";
+import { SwitchablePower } from "./index.js";
 
 describe("SwitchablePower", () => {
   class Thing extends compose(Base, SwitchablePower) {

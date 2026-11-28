@@ -1,8 +1,8 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../log";
-import { runOnDevice } from "../run_on_device";
-import { tokens } from "../../lib/tokens";
+import { log } from "../log.js";
+import { runOnDevice } from "../run_on_device.js";
+import { tokens } from "../../lib/tokens.js";
 
 export const command = "configure <idOrIp>";
 export const description = "Connect a device to a Wi-Fi network";

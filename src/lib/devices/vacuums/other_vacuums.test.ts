@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
+import { createFakeHandle, sentCalls } from "../../test_utils.test.mock.js";
 
-import { DreameVacuum } from "./dreamevacuum";
-import { MijiaVacuum } from "./mijiavacuum";
-import { ViomiVacuum } from "./viomivacuum";
+import { DreameVacuum } from "./dreamevacuum.js";
+import { MijiaVacuum } from "./mijiavacuum.js";
+import { ViomiVacuum } from "./viomivacuum.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

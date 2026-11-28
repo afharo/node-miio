@@ -1,9 +1,9 @@
-import { Capability } from "../../capability";
-import { duration, type Duration } from "../../values";
-import { color, type Color, type ColorInput } from "../../color";
-import type { ActionDefinition } from "../../action_metadata";
+import { Capability } from "../../capability.js";
+import { duration, type Duration } from "../../values.js";
+import { color, type Color, type ColorInput } from "../../color.js";
+import type { ActionDefinition } from "../../action_metadata.js";
 
-import { DEFAULT_LIGHT_DURATION, type LightChangeOptions } from "./light";
+import { DEFAULT_LIGHT_DURATION, type LightChangeOptions } from "./light.js";
 
 /** The colour can be changed. Implement `changeColor(color, options)`. */
 export class Colorable extends Capability {

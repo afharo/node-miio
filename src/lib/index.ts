@@ -1,25 +1,25 @@
-import * as discovery from "./discovery";
-import { models } from "./models";
-import { connectToDevice } from "./connect_to_device";
-import { infoFromHostname } from "./info_from_hostname";
-import type { BrowserOptions, DevicesOptions } from "./discovery";
+import * as discovery from "./discovery.js";
+import { models } from "./models.js";
+import { connectToDevice } from "./connect_to_device.js";
+import { infoFromHostname } from "./info_from_hostname.js";
+import type { BrowserOptions, DevicesOptions } from "./discovery.js";
 
-export { Device as MiioDevice } from "./device";
-export { MiioError } from "./miio_error";
-export { configureLogging, type MiioLogger } from "./logger";
-export type { StateChangedEvent, ErrorChangedEvent } from "./events";
+export { Device as MiioDevice } from "./device.js";
+export { MiioError } from "./miio_error.js";
+export { configureLogging, type MiioLogger } from "./logger.js";
+export type { StateChangedEvent, ErrorChangedEvent } from "./events.js";
 export {
   Vacuum,
   MOP_ROUTES,
   type RoborockConsumable,
-} from "./devices/vacuums/vacuum";
+} from "./devices/vacuums/vacuum.js";
 export {
   resolveVacuumModes,
   vacuumModels,
   type CleanPreset,
   type VacuumMode,
   type VacuumModes,
-} from "./devices/vacuums/vacuum_modes";
+} from "./devices/vacuums/vacuum_modes.js";
 export {
   CLEANING_STATES,
   isCleaningState,
@@ -28,22 +28,25 @@ export {
   vacuumActivity,
   type VacuumActivity,
   type VacuumState,
-} from "./devices/vacuums/vacuum_states";
-export { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
-export { isVacuum, type VacuumDevice } from "./devices/vacuums/vacuum_device";
-export { ViomiVacuum } from "./devices/vacuums/viomivacuum";
-export { DreameVacuum } from "./devices/vacuums/dreamevacuum";
-export { MiotVacuum, type MiotMode } from "./devices/vacuums/miot-vacuum";
+} from "./devices/vacuums/vacuum_states.js";
+export { MijiaVacuum } from "./devices/vacuums/mijiavacuum.js";
+export {
+  isVacuum,
+  type VacuumDevice,
+} from "./devices/vacuums/vacuum_device.js";
+export { ViomiVacuum } from "./devices/vacuums/viomivacuum.js";
+export { DreameVacuum } from "./devices/vacuums/dreamevacuum.js";
+export { MiotVacuum, type MiotMode } from "./devices/vacuums/miot-vacuum.js";
 export {
   MiotSpecClient,
   configureMiotSpecs,
   type MiotSpecOptions,
   type ResolvedMiotSpec,
-} from "./miot/spec_client";
-export { MiotSpecIndex, parseUrn, type MiotSpec } from "./miot/miot_spec";
-export { MiotError } from "./miot/miot_api";
-export * from "./cloud/index";
-export * from "./roborock/index";
+} from "./miot/spec_client.js";
+export { MiotSpecIndex, parseUrn, type MiotSpec } from "./miot/miot_spec.js";
+export { MiotError } from "./miot/miot_api.js";
+export * from "./cloud/index.js";
+export * from "./roborock/index.js";
 export {
   parseRoborockMap,
   roomAt,
@@ -57,13 +60,13 @@ export {
   type MapRectangle,
   type MapArea,
   type MapImage,
-} from "./maps/roborock_map";
+} from "./maps/roborock_map.js";
 export {
   MapWatcher,
   type MapWatcherDevice,
   type MapWatcherOptions,
   type MapWatcherEvents,
-} from "./maps/map_watcher";
+} from "./maps/map_watcher.js";
 
 export {
   /**

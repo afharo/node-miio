@@ -1,14 +1,14 @@
 import { EventEmitter } from "node:events";
 import { isDeepStrictEqual } from "node:util";
 
-import { createDebug, type DebugFn } from "../logger";
+import { createDebug, type DebugFn } from "../logger.js";
 
-import { REGISTRY, type CapabilityHook, type Registry } from "./registry";
+import { REGISTRY, type CapabilityHook, type Registry } from "./registry.js";
 import {
   addActions,
   type ActionDefinition,
   type ActionMetadata,
-} from "./action_metadata";
+} from "./action_metadata.js";
 
 export interface EmitOptions<T = unknown> {
   /**

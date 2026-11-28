@@ -1,19 +1,17 @@
 #!/usr/bin/env node
-"use strict";
-
 import yargs, { type CommandModule } from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { reportWhenDone } from "./done";
-import * as cloud from "./commands/cloud";
-import * as configure from "./commands/configure";
-import * as control from "./commands/control";
-import * as discover from "./commands/discover";
-import * as inspect from "./commands/inspect";
-import * as protocol from "./commands/protocol";
-import * as roborock from "./commands/roborock";
-import * as spec from "./commands/miot-spec";
-import * as tokens from "./commands/tokens";
+import { reportWhenDone } from "./done.js";
+import * as cloud from "./commands/cloud.js";
+import * as configure from "./commands/configure.js";
+import * as control from "./commands/control.js";
+import * as discover from "./commands/discover.js";
+import * as inspect from "./commands/inspect.js";
+import * as protocol from "./commands/protocol.js";
+import * as roborock from "./commands/roborock.js";
+import * as spec from "./commands/miot-spec.js";
+import * as tokens from "./commands/tokens.js";
 
 // Commands are registered explicitly (instead of `commandDir`) because
 // `commandDir` is not supported when yargs is loaded as an ES module.

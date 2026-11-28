@@ -1,5 +1,5 @@
-import { deleteSession, defaultSessionFile } from "../../../lib/cloud/index";
-import { log } from "../../log";
+import { deleteSession, defaultSessionFile } from "../../../lib/cloud/index.js";
+import { log } from "../../log.js";
 
 export const command = "logout";
 export const description = "Delete the saved Xiaomi Cloud session";

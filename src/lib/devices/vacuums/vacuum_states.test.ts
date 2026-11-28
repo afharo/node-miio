@@ -1,17 +1,17 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { createFakeHandle } from "../../test_utils.test.mock";
+import { createFakeHandle } from "../../test_utils.test.mock.js";
 
-import { DreameVacuum } from "./dreamevacuum";
-import { Vacuum } from "./vacuum";
+import { DreameVacuum } from "./dreamevacuum.js";
+import { Vacuum } from "./vacuum.js";
 import {
   CLEANING_STATES,
   isCleaningState,
   isKnownVacuumState,
   VACUUM_STATES,
   vacuumActivity,
-} from "./vacuum_states";
-import { ViomiVacuum } from "./viomivacuum";
+} from "./vacuum_states.js";
+import { ViomiVacuum } from "./viomivacuum.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

@@ -1,16 +1,16 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import d101 from "../../__fixtures__/miot/xiaomi.vacuum.d101.json";
-import d110ch from "../../__fixtures__/miot/xiaomi.vacuum.d110ch.json";
-import statusFixture from "../../__fixtures__/miot/vacuum-statuses.json";
-import ijaiV3 from "../../__fixtures__/miot/ijai.vacuum.v3.json";
-import mijiaV2 from "../../__fixtures__/miot/mijia.vacuum.v2.json";
-import p2008 from "../../__fixtures__/miot/dreame.vacuum.p2008.json";
-import roborockS5 from "../../__fixtures__/miot/roborock.vacuum.s5.json";
-import viomiV10 from "../../__fixtures__/miot/viomi.vacuum.v10.json";
-import viomiV18 from "../../__fixtures__/miot/viomi.vacuum.v18.json";
-import { MiotSpecIndex, type MiotSpec } from "../../miot/miot_spec";
-import { createFakeHandle, sentCalls } from "../../test_utils.test.mock";
+import d101 from "../../__fixtures__/miot/xiaomi.vacuum.d101.json" with { type: "json" };
+import d110ch from "../../__fixtures__/miot/xiaomi.vacuum.d110ch.json" with { type: "json" };
+import statusFixture from "../../__fixtures__/miot/vacuum-statuses.json" with { type: "json" };
+import ijaiV3 from "../../__fixtures__/miot/ijai.vacuum.v3.json" with { type: "json" };
+import mijiaV2 from "../../__fixtures__/miot/mijia.vacuum.v2.json" with { type: "json" };
+import p2008 from "../../__fixtures__/miot/dreame.vacuum.p2008.json" with { type: "json" };
+import roborockS5 from "../../__fixtures__/miot/roborock.vacuum.s5.json" with { type: "json" };
+import viomiV10 from "../../__fixtures__/miot/viomi.vacuum.v10.json" with { type: "json" };
+import viomiV18 from "../../__fixtures__/miot/viomi.vacuum.v18.json" with { type: "json" };
+import { MiotSpecIndex, type MiotSpec } from "../../miot/miot_spec.js";
+import { createFakeHandle, sentCalls } from "../../test_utils.test.mock.js";
 
 import {
   isPlaceholderSpec,
@@ -18,8 +18,8 @@ import {
   MiotVacuum,
   normalizeState,
   toVacuumState,
-} from "./miot-vacuum";
-import { isKnownVacuumState } from "./vacuum_states";
+} from "./miot-vacuum.js";
+import { isKnownVacuumState } from "./vacuum_states.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

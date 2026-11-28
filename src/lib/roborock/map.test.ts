@@ -1,18 +1,21 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 
 import { describe, test, expect } from "vitest";
 
-import { parseRoborockMap } from "../maps/roborock_map";
+import { parseRoborockMap } from "../maps/roborock_map.js";
 
-import { roborockApiOf, RoborockDeviceApi } from "./device";
-import { fakeMqtt } from "./fake_mqtt.test.mock";
-import type { RoborockRriot } from "./hawk";
-import { MapResponseAssembler } from "./map_response";
-import { RoborockProtocol, type RoborockMessage } from "./message";
-import { RoborockMqttConnection, RoborockMqttSession } from "./mqtt";
+import { roborockApiOf, RoborockDeviceApi } from "./device.js";
+import { fakeMqtt } from "./fake_mqtt.test.mock.js";
+import type { RoborockRriot } from "./hawk.js";
+import { MapResponseAssembler } from "./map_response.js";
+import { RoborockProtocol, type RoborockMessage } from "./message.js";
+import { RoborockMqttConnection, RoborockMqttSession } from "./mqtt.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 const LOCAL_KEY = "abcdefghijklmnop";
 const rriot: RoborockRriot = {
@@ -25,7 +28,7 @@ const rriot: RoborockRriot = {
 const MAP_FILE = gunzipSync(
   fs.readFileSync(
     path.join(
-      __dirname,
+      moduleDir,
       "../__fixtures__/maps/roborock/S5_FW1886_with_forbidden_zones_and_virtual_walls_and_currently_cleaned_zones.bin.gz",
     ),
   ),

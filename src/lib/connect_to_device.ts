@@ -1,19 +1,19 @@
-import { type FindDeviceViaAddressOptions, network } from "./network";
-import { Device, IDevice } from "./device";
-import { Placeholder } from "./placeholder";
-import { models } from "./models";
-import { Vacuum } from "./devices/vacuums/vacuum";
-import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
-import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
+import { type FindDeviceViaAddressOptions, network } from "./network.js";
+import { Device, IDevice } from "./device.js";
+import { Placeholder } from "./placeholder.js";
+import { models } from "./models.js";
+import { Vacuum } from "./devices/vacuums/vacuum.js";
+import { ViomiVacuum } from "./devices/vacuums/viomivacuum.js";
+import { DreameVacuum } from "./devices/vacuums/dreamevacuum.js";
 import {
   isPlaceholderSpec,
   isSupportedMiotVacuum,
   MiotVacuum,
-} from "./devices/vacuums/miot-vacuum";
-import { getMiotSpecClient } from "./miot/spec_client";
-import { MiotSpecIndex } from "./miot/miot_spec";
-import { isMiioError, MiioError } from "./miio_error";
-import type { DeviceInfo } from "./device_info";
+} from "./devices/vacuums/miot-vacuum.js";
+import { getMiotSpecClient } from "./miot/spec_client.js";
+import { MiotSpecIndex } from "./miot/miot_spec.js";
+import { isMiioError, MiioError } from "./miio_error.js";
+import type { DeviceInfo } from "./device_info.js";
 
 export interface ConnectToDeviceOptions extends FindDeviceViaAddressOptions {
   withPlaceholder?: boolean;

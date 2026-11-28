@@ -1,5 +1,5 @@
-import { Colorable as BaseColorable } from "../../things/capabilities/lights/colorable";
-import type { Color } from "../../things/color";
+import { Colorable as BaseColorable } from "../../things/capabilities/lights/colorable.js";
+import type { Color } from "../../things/color.js";
 
 /** Colorable light, following the `color` property */
 export class Colorable extends BaseColorable {

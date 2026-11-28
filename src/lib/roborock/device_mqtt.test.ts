@@ -1,12 +1,12 @@
 import { describe, test, expect } from "vitest";
 
-import { Vacuum } from "../devices/vacuums/vacuum";
+import { Vacuum } from "../devices/vacuums/vacuum.js";
 
-import { RoborockDeviceApi, roborockDevice } from "./device";
-import { fakeMqtt } from "./fake_mqtt.test.mock";
-import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock";
-import type { RoborockRriot } from "./hawk";
-import { mqttParams, RoborockMqttSession } from "./mqtt";
+import { RoborockDeviceApi, roborockDevice } from "./device.js";
+import { fakeMqtt } from "./fake_mqtt.test.mock.js";
+import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock.js";
+import type { RoborockRriot } from "./hawk.js";
+import { mqttParams, RoborockMqttSession } from "./mqtt.js";
 
 const rriot: RoborockRriot = {
   u: "u",

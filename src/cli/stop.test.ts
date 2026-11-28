@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 
 import { describe, test, expect, vi } from "vitest";
 
-import { stopGracefully } from "./stop";
+import { stopGracefully } from "./stop.js";
 
 function fakeProcess() {
   return Object.assign(new EventEmitter(), { exit: vi.fn() });

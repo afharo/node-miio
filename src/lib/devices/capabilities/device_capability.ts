@@ -1,5 +1,5 @@
-import { Capability } from "../../things/capability";
-import type { Device } from "../../device";
+import { Capability } from "../../things/capability.js";
+import type { Device } from "../../device.js";
 
 /**
  * Base of the capabilities that talk to the device (`this.call(…)`, `this.property(…)`…). It's a {@link Capability},

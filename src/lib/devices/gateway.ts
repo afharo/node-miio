@@ -1,14 +1,14 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { Children, ChildSyncer } from "../things/capabilities/children";
-import type { MiioThing } from "../things/thing";
-import type { ActionDefinition } from "../things/action_metadata";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { Children, ChildSyncer } from "../things/capabilities/children.js";
+import type { MiioThing } from "../things/thing.js";
+import type { ActionDefinition } from "../things/action_metadata.js";
 
-import { Illuminance } from "./capabilities/sensor";
-import DeveloperApi from "./gateway/developer-api";
-import { GatewayLight } from "./gateway/gateway-light";
-import { SubDevice } from "./gateway/subdevice";
-import { subDeviceTypes, type SubDeviceClass } from "./gateway/subdevices";
+import { Illuminance } from "./capabilities/sensor.js";
+import DeveloperApi from "./gateway/developer-api.js";
+import { GatewayLight } from "./gateway/gateway-light.js";
+import { SubDevice } from "./gateway/subdevice.js";
+import { subDeviceTypes, type SubDeviceClass } from "./gateway/subdevices.js";
 
 const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
 

@@ -1,10 +1,10 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { MiioThing } from "../things/thing";
-import { SwitchablePower } from "../things/capabilities/power";
-import { Children } from "../things/capabilities/children";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { MiioThing } from "../things/thing.js";
+import { SwitchablePower } from "../things/capabilities/power.js";
+import { Children } from "../things/capabilities/children.js";
 
-import { Power as MiioPower } from "./capabilities/power";
+import { Power as MiioPower } from "./capabilities/power.js";
 
 /** The USB port of the plug, switchable on its own */
 class USBOutlet extends compose(MiioThing, SwitchablePower) {

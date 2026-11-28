@@ -1,9 +1,9 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../log";
-import { deviceFinder } from "../device-finder";
-import { stopGracefully } from "../stop";
-import { tokens } from "../../lib/tokens";
+import { log } from "../log.js";
+import { deviceFinder } from "../device-finder.js";
+import { stopGracefully } from "../stop.js";
+import { tokens } from "../../lib/tokens.js";
 
 export const command = "discover";
 export const description = "Discover devices on the local network";

@@ -3,7 +3,7 @@ import { styleText } from "node:util";
 
 import { describe, test, expect, vi } from "vitest";
 
-import { doneMessage, formatDuration, reportWhenDone } from "./done";
+import { doneMessage, formatDuration, reportWhenDone } from "./done.js";
 
 describe("formatDuration", () => {
   test.each([

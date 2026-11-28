@@ -1,8 +1,8 @@
-import { boolean } from "../../things/values";
-import { MiioApi } from "../../device";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { boolean } from "../../things/values.js";
+import { MiioApi } from "../../device.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { DeviceCapability } from "./device_capability";
+import { DeviceCapability } from "./device_capability.js";
 
 /** The buzzer of the device can be switched on and off (`set_buzzer`). Emits `buzzerChanged`. */
 export class Buzzer extends DeviceCapability {

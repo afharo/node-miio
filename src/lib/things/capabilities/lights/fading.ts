@@ -1,6 +1,6 @@
-import { Capability } from "../../capability";
-import { duration, type Duration } from "../../values";
-import type { ActionDefinition } from "../../action_metadata";
+import { Capability } from "../../capability.js";
+import { duration, type Duration } from "../../values.js";
+import type { ActionDefinition } from "../../action_metadata.js";
 
 const MAX_CHANGE_TIME = Symbol("maxChangeTime");
 

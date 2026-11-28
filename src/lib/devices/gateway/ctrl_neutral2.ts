@@ -1,5 +1,5 @@
-import { ChannelSwitch } from "./light-channel";
-import type { SubDeviceInfo, SubDeviceParent } from "./subdevice";
+import { ChannelSwitch } from "./light-channel.js";
+import type { SubDeviceInfo, SubDeviceParent } from "./subdevice.js";
 
 /** Two-channel light switch */
 export class CtrlNeutral2 extends ChannelSwitch {

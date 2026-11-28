@@ -1,4 +1,4 @@
-import { BatteryLevel as BaseBatteryLevel } from "../../things/capabilities/battery-level";
+import { BatteryLevel as BaseBatteryLevel } from "../../things/capabilities/battery-level.js";
 
 /** Battery level, following the `batteryLevel` property */
 export class BatteryLevel extends BaseBatteryLevel {

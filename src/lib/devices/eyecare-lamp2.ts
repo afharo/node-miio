@@ -1,15 +1,15 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { MiioThing } from "../things/thing";
-import { Children } from "../things/capabilities/children";
-import { SwitchablePower } from "../things/capabilities/power";
-import { Light } from "../things/capabilities/lights/light";
-import { Dimmable } from "../things/capabilities/lights/brightness";
-import { percentage } from "../things/values";
-import type { ActionDefinition } from "../things/action_metadata";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { MiioThing } from "../things/thing.js";
+import { Children } from "../things/capabilities/children.js";
+import { SwitchablePower } from "../things/capabilities/power.js";
+import { Light } from "../things/capabilities/lights/light.js";
+import { Dimmable } from "../things/capabilities/lights/brightness.js";
+import { percentage } from "../things/values.js";
+import type { ActionDefinition } from "../things/action_metadata.js";
 
-import { Dimmable as MiioDimmable } from "./capabilities/dimmable";
-import { Power as MiioPower } from "./capabilities/power";
+import { Dimmable as MiioDimmable } from "./capabilities/dimmable.js";
+import { Power as MiioPower } from "./capabilities/power.js";
 
 /** The ambient (secondary) light of the lamp */
 class AmbientLight extends compose(

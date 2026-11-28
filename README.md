@@ -58,7 +58,7 @@ Each release also bundles a snapshot of the specs of **every vacuum** listed on 
 air-gapped environments too:
 
 ```js
-const miio = require("node-miio");
+import * as miio from "node-miio";
 
 miio.configureMiotSpecs({
   offline: true, // Never use the network (or set the env var MIIO_OFFLINE=1)
@@ -92,8 +92,11 @@ npm install -g node-miio
 ## Usage
 
 ```javascript
-const miio = require("node-miio");
+import * as miio from "node-miio";
 ```
+
+`node-miio` is an ES module. CommonJS code can still load it with `const miio = require("node-miio");` (Node.js
+22.13+ supports `require()` of ES modules).
 
 The package includes TypeScript declarations. With TypeScript, use `isVacuum()` to narrow the device to a
 `VacuumDevice`, and `instanceof` for the API of a specific implementation:
@@ -279,7 +282,7 @@ Apps (e.g. Homebridge or Matterbridge plugins) can send node-miio's debug messag
 need to set `DEBUG`. Tokens and passwords are redacted from these messages.
 
 ```javascript
-const miio = require("node-miio");
+import * as miio from "node-miio";
 
 // The messages of this device (requests, responses, property changes…)
 const device = await miio.device({

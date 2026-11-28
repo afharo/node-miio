@@ -1,4 +1,4 @@
-import { SwitchablePower } from "../../things/capabilities/power";
+import { SwitchablePower } from "../../things/capabilities/power.js";
 
 /** Switchable power, following the `power` property */
 export class Power extends SwitchablePower {

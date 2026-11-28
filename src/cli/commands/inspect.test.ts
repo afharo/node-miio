@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import { actionUsage, groupActions } from "./inspect";
+import { actionUsage, groupActions } from "./inspect.js";
 
 describe("inspect", () => {
   test("groups the actions by their first matching group, the rest under Other actions", () => {

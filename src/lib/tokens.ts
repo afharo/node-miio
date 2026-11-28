@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { defaultConfigDir } from "./cloud/session_store";
+import { defaultConfigDir } from "./cloud/session_store.js";
 
 /**
  * @returns The default path of the saved tokens: `tokens.json` in node-miio's config directory (next to the Xiaomi

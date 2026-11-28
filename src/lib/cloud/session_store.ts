@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import type { CloudSession } from "./login";
+import type { CloudSession } from "./login.js";
 
 /**
  * The directory of node-miio's private config (the Xiaomi Cloud session). Override it with `MIIO_CONFIG_DIR`.

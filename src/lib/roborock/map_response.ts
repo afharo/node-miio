@@ -13,8 +13,8 @@
 import crypto from "node:crypto";
 import { gunzipSync } from "node:zlib";
 
-import { RoborockError } from "./errors";
-import { RoborockProtocol, type RoborockMessage } from "./message";
+import { RoborockError } from "./errors.js";
+import { RoborockProtocol, type RoborockMessage } from "./message.js";
 
 const HEADER_LENGTH = 24;
 /** Incomplete multi-part responses kept while waiting for their missing parts */

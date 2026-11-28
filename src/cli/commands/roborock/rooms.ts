@@ -1,9 +1,9 @@
 import type { CommandBuilder } from "yargs";
 
-import { roomNames } from "../../../lib/roborock/index";
-import { log } from "../../log";
+import { roomNames } from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
 
-import { connectRobot, robotOptions, type ConnectedRobot } from "./robot";
+import { connectRobot, robotOptions, type ConnectedRobot } from "./robot.js";
 
 export const command = "rooms";
 export const description =

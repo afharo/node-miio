@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks";
 import { styleText } from "node:util";
 
-import { CANCELLED_EXIT_CODES } from "./stop";
+import { CANCELLED_EXIT_CODES } from "./stop.js";
 
 /** The message goes to stderr: colour it only when stderr supports colours */
 const STDERR = { stream: process.stderr };

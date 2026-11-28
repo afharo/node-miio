@@ -2,10 +2,10 @@ import { styleText } from "node:util";
 
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../log";
-import { runOnDevice } from "../run_on_device";
-import type { ActionMetadata } from "../../lib/things/action_metadata";
-import type { MiioDeviceInfo } from "../../lib/protocol";
+import { log } from "../log.js";
+import { runOnDevice } from "../run_on_device.js";
+import type { ActionMetadata } from "../../lib/things/action_metadata.js";
+import type { MiioDeviceInfo } from "../../lib/protocol.js";
 
 /** How `inspect` groups the actions: by the first group with one of their tags */
 const GROUPS = [

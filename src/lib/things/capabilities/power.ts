@@ -1,6 +1,6 @@
-import { Capability } from "../capability";
-import { boolean } from "../values";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import { boolean } from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** Reports whether it's on (`powerChanged`) */
 export class Power extends Capability {

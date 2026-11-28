@@ -1,4 +1,4 @@
-import type { RoborockHomeData } from "./web_api";
+import type { RoborockHomeData } from "./web_api.js";
 
 export interface RoborockRoom {
   /** The segment ID on the map (what `cleanRooms` takes) */

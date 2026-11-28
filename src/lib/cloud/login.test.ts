@@ -2,13 +2,13 @@ import crypto from "node:crypto";
 
 import { describe, test, expect, vi } from "vitest";
 
-import { fakeFetch, type Handler } from "./cloud.test.mock";
+import { fakeFetch, type Handler } from "./cloud.test.mock.js";
 import {
   CloudAuthError,
   CloudCaptchaRequiredError,
   CloudTwoFactorRequiredError,
-} from "./errors";
-import { loginWithPassword, loginWithQrCode } from "./login";
+} from "./errors.js";
+import { loginWithPassword, loginWithQrCode } from "./login.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

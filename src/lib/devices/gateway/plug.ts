@@ -1,12 +1,12 @@
-import { compose } from "../../things/compose";
-import { Power } from "../capabilities/power";
-import { PowerConsumed, PowerLoad } from "../capabilities/sensor";
+import { compose } from "../../things/compose.js";
+import { Power } from "../capabilities/power.js";
+import { PowerConsumed, PowerLoad } from "../capabilities/sensor.js";
 
 import {
   SubDevice,
   type SubDeviceInfo,
   type SubDeviceParent,
-} from "./subdevice";
+} from "./subdevice.js";
 
 /** Wall plug (`lumi.plug`): can be switched on and off, and reports its load and consumption */
 export class Plug extends compose(SubDevice, Power, PowerLoad, PowerConsumed) {

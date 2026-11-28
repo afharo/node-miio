@@ -1,13 +1,13 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import type { ActionDefinition } from "../things/action_metadata";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import type { ActionDefinition } from "../things/action_metadata.js";
 
-import { Power } from "./capabilities/power";
-import { Mode } from "./capabilities/mode";
-import { SwitchableLED } from "./capabilities/switchable-led";
-import { LEDBrightness } from "./capabilities/changeable-led-brightness";
-import { Buzzer } from "./capabilities/buzzer";
-import { Temperature, Humidity, AQI } from "./capabilities/sensor";
+import { Power } from "./capabilities/power.js";
+import { Mode } from "./capabilities/mode.js";
+import { SwitchableLED } from "./capabilities/switchable-led.js";
+import { LEDBrightness } from "./capabilities/changeable-led-brightness.js";
+import { Buzzer } from "./capabilities/buzzer.js";
+import { Temperature, Humidity, AQI } from "./capabilities/sensor.js";
 
 /**
  * Abstraction over a Mi Air Purifier.

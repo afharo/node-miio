@@ -26,9 +26,9 @@ node dist/cli/index.js --help   # smoke-test the CLI after building
 ```
 
 CI (`.github/workflows/build.yml`) runs lint, test and build on Node 22/24/26. `engines` is `^22.13.0 || >=24.0.0`:
-the ESM-only yargs 18 is loaded with `require()`, which needs `require(esm)` support (22.12), and the CLI colours its
-output with `util.styleText`, stable (and honouring `NO_COLOR` and non-TTY streams) since 22.13 and 23.5. Node 23 is
-EOL. Don't add chalk back.
+the package is ESM (`"type": "module"`), and CommonJS consumers (the Homebridge plugin) load it with `require()`,
+which needs `require(esm)` support without a warning (22.13). The CLI also colours its output with `util.styleText`,
+stable (and honouring `NO_COLOR` and non-TTY streams) since 22.13 and 23.5. Node 23 is EOL. Don't add chalk back.
 
 ## Layout
 
@@ -73,8 +73,10 @@ EOL. Don't add chalk back.
 
 - JSDoc is optional. When present, it must be correct (`check-param-names`, `require-param`, `check-tag-names`).
   Types come from TypeScript, so JSDoc types are not allowed (`jsdoc/no-types`).
-- `src/` is all TypeScript: don't add `.js` files. Tests `import` the modules (no `require()`), and mock named exports
-  (`vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }))`). Import the test API from `vitest` (no globals).
+- `src/` is all TypeScript: don't add `.js` files. Relative imports end in `.js` (`"type": "module"` + NodeNext), JSON
+  imports need `with { type: "json" }`, and there is no `__dirname`: use `path.dirname(fileURLToPath(import.meta.url))`
+  (`import.meta.dirname` is only stable from Node 22.16). Tests `import` the modules (no `require()`), and mock
+  named exports (`vi.mock("../device-finder.js", () => ({ deviceFinder: vi.fn() }))`). Import the test API from `vitest` (no globals).
   A module with a default export (e.g. `debug`) is mocked as `{ default: ... }`, and a mock that is called with `new`
   needs a `function` implementation (not an arrow function).
 - `console` is only allowed in `src/cli/**` and `scripts/**`. In the library, log with `createDebug(namespace)` from `src/lib/logger.ts`

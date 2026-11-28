@@ -1,11 +1,11 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { compose } from "../compose";
-import { Code } from "../values";
+import { compose } from "../compose.js";
+import { Code } from "../values.js";
 
-import { Base, flush, record } from "./test_utils.test.mock";
+import { Base, flush, record } from "./test_utils.test.mock.js";
 
-import { AutonomousCleaning, SpotCleaning } from "./index";
+import { AutonomousCleaning, SpotCleaning } from "./index.js";
 
 describe("cleaning", () => {
   class Thing extends compose(Base, AutonomousCleaning, SpotCleaning) {
