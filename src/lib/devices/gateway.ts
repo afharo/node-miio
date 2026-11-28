@@ -227,9 +227,11 @@ export class GatewayBasic extends compose(MiioApi, Children) {
           }
         },
       );
-      devApi.on("ready", resolve);
-
-      setTimeout(reject, 10000);
+      const timer = setTimeout(reject, 10000);
+      devApi.on("ready", () => {
+        clearTimeout(timer);
+        resolve();
+      });
     });
   }
 
