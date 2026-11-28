@@ -1,6 +1,14 @@
 import { EventEmitter } from "node:events";
 
-import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
 
 const sockets: FakeSocket[] = [];
 const packetState = vi.hoisted(() => ({
@@ -221,10 +229,10 @@ describe("network", () => {
 
   describe("incoming messages", () => {
     let ref: { release: () => void };
-    let onDevice: ReturnType<typeof vi.fn>;
+    let onDevice: Mock<(device: FakeDeviceInfo) => void>;
     beforeEach(() => {
       ref = network.ref();
-      onDevice = vi.fn();
+      onDevice = vi.fn<(device: FakeDeviceInfo) => void>();
       network.on("device", onDevice);
     });
     afterEach(() => {
