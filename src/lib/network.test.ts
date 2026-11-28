@@ -18,6 +18,8 @@ const packetState = vi.hoisted(() => ({
 }));
 const infos: FakeDeviceInfo[] = [];
 let nextId = 9000;
+/** Addresses whose devices have no token: their handshake fails, so they never learn their id */
+const withoutToken = new Set<string>();
 
 class FakeSocket extends EventEmitter {
   bind = vi.fn();
@@ -36,6 +38,9 @@ class FakeDeviceInfo {
   enrich = vi.fn(async () => {});
   // A real handshake learns the device id
   handshake = vi.fn(async () => {
+    if (withoutToken.has(this.address)) {
+      throw new MiioError("missing token", "missing-token");
+    }
     this.id ??= nextId++;
     return null;
   });
@@ -215,6 +220,23 @@ describe("network", () => {
       await expect(
         network.findDeviceViaAddress({ address: "10.0.0.13" }),
       ).resolves.toBe(info);
+    });
+
+    test("devices without an id (missing token) don't collapse into one", async () => {
+      withoutToken.add("10.0.0.20").add("10.0.0.21");
+      try {
+        const first = await network.findDeviceViaAddress({
+          address: "10.0.0.20",
+        });
+        const second = await network.findDeviceViaAddress({
+          address: "10.0.0.21",
+        });
+        expect(first).toBe(infoAt("10.0.0.20"));
+        expect(second).toBe(infoAt("10.0.0.21"));
+        expect(infoAt("10.0.0.21").enrich).toHaveBeenCalledOnce();
+      } finally {
+        withoutToken.clear();
+      }
     });
 
     test("rethrows other handshake errors", async () => {
