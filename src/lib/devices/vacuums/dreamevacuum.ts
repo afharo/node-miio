@@ -1,12 +1,12 @@
-import { compose } from "../../things/compose";
-import { SpotCleaning } from "../../things/capabilities/cleaning";
-import { getProperties } from "../../miot/miot_api";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { compose } from "../../things/compose.js";
+import { SpotCleaning } from "../../things/capabilities/cleaning.js";
+import { getProperties } from "../../miot/miot_api.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { VacuumThing } from "./vacuum_thing";
-import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes";
-import { clearErrorOnRecovery } from "./vacuum_errors";
-import { vacuumActions } from "./vacuum_actions";
+import { VacuumThing } from "./vacuum_thing.js";
+import { resolveVacuumModes, type VacuumMode } from "./vacuum_modes.js";
+import { clearErrorOnRecovery } from "./vacuum_errors.js";
+import { vacuumActions } from "./vacuum_actions.js";
 
 /**
  * Implementation of the interface used by the Dreame Vacuum. This device

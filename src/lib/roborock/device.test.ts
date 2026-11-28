@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
 
-import { Vacuum } from "../devices/vacuums/vacuum";
+import { Vacuum } from "../devices/vacuums/vacuum.js";
 
-import { roborockDevice } from "./device";
-import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock";
-import { roomNames } from "./rooms";
+import { roborockDevice } from "./device.js";
+import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock.js";
+import { roomNames } from "./rooms.js";
 
 describe("roborockDevice", () => {
   test("is a Vacuum working over the local connection", async () => {

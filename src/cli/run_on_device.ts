@@ -1,5 +1,5 @@
-import { log } from "./log";
-import { deviceFinder, type FoundDevice } from "./device-finder";
+import { log } from "./log.js";
+import { deviceFinder, type FoundDevice } from "./device-finder.js";
 
 /** How long to wait for the device, when it's searched on the network */
 const SEARCH_TIMEOUT_MS = 5000;

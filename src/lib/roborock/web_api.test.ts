@@ -2,10 +2,14 @@ import crypto from "node:crypto";
 
 import { describe, test, expect } from "vitest";
 
-import { fakeFetch, type FakeRequest } from "../cloud/cloud.test.mock";
+import { fakeFetch, type FakeRequest } from "../cloud/cloud.test.mock.js";
 
-import { RoborockAuthError, RoborockSessionExpiredError } from "./errors";
-import { RoborockLogin, RoborockWebApi, type RoborockSession } from "./web_api";
+import { RoborockAuthError, RoborockSessionExpiredError } from "./errors.js";
+import {
+  RoborockLogin,
+  RoborockWebApi,
+  type RoborockSession,
+} from "./web_api.js";
 
 /** @returns The request to this path (fails the test if none) */
 function byPath(requests: FakeRequest[], pathname: string) {

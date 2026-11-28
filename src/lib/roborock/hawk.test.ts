@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 
 import { describe, test, expect } from "vitest";
 
-import { hawkAuthorization, type RoborockRriot } from "./hawk";
+import { hawkAuthorization, type RoborockRriot } from "./hawk.js";
 
 const rriot: RoborockRriot = {
   u: "user-u",

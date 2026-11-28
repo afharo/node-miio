@@ -1,21 +1,21 @@
-import { compose } from "../../things/compose";
-import { SpotCleaning } from "../../things/capabilities/cleaning";
-import { checkResult } from "../../check_result";
-import type { DeviceHandle } from "../../management";
-import type { Protocol } from "../../protocol";
-import type { CloudServer, XiaomiCloud } from "../../cloud/client";
-import { parseRoborockMap, type RoborockMap } from "../../maps/roborock_map";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { compose } from "../../things/compose.js";
+import { SpotCleaning } from "../../things/capabilities/cleaning.js";
+import { checkResult } from "../../check_result.js";
+import type { DeviceHandle } from "../../management.js";
+import type { Protocol } from "../../protocol.js";
+import type { CloudServer, XiaomiCloud } from "../../cloud/client.js";
+import { parseRoborockMap, type RoborockMap } from "../../maps/roborock_map.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
 import {
   resolveVacuumModes,
   type VacuumMode,
   type CleanPreset,
   type VacuumModes,
-} from "./vacuum_modes";
-import { clearErrorOnRecovery } from "./vacuum_errors";
-import { VacuumThing } from "./vacuum_thing";
-import { vacuumActions } from "./vacuum_actions";
+} from "./vacuum_modes.js";
+import { clearErrorOnRecovery } from "./vacuum_errors.js";
+import { VacuumThing } from "./vacuum_thing.js";
+import { vacuumActions } from "./vacuum_actions.js";
 
 /** Mop routes (`get_mop_mode`/`set_mop_mode`) of the S7 and newer */
 export const MOP_ROUTES = {

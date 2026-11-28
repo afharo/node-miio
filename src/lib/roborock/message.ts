@@ -13,7 +13,7 @@
 import crypto from "node:crypto";
 import zlib from "node:zlib";
 
-import { RoborockApiError, RoborockError } from "./errors";
+import { RoborockApiError, RoborockError } from "./errors.js";
 
 const SALT = "TXdfu$jyZ#TZHsg4";
 const HEADER_LENGTH = 3 + 4 + 4 + 4 + 2;

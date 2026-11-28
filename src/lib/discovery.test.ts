@@ -12,11 +12,11 @@ import {
   type MockInstance,
 } from "vitest";
 
-import { Browser, Devices } from "./discovery";
-import { network } from "./network";
-import { connectToDevice } from "./connect_to_device";
+import { Browser, Devices } from "./discovery.js";
+import { network } from "./network.js";
+import { connectToDevice } from "./connect_to_device.js";
 
-vi.mock("./network", async () => {
+vi.mock("./network.js", async () => {
   const { EventEmitter: Emitter } = await import("node:events");
   const release = vi.fn();
   const fake = Object.assign(new Emitter(), {
@@ -26,7 +26,7 @@ vi.mock("./network", async () => {
   });
   return { network: fake };
 });
-vi.mock("./connect_to_device", () => ({ connectToDevice: vi.fn() }));
+vi.mock("./connect_to_device.js", () => ({ connectToDevice: vi.fn() }));
 
 const fakeNetwork = network as unknown as EventEmitter & {
   search: Mock;

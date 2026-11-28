@@ -1,8 +1,8 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../../log";
+import { log } from "../../log.js";
 
-import { connectRobot, robotOptions, type ConnectedRobot } from "./robot";
+import { connectRobot, robotOptions, type ConnectedRobot } from "./robot.js";
 
 export const command = "call <method> [params]";
 export const description =

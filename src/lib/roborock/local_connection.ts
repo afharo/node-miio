@@ -2,9 +2,9 @@ import crypto from "node:crypto";
 import { EventEmitter } from "node:events";
 import net from "node:net";
 
-import { createDebug, type MiioLogger } from "../logger";
+import { createDebug, type MiioLogger } from "../logger.js";
 
-import { RoborockError } from "./errors";
+import { RoborockError } from "./errors.js";
 import {
   decodeMessage,
   encodeMessage,
@@ -17,7 +17,7 @@ import {
   type L01Nonces,
   type RoborockMessage,
   type RoborockMessageVersion,
-} from "./message";
+} from "./message.js";
 
 /** The TCP port of the robots' local API */
 export const ROBOROCK_LOCAL_PORT = 58867;

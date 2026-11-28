@@ -2,13 +2,13 @@ import util from "node:util";
 
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import { createFakeHandle } from "../../test_utils.test.mock";
-import { Device } from "../../device";
-import { DeviceInfo } from "../../device_info";
+import { createFakeHandle } from "../../test_utils.test.mock.js";
+import { Device } from "../../device.js";
+import { DeviceInfo } from "../../device_info.js";
 
-import { isVacuum } from "./vacuum_device";
-import { Vacuum } from "./vacuum";
-import { ViomiVacuum } from "./viomivacuum";
+import { isVacuum } from "./vacuum_device.js";
+import { Vacuum } from "./vacuum.js";
+import { ViomiVacuum } from "./viomivacuum.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

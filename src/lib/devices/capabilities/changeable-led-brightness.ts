@@ -1,6 +1,6 @@
-import { Capability } from "../../things/capability";
-import { string } from "../../things/values";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { Capability } from "../../things/capability.js";
+import { string } from "../../things/values.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
 /** The brightness of the LED of the device can be changed. Implement `changeLEDBrightness(brightness)`. */
 export class LEDBrightness extends Capability {

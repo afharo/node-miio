@@ -1,14 +1,12 @@
-"use strict";
-
 import util from "node:util";
 
-import { isSameValue } from "./same_value";
-import { type DeviceHandle, DeviceManagement } from "./management";
-import { createDebug, type DebugFn } from "./logger";
-import { MiioThing } from "./things/thing";
-import { duration } from "./things/values";
-import type { Protocol } from "./protocol";
-import type { ActionDefinition } from "./things/action_metadata";
+import { isSameValue } from "./same_value.js";
+import { type DeviceHandle, DeviceManagement } from "./management.js";
+import { createDebug, type DebugFn } from "./logger.js";
+import { MiioThing } from "./things/thing.js";
+import { duration } from "./things/values.js";
+import type { Protocol } from "./protocol.js";
+import type { ActionDefinition } from "./things/action_metadata.js";
 
 const IDENTITY_MAPPER = <T>(v: T) => v;
 

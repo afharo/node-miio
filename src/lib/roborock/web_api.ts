@@ -9,15 +9,15 @@
  */
 import crypto from "node:crypto";
 
-import { createDebug } from "../logger";
-import type { FetchLike } from "../cloud/http";
+import { createDebug } from "../logger.js";
+import type { FetchLike } from "../cloud/http.js";
 
 import {
   RoborockApiError,
   RoborockAuthError,
   RoborockSessionExpiredError,
-} from "./errors";
-import { hawkAuthorization, type RoborockRriot } from "./hawk";
+} from "./errors.js";
+import { hawkAuthorization, type RoborockRriot } from "./hawk.js";
 
 const debug = createDebug("miio:roborock");
 

@@ -13,7 +13,7 @@ import {
   rpcPayload,
   rpcResponse,
   withLengthPrefix,
-} from "./message";
+} from "./message.js";
 
 const KEY = "abcdefghijklmnop";
 

@@ -1,12 +1,12 @@
-import { compose } from "../../things/compose";
-import { Actions } from "../../things/capabilities/actions";
+import { compose } from "../../things/compose.js";
+import { Actions } from "../../things/capabilities/actions.js";
 
 import {
   SubDevice,
   type SubDeviceInfo,
   type SubDeviceParent,
-} from "./subdevice";
-import { VoltageBattery } from "./voltage";
+} from "./subdevice.js";
+import { VoltageBattery } from "./voltage.js";
 
 /** Reports the actions of the sub-device (`emitAction`) for a key of the reported data */
 abstract class ActionSubDevice extends compose(SubDevice, Actions) {

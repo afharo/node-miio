@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json";
+import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json" with { type: "json" };
 
 import {
   isValidValue,
@@ -8,7 +8,7 @@ import {
   type MiotSpec,
   MiotSpecIndex,
   parseUrn,
-} from "./miot_spec";
+} from "./miot_spec.js";
 
 describe("parseUrn", () => {
   test("parses standard URNs", () => {

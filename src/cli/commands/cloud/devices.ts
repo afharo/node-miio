@@ -7,9 +7,9 @@ import {
   CloudSessionExpiredError,
   loadSession,
   XiaomiCloud,
-} from "../../../lib/cloud/index";
-import { tokens } from "../../../lib/tokens";
-import { log } from "../../log";
+} from "../../../lib/cloud/index.js";
+import { tokens } from "../../../lib/tokens.js";
+import { log } from "../../log.js";
 
 export const command = "devices";
 export const description =

@@ -2,11 +2,14 @@ import fs from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 
-import { createDebug } from "../logger";
+import { createDebug } from "../logger.js";
 
-import type { MiotSpec } from "./miot_spec";
+import type { MiotSpec } from "./miot_spec.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 const debug = createDebug("miio:miot-spec");
 
@@ -19,7 +22,7 @@ const DAY = 24 * 60 * 60 * 1000;
  * Resolved from both `src/lib/miot` and `dist/lib/miot`.
  */
 export const DEFAULT_SNAPSHOT_PATH = path.resolve(
-  __dirname,
+  moduleDir,
   "../../../snapshots/vacuum-specs.json.gz",
 );
 

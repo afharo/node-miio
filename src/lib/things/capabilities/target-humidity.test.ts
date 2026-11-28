@@ -1,10 +1,10 @@
 import { describe, test, expect } from "vitest";
 
-import { compose } from "../compose";
+import { compose } from "../compose.js";
 
-import { Base } from "./test_utils.test.mock";
+import { Base } from "./test_utils.test.mock.js";
 
-import { AdjustableTargetHumidity } from "./index";
+import { AdjustableTargetHumidity } from "./index.js";
 
 describe("AdjustableTargetHumidity", () => {
   class Thing extends compose(Base, AdjustableTargetHumidity) {

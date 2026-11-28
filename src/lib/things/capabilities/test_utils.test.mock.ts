@@ -1,4 +1,4 @@
-import { MiioThing } from "../thing";
+import { MiioThing } from "../thing.js";
 
 /** Waits for the queued events to be emitted */
 export const flush = () => new Promise((resolve) => setImmediate(resolve));

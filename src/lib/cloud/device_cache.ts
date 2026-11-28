@@ -4,7 +4,7 @@ import {
   type CloudDeviceMatch,
   type CloudServer,
   type XiaomiCloud,
-} from "./client";
+} from "./client.js";
 
 /**
  * The devices of the Xiaomi account, listed once and shared (e.g. by all the devices of a Homebridge or Matterbridge

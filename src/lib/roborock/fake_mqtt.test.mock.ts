@@ -6,8 +6,8 @@ import {
   encodeMessage,
   RoborockProtocol,
   type RoborockMessage,
-} from "./message";
-import type { MqttClientLike, MqttConnect } from "./mqtt";
+} from "./message.js";
+import type { MqttClientLike, MqttConnect } from "./mqtt.js";
 
 type Responses = Record<string, unknown | ((params: unknown) => unknown)>;
 

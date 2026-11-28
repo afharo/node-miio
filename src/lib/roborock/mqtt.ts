@@ -12,11 +12,11 @@
 import crypto from "node:crypto";
 import { EventEmitter } from "node:events";
 
-import { createDebug, type MiioLogger } from "../logger";
+import { createDebug, type MiioLogger } from "../logger.js";
 
-import { RoborockError } from "./errors";
-import type { RoborockRriot } from "./hawk";
-import { MapResponseAssembler } from "./map_response";
+import { RoborockError } from "./errors.js";
+import type { RoborockRriot } from "./hawk.js";
+import { MapResponseAssembler } from "./map_response.js";
 import {
   decodeMessage,
   encodeMessage,
@@ -25,7 +25,7 @@ import {
   rpcResponse,
   rpcResult,
   type RoborockMessage,
-} from "./message";
+} from "./message.js";
 
 const md5hex = (value: string) =>
   crypto.createHash("md5").update(value).digest("hex");

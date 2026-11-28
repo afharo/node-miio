@@ -1,21 +1,21 @@
 /**
  * Mapping from models into high-level devices.
  */
-import { AirMonitor } from "./devices/air-monitor";
-import { AirPurifier } from "./devices/air-purifier";
-import { GatewayBasic, GatewayWithLightAndSensor } from "./devices/gateway";
-import { Vacuum } from "./devices/vacuums/vacuum";
-import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
-import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
-import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
-import { PowerPlug } from "./devices/power-plug";
-import { PowerPlugChuangmiV1 } from "./devices/chuangmi.plug.v1";
-import { PowerStrip } from "./devices/power-strip";
-import { Humidifier } from "./devices/humidifier";
-import { YeelightColor } from "./devices/yeelight.color";
-import { YeelightMono } from "./devices/yeelight.mono";
-import { EyecareLamp2 } from "./devices/eyecare-lamp2";
-import { PhilipsLightBulb } from "./devices/philips-light-bulb";
+import { AirMonitor } from "./devices/air-monitor.js";
+import { AirPurifier } from "./devices/air-purifier.js";
+import { GatewayBasic, GatewayWithLightAndSensor } from "./devices/gateway.js";
+import { Vacuum } from "./devices/vacuums/vacuum.js";
+import { MijiaVacuum } from "./devices/vacuums/mijiavacuum.js";
+import { ViomiVacuum } from "./devices/vacuums/viomivacuum.js";
+import { DreameVacuum } from "./devices/vacuums/dreamevacuum.js";
+import { PowerPlug } from "./devices/power-plug.js";
+import { PowerPlugChuangmiV1 } from "./devices/chuangmi.plug.v1.js";
+import { PowerStrip } from "./devices/power-strip.js";
+import { Humidifier } from "./devices/humidifier.js";
+import { YeelightColor } from "./devices/yeelight.color.js";
+import { YeelightMono } from "./devices/yeelight.mono.js";
+import { EyecareLamp2 } from "./devices/eyecare-lamp2.js";
+import { PhilipsLightBulb } from "./devices/philips-light-bulb.js";
 
 export const models = {
   "zhimi.airmonitor.v1": AirMonitor,

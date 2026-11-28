@@ -2,14 +2,14 @@ import crypto from "node:crypto";
 
 import { describe, test, expect } from "vitest";
 
-import { RoborockApiError } from "./errors";
-import { fakeMqtt } from "./fake_mqtt.test.mock";
-import type { RoborockRriot } from "./hawk";
+import { RoborockApiError } from "./errors.js";
+import { fakeMqtt } from "./fake_mqtt.test.mock.js";
+import type { RoborockRriot } from "./hawk.js";
 import {
   mqttParams,
   RoborockMqttConnection,
   RoborockMqttSession,
-} from "./mqtt";
+} from "./mqtt.js";
 
 const LOCAL_KEY = "abcdefghijklmnop";
 const rriot: RoborockRriot = {

@@ -1,5 +1,5 @@
-import type { ActionDefinition } from "./action_metadata";
-import type { MiioThing } from "./thing";
+import type { ActionDefinition } from "./action_metadata.js";
+import type { MiioThing } from "./thing.js";
 
 /**
  * Base of the capabilities (battery level, charging, power…), composed into things with {@link compose}.

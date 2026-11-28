@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 
 import { describe, test, expect } from "vitest";
@@ -10,9 +11,11 @@ import {
   parseRoborockMap,
   roomAt,
   roomOfPixel,
-} from "./roborock_map";
+} from "./roborock_map.js";
 
-const FIXTURES = path.join(__dirname, "../__fixtures__/maps/roborock");
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+
+const FIXTURES = path.join(moduleDir, "../__fixtures__/maps/roborock");
 const load = (name: string) =>
   fs.readFileSync(path.join(FIXTURES, `${name}.bin.gz`));
 

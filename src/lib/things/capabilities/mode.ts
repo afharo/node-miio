@@ -1,6 +1,6 @@
-import { Capability } from "../capability";
-import { code, type Code, type CodeInput } from "../values";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import { code, type Code, type CodeInput } from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** Reports its mode (`modeChanged`) and the available ones (`modesChanged`) */
 export class Mode extends Capability {

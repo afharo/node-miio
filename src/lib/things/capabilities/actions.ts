@@ -1,6 +1,6 @@
-import { Capability } from "../capability";
-import { code, type Code, type CodeInput } from "../values";
-import type { ActionDefinition } from "../action_metadata";
+import { Capability } from "../capability.js";
+import { code, type Code, type CodeInput } from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
 /** Emits actions (e.g. a button's `click`): `action` (`{ action, data }`) and `action:<action>` */
 export class Actions extends Capability {

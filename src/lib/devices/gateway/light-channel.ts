@@ -1,14 +1,14 @@
-import { compose } from "../../things/compose";
-import { MiioThing } from "../../things/thing";
-import { SwitchablePower } from "../../things/capabilities/power";
-import { Children } from "../../things/capabilities/children";
-import { Light } from "../../things/capabilities/lights/light";
+import { compose } from "../../things/compose.js";
+import { MiioThing } from "../../things/thing.js";
+import { SwitchablePower } from "../../things/capabilities/power.js";
+import { Children } from "../../things/capabilities/children.js";
+import { Light } from "../../things/capabilities/lights/light.js";
 
 import {
   SubDevice,
   type SubDeviceInfo,
   type SubDeviceParent,
-} from "./subdevice";
+} from "./subdevice.js";
 
 /** A light switch with channels (each one a {@link LightChannel} child) */
 export abstract class ChannelSwitch extends compose(SubDevice, Children) {

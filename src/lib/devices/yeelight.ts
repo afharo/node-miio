@@ -1,16 +1,16 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { Nameable } from "../things/capabilities/nameable";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { Nameable } from "../things/capabilities/nameable.js";
 import {
   Light,
   type BrightnessChangeOptions,
-} from "../things/capabilities/lights/light";
-import { Fading } from "../things/capabilities/lights/fading";
-import type { Duration } from "../things/values";
-import type { ActionDefinition } from "../things/action_metadata";
+} from "../things/capabilities/lights/light.js";
+import { Fading } from "../things/capabilities/lights/fading.js";
+import type { Duration } from "../things/values.js";
+import type { ActionDefinition } from "../things/action_metadata.js";
 
-import { Power } from "./capabilities/power";
-import { Dimmable } from "./capabilities/dimmable";
+import { Power } from "./capabilities/power.js";
+import { Dimmable } from "./capabilities/dimmable.js";
 
 const DEFAULT_EFFECT = "smooth";
 const DEFAULT_DURATION = 500;

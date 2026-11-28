@@ -9,10 +9,10 @@ import {
   defaultSessionFile,
   saveSession,
   XiaomiCloud,
-} from "../../../lib/cloud/index";
-import { log } from "../../log";
-import { prompt } from "../../prompt";
-import { terminalQr } from "../../terminal_qr";
+} from "../../../lib/cloud/index.js";
+import { log } from "../../log.js";
+import { prompt } from "../../prompt.js";
+import { terminalQr } from "../../terminal_qr.js";
 
 export const command = "login";
 export const description =

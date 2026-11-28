@@ -1,8 +1,8 @@
 import {
   defaultRoborockSessionFile,
   deleteRoborockSession,
-} from "../../../lib/roborock/index";
-import { log } from "../../log";
+} from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
 
 export const command = "logout";
 export const description = "Delete the saved Roborock session";

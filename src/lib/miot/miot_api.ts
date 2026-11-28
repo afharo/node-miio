@@ -1,5 +1,5 @@
-import type { IDevice } from "../device";
-import type { MiotActionResult, MiotPropertyResult } from "../protocol";
+import type { IDevice } from "../device.js";
+import type { MiotActionResult, MiotPropertyResult } from "../protocol.js";
 
 /** Anything that can send RPC calls to the device (i.e., a device instance) */
 export type MiotCaller = Pick<IDevice, "call">;

@@ -1,8 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { Capability } from "./capability";
-import { compose } from "./compose";
-import { MiioThing } from "./thing";
+import { Capability } from "./capability.js";
+import { compose } from "./compose.js";
+import { MiioThing } from "./thing.js";
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 

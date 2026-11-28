@@ -1,7 +1,7 @@
-import { checkResult } from "../../check_result";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { checkResult } from "../../check_result.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { Vacuum } from "./vacuum";
+import { Vacuum } from "./vacuum.js";
 
 export class MijiaVacuum extends Vacuum {
   static actions: ActionDefinition[] = [

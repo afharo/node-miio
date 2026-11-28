@@ -1,12 +1,12 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { SwitchableMode } from "../things/capabilities/mode";
-import { AdjustableTargetHumidity } from "../things/capabilities/target-humidity";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { SwitchableMode } from "../things/capabilities/mode.js";
+import { AdjustableTargetHumidity } from "../things/capabilities/target-humidity.js";
 
-import { Power } from "./capabilities/power";
-import { Buzzer } from "./capabilities/buzzer";
-import { LEDBrightness } from "./capabilities/changeable-led-brightness";
-import { Temperature, Humidity } from "./capabilities/sensor";
+import { Power } from "./capabilities/power.js";
+import { Buzzer } from "./capabilities/buzzer.js";
+import { LEDBrightness } from "./capabilities/changeable-led-brightness.js";
+import { Temperature, Humidity } from "./capabilities/sensor.js";
 
 const LED_BRIGHTNESS: Record<string, number> = { bright: 0, dim: 1, off: 2 };
 

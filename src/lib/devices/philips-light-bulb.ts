@@ -1,12 +1,12 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { LightBulb } from "../things/capabilities/lights/light";
-import { ColorTemperature } from "../things/capabilities/lights/color-temperature";
-import { color, type Color } from "../things/color";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { LightBulb } from "../things/capabilities/lights/light.js";
+import { ColorTemperature } from "../things/capabilities/lights/color-temperature.js";
+import { color, type Color } from "../things/color.js";
 
-import { Power } from "./capabilities/power";
-import { Dimmable } from "./capabilities/dimmable";
-import { Colorable } from "./capabilities/colorable";
+import { Power } from "./capabilities/power.js";
+import { Dimmable } from "./capabilities/dimmable.js";
+import { Colorable } from "./capabilities/colorable.js";
 
 const MIN_TEMP = 3000;
 const MAX_TEMP = 5700;

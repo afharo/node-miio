@@ -8,7 +8,7 @@ import {
   withLengthPrefix,
   type L01Nonces,
   type RoborockMessage,
-} from "./message";
+} from "./message.js";
 
 export const LOCAL_KEY = "abcdefghijklmnop";
 

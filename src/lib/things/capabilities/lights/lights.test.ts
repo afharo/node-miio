@@ -1,9 +1,9 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { compose } from "../../compose";
-import { Duration } from "../../values";
-import { Color } from "../../color";
-import { Base, flush, record } from "../test_utils.test.mock";
+import { compose } from "../../compose.js";
+import { Duration } from "../../values.js";
+import { Color } from "../../color.js";
+import { Base, flush, record } from "../test_utils.test.mock.js";
 import {
   Colorable,
   ColorTemperature,
@@ -12,7 +12,7 @@ import {
   LightBulb,
   SwitchablePower,
   type BrightnessChangeOptions,
-} from "../index";
+} from "../index.js";
 
 describe("lights", () => {
   class Thing extends compose(

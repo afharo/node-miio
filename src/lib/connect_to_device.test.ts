@@ -1,15 +1,18 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, test, expect, afterEach, beforeAll, vi } from "vitest";
 
-import { connectToDevice } from "./connect_to_device";
-import { network } from "./network";
-import { configureMiotSpecs } from "./miot/spec_client";
-import { DreameVacuum } from "./devices/vacuums/dreamevacuum";
-import { MiotVacuum } from "./devices/vacuums/miot-vacuum";
-import { Vacuum } from "./devices/vacuums/vacuum";
-import { ViomiVacuum } from "./devices/vacuums/viomivacuum";
-import { MijiaVacuum } from "./devices/vacuums/mijiavacuum";
+import { connectToDevice } from "./connect_to_device.js";
+import { network } from "./network.js";
+import { configureMiotSpecs } from "./miot/spec_client.js";
+import { DreameVacuum } from "./devices/vacuums/dreamevacuum.js";
+import { MiotVacuum } from "./devices/vacuums/miot-vacuum.js";
+import { Vacuum } from "./devices/vacuums/vacuum.js";
+import { ViomiVacuum } from "./devices/vacuums/viomivacuum.js";
+import { MijiaVacuum } from "./devices/vacuums/mijiavacuum.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
@@ -47,8 +50,8 @@ beforeAll(() => {
   configureMiotSpecs({
     offline: true,
     cacheDir: false,
-    specDir: path.join(__dirname, "__fixtures__", "miot"),
-    snapshotPath: path.join(__dirname, "__fixtures__", "missing.json.gz"),
+    specDir: path.join(moduleDir, "__fixtures__", "miot"),
+    snapshotPath: path.join(moduleDir, "__fixtures__", "missing.json.gz"),
   });
 });
 

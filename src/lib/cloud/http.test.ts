@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 
-import { fakeFetch } from "./cloud.test.mock";
-import { HttpSession, parseXiaomiJson } from "./http";
+import { fakeFetch } from "./cloud.test.mock.js";
+import { HttpSession, parseXiaomiJson } from "./http.js";
 
 describe("HttpSession", () => {
   test("keeps the cookies set on every redirect hop", async () => {

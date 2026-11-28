@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
-import { RoborockApiError } from "./errors";
-import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock";
-import { RoborockLocalConnection } from "./local_connection";
+import { RoborockApiError } from "./errors.js";
+import { fakeRobot, LOCAL_KEY } from "./fake_robot.test.mock.js";
+import { RoborockLocalConnection } from "./local_connection.js";
 
 describe("RoborockLocalConnection", () => {
   let robot: Awaited<ReturnType<typeof fakeRobot>>;

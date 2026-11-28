@@ -1,11 +1,11 @@
-import type { DeviceHandle } from "../../management";
+import type { DeviceHandle } from "../../management.js";
 import {
   callAction,
   getProperties,
   type MiotCaller,
   type MiotPropertyRequest,
   setProperty,
-} from "../../miot/miot_api";
+} from "../../miot/miot_api.js";
 import {
   isReadable,
   isValidValue,
@@ -17,14 +17,14 @@ import {
   STANDARD_NAMESPACE,
   type ResolvedAction,
   type ResolvedProperty,
-} from "../../miot/miot_spec";
-import type { ActionDefinition } from "../../things/action_metadata";
+} from "../../miot/miot_spec.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { VacuumThing } from "./vacuum_thing";
-import { isCleaningState, type VacuumState } from "./vacuum_states";
-import type { VacuumMode } from "./vacuum_modes";
-import { clearErrorOnRecovery } from "./vacuum_errors";
-import { vacuumActions } from "./vacuum_actions";
+import { VacuumThing } from "./vacuum_thing.js";
+import { isCleaningState, type VacuumState } from "./vacuum_states.js";
+import type { VacuumMode } from "./vacuum_modes.js";
+import { clearErrorOnRecovery } from "./vacuum_errors.js";
+import { vacuumActions } from "./vacuum_actions.js";
 
 /** A selectable mode (fan speed or water level), as described by the spec */
 export type MiotMode = VacuumMode;

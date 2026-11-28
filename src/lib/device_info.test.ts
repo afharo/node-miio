@@ -3,8 +3,8 @@ import type { Socket } from "node:dgram";
 import { describe, test, expect, beforeEach, vi, type Mocked } from "vitest";
 import debug from "debug";
 
-import { DeviceInfo } from "./device_info";
-import { Packet } from "./packet";
+import { DeviceInfo } from "./device_info.js";
+import { Packet } from "./packet.js";
 
 const TOKEN = Buffer.from("e381c97af00985577e8e6a3d94732bbe");
 

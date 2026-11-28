@@ -1,10 +1,10 @@
-import { MiioApi } from "../device";
-import { compose } from "../things/compose";
-import { ChargingState } from "../things/capabilities/charging";
+import { MiioApi } from "../device.js";
+import { compose } from "../things/compose.js";
+import { ChargingState } from "../things/capabilities/charging.js";
 
-import { Power } from "./capabilities/power";
-import { BatteryLevel } from "./capabilities/battery-level";
-import { AQI } from "./capabilities/sensor";
+import { Power } from "./capabilities/power.js";
+import { BatteryLevel } from "./capabilities/battery-level.js";
+import { AQI } from "./capabilities/sensor.js";
 
 export class AirMonitor extends compose(
   MiioApi,

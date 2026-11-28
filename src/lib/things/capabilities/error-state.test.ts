@@ -1,11 +1,11 @@
 import { describe, test, expect } from "vitest";
 
-import { compose } from "../compose";
-import { Code } from "../values";
+import { compose } from "../compose.js";
+import { Code } from "../values.js";
 
-import { Base, flush, record } from "./test_utils.test.mock";
+import { Base, flush, record } from "./test_utils.test.mock.js";
 
-import { ErrorState } from "./index";
+import { ErrorState } from "./index.js";
 
 describe("ErrorState", () => {
   class Thing extends compose(Base, ErrorState) {}

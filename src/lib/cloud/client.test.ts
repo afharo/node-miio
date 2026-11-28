@@ -1,8 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 
-import { encryptedApi, fakeFetch, type Handler } from "./cloud.test.mock";
-import { XiaomiCloud } from "./client";
-import { CloudApiError, CloudSessionExpiredError } from "./errors";
+import { encryptedApi, fakeFetch, type Handler } from "./cloud.test.mock.js";
+import { XiaomiCloud } from "./client.js";
+import { CloudApiError, CloudSessionExpiredError } from "./errors.js";
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 

@@ -1,11 +1,11 @@
 import util from "node:util";
 import type { EventEmitter } from "node:events";
 
-import { isSameValue } from "../../same_value";
-import { MiioThing } from "../../things/thing";
-import type { CallOptions, Device } from "../../device";
-import type { Protocol } from "../../protocol";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { isSameValue } from "../../same_value.js";
+import { MiioThing } from "../../things/thing.js";
+import type { CallOptions, Device } from "../../device.js";
+import type { Protocol } from "../../protocol.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
 const IDENTITY_MAPPER = <T>(v: T) => v;
 

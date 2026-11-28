@@ -1,9 +1,9 @@
-import type { Vacuum } from "./vacuum";
-import type { MiotVacuum } from "./miot-vacuum";
-import type { ViomiVacuum } from "./viomivacuum";
-import type { DreameVacuum } from "./dreamevacuum";
-import type { MijiaVacuum } from "./mijiavacuum";
-import { VacuumThing } from "./vacuum_thing";
+import type { Vacuum } from "./vacuum.js";
+import type { MiotVacuum } from "./miot-vacuum.js";
+import type { ViomiVacuum } from "./viomivacuum.js";
+import type { DreameVacuum } from "./dreamevacuum.js";
+import type { MijiaVacuum } from "./mijiavacuum.js";
+import { VacuumThing } from "./vacuum_thing.js";
 
 /**
  * Any vacuum returned by `device()`. Only the API they all share is available: narrow it with `instanceof` to use the

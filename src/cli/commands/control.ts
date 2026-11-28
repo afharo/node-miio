@@ -1,8 +1,8 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../log";
-import { parseArgs } from "../params";
-import { runOnDevice } from "../run_on_device";
+import { log } from "../log.js";
+import { parseArgs } from "../params.js";
+import { runOnDevice } from "../run_on_device.js";
 
 export const command = "control <idOrIp> <method> [params..]";
 export const description = "Control a device by invoking the given method";

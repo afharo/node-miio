@@ -1,11 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, test, expect, vi } from "vitest";
 
-import { Capability } from "./capability";
-import { compose } from "./compose";
-import { MiioThing, thingActions } from "./thing";
+import { Capability } from "./capability.js";
+import { compose } from "./compose.js";
+import { MiioThing, thingActions } from "./thing.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
@@ -57,7 +60,7 @@ type ThingClass = abstract new (...args: never[]) => MiioThing;
 /** The thing classes the modules export, and a thing for each capability */
 async function thingClasses(): Promise<[string, ThingClass][]> {
   const found = new Map<ThingClass, string>();
-  for (const modulePath of listModules(path.join(__dirname, ".."))) {
+  for (const modulePath of listModules(path.join(moduleDir, ".."))) {
     const exports = (await import(modulePath)) as Record<string, unknown>;
     for (const [name, value] of Object.entries(exports)) {
       if (typeof value !== "function" || found.has(value as ThingClass)) {

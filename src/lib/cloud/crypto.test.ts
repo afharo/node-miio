@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import vectors from "../__fixtures__/cloud/crypto-vectors.json";
+import vectors from "../__fixtures__/cloud/crypto-vectors.json" with { type: "json" };
 
 import {
   decryptRc4,
@@ -9,7 +9,7 @@ import {
   generateNonce,
   rc4,
   signedNonce,
-} from "./crypto";
+} from "./crypto.js";
 
 describe("cloud crypto (vectors from the reference implementation)", () => {
   test("rc4 without drop matches OpenSSL", () => {

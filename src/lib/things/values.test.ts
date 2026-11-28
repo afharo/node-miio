@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import { color, Color } from "./color";
+import { color, Color } from "./color.js";
 import {
   boolean,
   code,
@@ -10,7 +10,7 @@ import {
   percentage,
   percentageChange,
   temperature,
-} from "./values";
+} from "./values.js";
 
 describe("values", () => {
   test.each([

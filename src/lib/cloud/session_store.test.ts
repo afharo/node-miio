@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, test, expect, afterAll } from "vitest";
 
-import { deleteSession, loadSession, saveSession } from "./session_store";
+import { deleteSession, loadSession, saveSession } from "./session_store.js";
 
 describe("session store", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "miio-session-"));

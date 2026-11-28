@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import { isSameValue } from "./same_value";
+import { isSameValue } from "./same_value.js";
 
 describe("isSameValue", () => {
   test("treats null and undefined as the same (missing) value", () => {

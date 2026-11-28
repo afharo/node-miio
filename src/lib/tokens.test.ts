@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
-import { defaultTokensFile, Tokens } from "./tokens";
+import { defaultTokensFile, Tokens } from "./tokens.js";
 
 const TOKEN = Buffer.from("00112233445566778899aabbccddeeff", "hex");
 

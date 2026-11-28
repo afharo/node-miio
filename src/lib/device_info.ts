@@ -5,11 +5,11 @@ import {
   type DebugFn,
   maskToken,
   type MiioLogger,
-} from "./logger";
-import { Packet } from "./packet";
-import { safeishJSON } from "./safeish_json";
-import { isMiioError, MiioError } from "./miio_error";
-import type { Protocol } from "./protocol";
+} from "./logger.js";
+import { Packet } from "./packet.js";
+import { safeishJSON } from "./safeish_json.js";
+import { isMiioError, MiioError } from "./miio_error.js";
+import type { Protocol } from "./protocol.js";
 
 const ERRORS = {
   "-5001": (method, args, err) =>

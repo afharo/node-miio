@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { defaultConfigDir } from "../cloud/session_store";
+import { defaultConfigDir } from "../cloud/session_store.js";
 
-import type { RoborockSession } from "./web_api";
+import type { RoborockSession } from "./web_api.js";
 
 /**
  * @returns The default path of the saved Roborock session (next to the Xiaomi Cloud one)

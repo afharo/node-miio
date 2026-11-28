@@ -1,7 +1,7 @@
-import { boolean, type CodeInput } from "../values";
-import type { ActionDefinition } from "../action_metadata";
+import { boolean, type CodeInput } from "../values.js";
+import type { ActionDefinition } from "../action_metadata.js";
 
-import { ErrorState } from "./error-state";
+import { ErrorState } from "./error-state.js";
 
 /**
  * Reports whether it's cleaning: `cleaningChanged`, `cleaningStarted`, and `cleaningStopped` with `cleaningDone` (or

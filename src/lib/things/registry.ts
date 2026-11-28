@@ -1,4 +1,4 @@
-import type { ActionDefinition } from "./action_metadata";
+import type { ActionDefinition } from "./action_metadata.js";
 
 /** Where {@link compose} records what the capabilities of a composed class contribute */
 export const REGISTRY = Symbol("node-miio:capabilities");

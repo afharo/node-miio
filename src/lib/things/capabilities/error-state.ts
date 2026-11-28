@@ -1,5 +1,5 @@
-import { Capability } from "../capability";
-import { code, type Code, type CodeInput } from "../values";
+import { Capability } from "../capability.js";
+import { code, type Code, type CodeInput } from "../values.js";
 
 /** Reports an error (`errorChanged` with `{ id, description }`, or `null` when cleared) */
 export class ErrorState extends Capability {

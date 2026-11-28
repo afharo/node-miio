@@ -5,16 +5,20 @@
  * and Xiaomi-Cloud-Map-Extractor (https://github.com/PiotrMachowski/Home-Assistant-custom-components-Xiaomi-Cloud-Map-Extractor)
  * Copyright (c) 2020 Piotr Machowski. Licensed under the MIT License.
  */
-import { createDebug } from "../logger";
+import { createDebug } from "../logger.js";
 
 import {
   decryptRc4,
   encryptParams,
   generateNonce,
   signedNonce,
-} from "./crypto";
-import { CloudApiError, CloudError, CloudSessionExpiredError } from "./errors";
-import { type FetchLike, HttpSession } from "./http";
+} from "./crypto.js";
+import {
+  CloudApiError,
+  CloudError,
+  CloudSessionExpiredError,
+} from "./errors.js";
+import { type FetchLike, HttpSession } from "./http.js";
 import {
   type CloudSession,
   generateAgent,
@@ -22,7 +26,7 @@ import {
   loginWithQrCode,
   type PasswordLoginOptions,
   type QrLoginOptions,
-} from "./login";
+} from "./login.js";
 
 const debug = createDebug("miio:cloud");
 

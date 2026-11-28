@@ -1,4 +1,4 @@
-import type { DeviceInfo } from "./device_info";
+import type { DeviceInfo } from "./device_info.js";
 
 /**
  * Type Guard for MiioError

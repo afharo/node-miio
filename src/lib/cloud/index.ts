@@ -7,8 +7,8 @@ export {
   type CloudDeviceMatch,
   type XiaomiScene,
   type XiaomiCloudOptions,
-} from "./client";
-export { CloudDeviceCache } from "./device_cache";
+} from "./client.js";
+export { CloudDeviceCache } from "./device_cache.js";
 export {
   loginWithPassword,
   loginWithQrCode,
@@ -16,7 +16,7 @@ export {
   type PasswordLoginOptions,
   type QrLoginOptions,
   type QrCode,
-} from "./login";
+} from "./login.js";
 export {
   CloudError,
   CloudAuthError,
@@ -24,11 +24,11 @@ export {
   CloudTwoFactorRequiredError,
   CloudSessionExpiredError,
   CloudApiError,
-} from "./errors";
+} from "./errors.js";
 export {
   saveSession,
   loadSession,
   deleteSession,
   defaultSessionFile,
-} from "./session_store";
-export type { FetchLike } from "./http";
+} from "./session_store.js";
+export type { FetchLike } from "./http.js";

@@ -1,5 +1,5 @@
-import { Capability } from "../../capability";
-import { duration, type Duration } from "../../values";
+import { Capability } from "../../capability.js";
+import { duration, type Duration } from "../../values.js";
 
 /** The default transition of the light changes */
 export const DEFAULT_LIGHT_DURATION = duration(400);

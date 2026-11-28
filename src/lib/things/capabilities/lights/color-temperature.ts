@@ -1,8 +1,8 @@
 import { isDeepStrictEqual } from "node:util";
 
-import { Capability } from "../../capability";
-import { number } from "../../values";
-import type { ActionDefinition } from "../../action_metadata";
+import { Capability } from "../../capability.js";
+import { number } from "../../values.js";
+import type { ActionDefinition } from "../../action_metadata.js";
 
 const TEMPERATURE_RANGE = Symbol("colorTemperatureRange");
 

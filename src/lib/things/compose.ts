@@ -1,11 +1,11 @@
-import { Capability, type CapabilityStatics } from "./capability";
+import { Capability, type CapabilityStatics } from "./capability.js";
 import {
   CAPABILITY_HOOKS,
   REGISTRY,
   type CapabilityHook,
   type Registry,
-} from "./registry";
-import type { MiioThing } from "./thing";
+} from "./registry.js";
+import type { MiioThing } from "./thing.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyConstructor<T = object> = abstract new (...args: any[]) => T;

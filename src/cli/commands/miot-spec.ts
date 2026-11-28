@@ -1,8 +1,8 @@
 import type { CommandBuilder } from "yargs";
 
-import { MiotSpecClient } from "../../lib/miot/spec_client";
-import { MiotSpecIndex, parseUrn } from "../../lib/miot/miot_spec";
-import { isSupportedMiotVacuum } from "../../lib/devices/vacuums/miot-vacuum";
+import { MiotSpecClient } from "../../lib/miot/spec_client.js";
+import { MiotSpecIndex, parseUrn } from "../../lib/miot/miot_spec.js";
+import { isSupportedMiotVacuum } from "../../lib/devices/vacuums/miot-vacuum.js";
 
 export const command = "spec <model>";
 export const description =

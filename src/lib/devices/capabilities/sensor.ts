@@ -6,7 +6,7 @@ import {
   PowerLoad as BasePowerLoad,
   RelativeHumidity,
   Temperature as BaseTemperature,
-} from "../../things/capabilities/sensors";
+} from "../../things/capabilities/sensors.js";
 
 /** Temperature, following the `temperature` property */
 export class Temperature extends BaseTemperature {

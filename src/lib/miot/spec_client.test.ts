@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 import {
@@ -13,7 +14,7 @@ import {
   type MockedFunction,
 } from "vitest";
 
-import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json";
+import p2008 from "../__fixtures__/miot/dreame.vacuum.p2008.json" with { type: "json" };
 
 import {
   DEFAULT_SNAPSHOT_PATH,
@@ -22,7 +23,9 @@ import {
   type MiotInstance,
   MiotSpecClient,
   pickInstance,
-} from "./spec_client";
+} from "./spec_client.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
@@ -309,7 +312,7 @@ describe("MiotSpecClient", () => {
 });
 
 test("the bundled snapshot is expected at <package root>/snapshots", () => {
-  const packageRoot = path.resolve(__dirname, "../../..");
+  const packageRoot = path.resolve(moduleDir, "../../..");
   expect(path.relative(packageRoot, DEFAULT_SNAPSHOT_PATH)).toBe(
     path.join("snapshots", "vacuum-specs.json.gz"),
   );

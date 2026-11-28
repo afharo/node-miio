@@ -1,7 +1,7 @@
-import { boolean } from "../../things/values";
-import type { ActionDefinition } from "../../things/action_metadata";
+import { boolean } from "../../things/values.js";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
-import { DeviceCapability } from "./device_capability";
+import { DeviceCapability } from "./device_capability.js";
 
 /** The LED of the device can be switched on and off (`set_led`), following the `led` property */
 export class SwitchableLED extends DeviceCapability {

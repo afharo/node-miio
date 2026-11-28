@@ -1,8 +1,8 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../../log";
-import { parseCallParams } from "../../params";
-import { runOnDevice } from "../../run_on_device";
+import { log } from "../../log.js";
+import { parseCallParams } from "../../params.js";
+import { runOnDevice } from "../../run_on_device.js";
 
 export const command = "call <idOrIp> <method> [params...]";
 export const description = "Call a raw method on a device";

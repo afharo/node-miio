@@ -5,9 +5,9 @@ import {
   RoborockError,
   RoborockLogin,
   saveRoborockSession,
-} from "../../../lib/roborock/index";
-import { log } from "../../log";
-import { prompt } from "../../prompt";
+} from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
+import { prompt } from "../../prompt.js";
 
 export const command = "login";
 export const description =

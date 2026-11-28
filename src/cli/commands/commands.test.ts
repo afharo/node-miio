@@ -10,19 +10,19 @@ import {
   type Mock,
 } from "vitest";
 
-import { log } from "../log";
-import { createFakeHandle } from "../../lib/test_utils.test.mock";
-import { Vacuum } from "../../lib/devices/vacuums/vacuum";
-import { deviceFinder } from "../device-finder";
+import { log } from "../log.js";
+import { createFakeHandle } from "../../lib/test_utils.test.mock.js";
+import { Vacuum } from "../../lib/devices/vacuums/vacuum.js";
+import { deviceFinder } from "../device-finder.js";
 
-import * as inspectCommand from "./inspect";
-import * as callCommand from "./protocol/call";
-import * as controlCommand from "./control";
-import * as configureCommand from "./configure";
-import * as tokensUpdateCommand from "./tokens/update";
+import * as inspectCommand from "./inspect.js";
+import * as callCommand from "./protocol/call.js";
+import * as controlCommand from "./control.js";
+import * as configureCommand from "./configure.js";
+import * as tokensUpdateCommand from "./tokens/update.js";
 
-vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }));
-vi.mock("../log", () => ({
+vi.mock("../device-finder.js", () => ({ deviceFinder: vi.fn() }));
+vi.mock("../log.js", () => ({
   log: {
     info: vi.fn(),
     plain: vi.fn(),

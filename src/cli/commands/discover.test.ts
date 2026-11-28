@@ -2,17 +2,17 @@ import { EventEmitter } from "node:events";
 
 import { describe, test, expect, beforeEach, vi, type Mock } from "vitest";
 
-import { log } from "../log";
-import { stopGracefully } from "../stop";
-import { tokens } from "../../lib/tokens";
-import { deviceFinder } from "../device-finder";
+import { log } from "../log.js";
+import { stopGracefully } from "../stop.js";
+import { tokens } from "../../lib/tokens.js";
+import { deviceFinder } from "../device-finder.js";
 
-import * as discover from "./discover";
+import * as discover from "./discover.js";
 
-vi.mock("../device-finder", () => ({ deviceFinder: vi.fn() }));
-vi.mock("../stop", () => ({ stopGracefully: vi.fn() }));
-vi.mock("../../lib/tokens", () => ({ tokens: { update: vi.fn() } }));
-vi.mock("../log", () => ({
+vi.mock("../device-finder.js", () => ({ deviceFinder: vi.fn() }));
+vi.mock("../stop.js", () => ({ stopGracefully: vi.fn() }));
+vi.mock("../../lib/tokens.js", () => ({ tokens: { update: vi.fn() } }));
+vi.mock("../log.js", () => ({
   log: {
     info: vi.fn(),
     plain: vi.fn(),

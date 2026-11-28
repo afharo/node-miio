@@ -1,11 +1,11 @@
 import { EventEmitter } from "node:events";
 
-import { Devices } from "../lib/discovery";
-import { connectToDevice } from "../lib/connect_to_device";
-import { Placeholder } from "../lib/placeholder";
-import { tokens } from "../lib/tokens";
-import type { Device } from "../lib/device";
-import type { SubDevice } from "../lib/devices/gateway/subdevice";
+import { Devices } from "../lib/discovery.js";
+import { connectToDevice } from "../lib/connect_to_device.js";
+import { Placeholder } from "../lib/placeholder.js";
+import { tokens } from "../lib/tokens.js";
+import type { Device } from "../lib/device.js";
+import type { SubDevice } from "../lib/devices/gateway/subdevice.js";
 
 const IP =
   /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;

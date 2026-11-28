@@ -1,9 +1,9 @@
-import { Cube, Switch, Switch1, Switch2, SwitchV2 } from "./controllers";
-import { CtrlLN1 } from "./ctrl_ln1";
-import { CtrlLN2 } from "./ctrl_ln2";
-import { CtrlNeutral1 } from "./ctrl_neutral1";
-import { CtrlNeutral2 } from "./ctrl_neutral2";
-import { Plug } from "./plug";
+import { Cube, Switch, Switch1, Switch2, SwitchV2 } from "./controllers.js";
+import { CtrlLN1 } from "./ctrl_ln1.js";
+import { CtrlLN2 } from "./ctrl_ln2.js";
+import { CtrlNeutral1 } from "./ctrl_neutral1.js";
+import { CtrlNeutral2 } from "./ctrl_neutral2.js";
+import { Plug } from "./plug.js";
 import {
   Magnet,
   MagnetAq2,
@@ -11,8 +11,8 @@ import {
   MotionSensorAq2,
   SensorHT,
   WeatherSensor,
-} from "./sensors";
-import type { SubDevice, SubDeviceInfo, SubDeviceParent } from "./subdevice";
+} from "./sensors.js";
+import type { SubDevice, SubDeviceInfo, SubDeviceParent } from "./subdevice.js";
 
 export type SubDeviceClass = new (
   parent: SubDeviceParent,

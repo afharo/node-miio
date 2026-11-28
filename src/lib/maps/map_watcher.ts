@@ -1,10 +1,10 @@
 import { EventEmitter } from "node:events";
 
-import { createDebug } from "../logger";
-import type { CloudServer, XiaomiCloud } from "../cloud/client";
-import { CloudSessionExpiredError } from "../cloud/errors";
+import { createDebug } from "../logger.js";
+import type { CloudServer, XiaomiCloud } from "../cloud/client.js";
+import { CloudSessionExpiredError } from "../cloud/errors.js";
 
-import type { MapPoint, RoborockMap } from "./roborock_map";
+import type { MapPoint, RoborockMap } from "./roborock_map.js";
 
 const debug = createDebug("miio:map-watcher");
 

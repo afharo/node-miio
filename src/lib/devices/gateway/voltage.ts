@@ -1,4 +1,4 @@
-import { BatteryLevel } from "../../things/capabilities/battery-level";
+import { BatteryLevel } from "../../things/capabilities/battery-level.js";
 
 const VOLTAGE_MIN = 2800;
 const VOLTAGE_MAX = 3300;

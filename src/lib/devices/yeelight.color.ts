@@ -1,14 +1,14 @@
-import { compose } from "../things/compose";
-import { Colorable } from "../things/capabilities/lights/colorable";
+import { compose } from "../things/compose.js";
+import { Colorable } from "../things/capabilities/lights/colorable.js";
 import {
   ColorTemperature,
   ColorFull,
-} from "../things/capabilities/lights/color-temperature";
-import { type LightChangeOptions } from "../things/capabilities/lights/light";
-import { color, type Color } from "../things/color";
-import { MiioApi } from "../device";
+} from "../things/capabilities/lights/color-temperature.js";
+import { type LightChangeOptions } from "../things/capabilities/lights/light.js";
+import { color, type Color } from "../things/color.js";
+import { MiioApi } from "../device.js";
 
-import { Yeelight, TEMPERATURE_RANGE, clampTemperature } from "./yeelight";
+import { Yeelight, TEMPERATURE_RANGE, clampTemperature } from "./yeelight.js";
 
 interface RGB {
   red: number;

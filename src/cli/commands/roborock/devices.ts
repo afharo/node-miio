@@ -1,13 +1,13 @@
 import type { CommandBuilder } from "yargs";
 
-import { maskToken } from "../../../lib/logger";
+import { maskToken } from "../../../lib/logger.js";
 import {
   loadRoborockSession,
   RoborockError,
   RoborockSessionExpiredError,
   RoborockWebApi,
-} from "../../../lib/roborock/index";
-import { log } from "../../log";
+} from "../../../lib/roborock/index.js";
+import { log } from "../../log.js";
 
 export const command = "devices";
 export const description =

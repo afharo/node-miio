@@ -1,18 +1,18 @@
-import { compose } from "../../things/compose";
-import { Contact, Motion } from "../../things/capabilities/sensors";
+import { compose } from "../../things/compose.js";
+import { Contact, Motion } from "../../things/capabilities/sensors.js";
 import {
   AtmosphericPressure,
   Humidity,
   Illuminance,
   Temperature,
-} from "../capabilities/sensor";
+} from "../capabilities/sensor.js";
 
 import {
   SubDevice,
   type SubDeviceInfo,
   type SubDeviceParent,
-} from "./subdevice";
-import { VoltageBattery } from "./voltage";
+} from "./subdevice.js";
+import { VoltageBattery } from "./voltage.js";
 
 /** Door and window sensor (`lumi.magnet`): closed when the magnet is close */
 export class Magnet extends compose(SubDevice, Contact, VoltageBattery) {

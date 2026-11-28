@@ -1,11 +1,11 @@
-import { compose } from "../../things/compose";
-import { MiioThing } from "../../things/thing";
-import { SwitchablePower } from "../../things/capabilities/power";
-import { Colorable } from "../../things/capabilities/lights/colorable";
-import { Dimmable } from "../../things/capabilities/lights/brightness";
-import { Light } from "../../things/capabilities/lights/light";
-import { color, type Color } from "../../things/color";
-import type { GatewayBasic } from "../gateway";
+import { compose } from "../../things/compose.js";
+import { MiioThing } from "../../things/thing.js";
+import { SwitchablePower } from "../../things/capabilities/power.js";
+import { Colorable } from "../../things/capabilities/lights/colorable.js";
+import { Dimmable } from "../../things/capabilities/lights/brightness.js";
+import { Light } from "../../things/capabilities/lights/light.js";
+import { color, type Color } from "../../things/color.js";
+import type { GatewayBasic } from "../gateway.js";
 
 interface RGB {
   red: number;

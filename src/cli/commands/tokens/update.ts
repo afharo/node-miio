@@ -1,7 +1,7 @@
 import type { CommandBuilder } from "yargs";
 
-import { log } from "../../log";
-import { runOnDevice } from "../../run_on_device";
+import { log } from "../../log.js";
+import { runOnDevice } from "../../run_on_device.js";
 
 export const command = "update <idOrIp>";
 export const description = "Update the token to use for the given device";

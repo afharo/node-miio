@@ -1,6 +1,6 @@
-import { tokens } from "./tokens";
-import type { DeviceApi } from "./device_info";
-import type { Protocol } from "./protocol";
+import { tokens } from "./tokens.js";
+import type { DeviceApi } from "./device_info.js";
+import type { Protocol } from "./protocol.js";
 
 export interface DeviceHandle {
   ref: { release: () => void };

@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 
-import { parseArgs, parseCallParams } from "./params";
+import { parseArgs, parseCallParams } from "./params.js";
 
 describe("parseCallParams", () => {
   test("no parameters", () => {

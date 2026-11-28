@@ -1,5 +1,5 @@
-import { decryptRc4, encryptRc4, signedNonce } from "./crypto";
-import type { FetchLike } from "./http";
+import { decryptRc4, encryptRc4, signedNonce } from "./crypto.js";
+import type { FetchLike } from "./http.js";
 
 export interface FakeRequest {
   method: string;

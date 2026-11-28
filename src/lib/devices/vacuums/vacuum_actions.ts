@@ -1,4 +1,4 @@
-import type { ActionDefinition } from "../../things/action_metadata";
+import type { ActionDefinition } from "../../things/action_metadata.js";
 
 /**
  * The actions of the vacuum classes. Each class declares the ones it supports with {@link vacuumActions}, so the same

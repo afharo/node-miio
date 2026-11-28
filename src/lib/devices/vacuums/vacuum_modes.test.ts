@@ -4,7 +4,7 @@ import {
   firmwareAtLeast,
   resolveVacuumModes,
   vacuumModels,
-} from "./vacuum_modes";
+} from "./vacuum_modes.js";
 
 const names = (model: string, firmware?: string) =>
   resolveVacuumModes(model, firmware).fanSpeeds.map((m) => m.name);

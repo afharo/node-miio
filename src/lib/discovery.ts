@@ -2,16 +2,16 @@ import util from "node:util";
 import dns from "node:dns";
 import EventEmitter from "node:events";
 
-import { network } from "./network";
-import { infoFromHostname } from "./info_from_hostname";
+import { network } from "./network.js";
+import { infoFromHostname } from "./info_from_hostname.js";
 import {
   connectToDevice,
   type ConnectToDeviceOptions,
-} from "./connect_to_device";
-import { createDebug, type DebugFn } from "./logger";
-import type { DeviceHandle } from "./management";
-import type { DeviceInfo } from "./device_info";
-import type { IDevice } from "./device";
+} from "./connect_to_device.js";
+import { createDebug, type DebugFn } from "./logger.js";
+import type { DeviceHandle } from "./management.js";
+import type { DeviceInfo } from "./device_info.js";
+import type { IDevice } from "./device.js";
 
 /** Something a discovery finds: it only needs an id */
 export interface Service {

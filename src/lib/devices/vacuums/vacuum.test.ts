@@ -1,17 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 
-import getStatus from "../../__fixtures__/roborock.vacuum.s5/get_status.json";
-import getConsumable from "../../__fixtures__/roborock.vacuum.s5/get_consumable.json";
+import getStatus from "../../__fixtures__/roborock.vacuum.s5/get_status.json" with { type: "json" };
+import getConsumable from "../../__fixtures__/roborock.vacuum.s5/get_consumable.json" with { type: "json" };
 import {
   createFakeHandle,
   type FakeResponse,
   sentCalls,
-} from "../../test_utils.test.mock";
+} from "../../test_utils.test.mock.js";
 
-import { MOP_ROUTES, Vacuum } from "./vacuum";
+import { MOP_ROUTES, Vacuum } from "./vacuum.js";
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock("debug", () => ({ default: vi.fn(() => vi.fn()) }));
 
@@ -662,7 +665,7 @@ describe("Vacuum (roborock miIO)", () => {
       const { vacuum } = createVacuum({ get_map_v1: ["robomap%2F1%2F2"] });
       const file = fs.readFileSync(
         path.join(
-          __dirname,
+          moduleDir,
           "../../__fixtures__/maps/roborock/S8_FW1286_with_obstacles.bin.gz",
         ),
       );
